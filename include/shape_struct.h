@@ -20,18 +20,29 @@
 // 
 
 
-/** @file epitaxy.h
-	@brief Read the epitaxy from the epitaxy.inp file.
+/** @file shape_struct.h
+	@brief A structure to hold shapes
 */
 
 
-#ifndef shape_h
-#define shape_h
+#ifndef shape_struct_h
+#define shape_struct_h
 #include "advmath.h"
 #include <sim_struct.h>
-#include <shape_struct.h>
 
-
-void shape_load(struct simulation *sim,struct epitaxy *in);
+struct shape
+{
+	long double dx;
+	long double dy;
+	long double dz;
+	int nx;
+	int nz;
+	char name[20];
+	char dos_file[20];
+	char optical_material[100];
+	long double x0;
+	long double z0;
+	int dos_index;
+};
 
 #endif

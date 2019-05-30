@@ -29,6 +29,7 @@
 #define epitaxy_h
 #include "advmath.h"
 #include <sim_struct.h>
+#include <shape_struct.h>
 
 struct epitaxy
 {
@@ -44,6 +45,8 @@ struct epitaxy
 	char shape_file[20][100];
 
 	char electrical_layer[20];
+	struct shape shapes[20];
+	int nshape;
 
 	struct istruct *mat;
 	struct istruct *mat_n;
@@ -61,4 +64,5 @@ int epitaxy_get_epitaxy_layer_using_electrical_pos(struct epitaxy *in,gdouble po
 void epitaxy_load_materials(struct simulation *sim,struct epitaxy *in);
 void epitaxy_free(struct epitaxy *in);
 void epitaxy_free_materials(struct epitaxy *in);
+void epitaxy_load_dos_files(struct simulation *sim,struct epitaxy *in, char *dos_file,char *pl_file,char *lumo_file,char *homo_file);
 #endif

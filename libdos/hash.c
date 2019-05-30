@@ -19,19 +19,31 @@
 // 
 // 
 
-
-/** @file epitaxy.h
-	@brief Read the epitaxy from the epitaxy.inp file.
+/** @file hash.c
+	@brief Hashing function for fast lookup in tables, but the arrays are now linear so you don't need to hash.
 */
 
+#include <stdio.h>
+#include "sim.h"
 
-#ifndef shape_h
-#define shape_h
-#include "advmath.h"
-#include <sim_struct.h>
-#include <shape_struct.h>
+int hashget(gdouble *x,int N,gdouble find)
+{
+static gdouble *x_=NULL;
+static gdouble find_=0.0;
+static int steps_=0.0;
+if (N==1) return 0;
+if ((x_==x)&&(find_==find)) return steps_;
+gdouble x0=x[0];
+gdouble x1=x[1];
+gdouble delta=find-x0;
+gdouble step=x1-x0;
+int steps=delta/step;
 
+if (steps>(N-2)) steps=N-2;
+if (steps<0) steps=0;
+x_=x;
+find_=find;
+steps_=steps;
+return steps;
+}
 
-void shape_load(struct simulation *sim,struct epitaxy *in);
-
-#endif
