@@ -36,6 +36,8 @@ struct epitaxy
 	int layers;
 	int electrical_layers;
 	gdouble width[20];
+	long double device_start;
+	long double y_pos[20];
 	char name[20][100];
 	char mat_file[20][100];
 	char dos_file[20][100];

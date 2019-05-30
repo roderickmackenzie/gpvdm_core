@@ -473,6 +473,7 @@ struct device
 	int dump_1d_slice_zpos;
 
 	long double flip_current;
+
 };
 
 void device_init(struct device *in);

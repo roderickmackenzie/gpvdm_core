@@ -19,31 +19,21 @@
 // 
 // 
 
-
-/** @file shape_struct.h
-	@brief A structure to hold shapes
+/** @file dump_ctrl.c
+@brief set/get what is allowed to be written to disk, writing to disk is bad.
 */
 
+#include <dump_ctrl.h>
+#include <const.h>
+#include <sim.h>
 
-#ifndef shape_struct_h
-#define shape_struct_h
-#include "advmath.h"
-#include <sim_struct.h>
-
-struct shape
+int get_dump_status(struct simulation *sim,int a)
 {
-	long double dx;
-	long double dy;
-	long double dz;
-	int nx;
-	int nz;
-	char name[20];
-	char dos_file[20];
-	char optical_material[100];
-	long double x0;
-	long double y0;
-	long double z0;
-	int dos_index;
-};
+	return sim->dump_array[a];
+}
 
-#endif
+void set_dump_status(struct simulation *sim,int name, int a)
+{
+if ((sim->dump_array[dump_lock]==FALSE)||(name==dump_lock)) sim->dump_array[name]=a;
+}
+

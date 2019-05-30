@@ -19,31 +19,25 @@
 // 
 // 
 
-
-/** @file shape_struct.h
-	@brief A structure to hold shapes
+/** @file interface.c
+	@brief Expoential light interface.
 */
 
 
-#ifndef shape_struct_h
-#define shape_struct_h
-#include "advmath.h"
-#include <sim_struct.h>
+#include <util.h>
+#include <device.h>
+#include <dump_ctrl.h>
+#include <light.h>
+#include <light_interface.h>
+#include <functions.h>
+#include "log.h"
 
-struct shape
+
+
+EXPORT void light_dll_init(struct simulation *sim)
 {
-	long double dx;
-	long double dy;
-	long double dz;
-	int nx;
-	int nz;
-	char name[20];
-	char dos_file[20];
-	char optical_material[100];
-	long double x0;
-	long double y0;
-	long double z0;
-	int dos_index;
-};
+printf_log(sim,"Light init\n");
+}
 
-#endif
+
+

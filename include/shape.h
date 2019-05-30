@@ -33,5 +33,6 @@
 
 
 void shape_load(struct simulation *sim,struct epitaxy *in);
+int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long double y,long double z);
 
 #endif

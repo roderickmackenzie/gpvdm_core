@@ -19,31 +19,20 @@
 // 
 // 
 
-
-/** @file shape_struct.h
-	@brief A structure to hold shapes
+/** @file interface.c
+	@brief Interface for flat optical profile solver.
 */
 
+#include <util.h>
+#include <device.h>
+#include <dump_ctrl.h>
+#include <light.h>
+#include <light_interface.h>
+#include <functions.h>
 
-#ifndef shape_struct_h
-#define shape_struct_h
-#include "advmath.h"
-#include <sim_struct.h>
 
-struct shape
+EXPORT void light_dll_init()
 {
-	long double dx;
-	long double dy;
-	long double dz;
-	int nx;
-	int nz;
-	char name[20];
-	char dos_file[20];
-	char optical_material[100];
-	long double x0;
-	long double y0;
-	long double z0;
-	int dos_index;
-};
 
-#endif
+}
+
