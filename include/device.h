@@ -88,7 +88,11 @@ struct device
 
 		//2D arrays
 		gdouble **Vapplied_r;
-		gdouble **Vapplied_l;		
+		gdouble **Vapplied_l;
+
+		int **passivate_r;
+		int **passivate_l;
+		
 		int **n_contact_r;
 		int **n_contact_l;
 		gdouble **Jnleft;
