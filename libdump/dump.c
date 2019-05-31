@@ -167,6 +167,68 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
+void buffer_add_3d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int ***data)
+{
+int x=0;
+int y=0;
+int z=0;
+
+gdouble xpos=0.0;
+gdouble ypos=0.0;
+gdouble zpos=0.0;
+
+char string[200];
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#data\n");
+	buffer_add_string(buf,string);
+}
+
+if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+{
+	for (z=0;z<in->zmeshpoints;z++)
+	{
+		for (x=0;x<in->xmeshpoints;x++)
+		{
+			for (y=0;y<in->ymeshpoints;y++)
+			{
+				sprintf(string,"%Le %Le %Le %d\n",in->xmesh[x],in->ymesh[y],in->zmesh[z],data[z][x][y]);
+				buffer_add_string(buf,string);
+			}
+		}
+	}
+}else
+if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+{
+	z=0;
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		for (y=0;y<in->ymeshpoints;y++)
+		{
+			sprintf(string,"%Le %Le %d\n",in->xmesh[x],in->ymesh[y],data[z][x][y]);
+			buffer_add_string(buf,string);
+		}
+		buffer_add_string(buf,"\n");
+	}
+}else
+{
+	x=0;
+	z=0;
+	for (y=0;y<in->ymeshpoints;y++)
+	{
+		sprintf(string,"%Le %d\n",in->ymesh[y],data[z][x][y]);
+		buffer_add_string(buf,string);
+	}
+}
+
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#end\n");
+	buffer_add_string(buf,string);
+}
+
+}
+
 void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double left,long double right)
 {
 int x=0;

@@ -60,4 +60,5 @@ void dumpfiles_turn_on_dir(struct simulation* sim,char *in);
 void dump_clean_cache_files(struct simulation* sim);
 void dump_make_snapshot_dir(struct simulation *sim,char *out_dir ,long double time,long double voltage, long double fx, int number);
 void dump_make_snapshot_dir_with_name(struct simulation *sim,char *out_dir ,long double time,long  double voltage, long double fx, int number,char *snapshot_name);
+void buffer_add_3d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int ***data);
 #endif

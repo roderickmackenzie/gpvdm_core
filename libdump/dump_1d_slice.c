@@ -1598,11 +1598,7 @@ buffer_init(&buf);
 	buf.y=in->ymeshpoints;
 	buf.z=in->zmeshpoints;
 	buffer_add_info(sim,&buf);
-	for (y=0;y<in->ymeshpoints;y++)
-	{
-		sprintf(temp,"%Le %d\n",in->ymesh[y], in->imat[z][x][y]);
-		buffer_add_string(&buf,temp);
-	}
+	buffer_add_3d_device_data_int(sim,&buf,in,in->imat);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
