@@ -1087,6 +1087,10 @@ int dump;
 inp_search_int(sim,&inp,&dump,"#dump_band_structure");
 set_dump_status(sim,dump_band_structure, dump);
 
+inp_search_string(sim,&inp,temp,"#dos_photon_generation");
+confige[mat].pl_enabled=english_to_bin(sim,temp);
+configh[mat].pl_enabled=confige[mat].pl_enabled;
+
 inp_free(sim,&inp);
 
 configh[mat].Xi=confige[mat].Xi;
@@ -1127,9 +1131,6 @@ if (strcmp(my_epitaxy->pl_file[mat],"none")!=0)
 
 	inp_search_gdouble(sim,&inp,&(configh[mat].pl_trap),"#pl_fh_th");
 
-	inp_search_string(sim,&inp,temp,"#pl_enabled");
-	confige[mat].pl_enabled=english_to_bin(sim,temp);
-	configh[mat].pl_enabled=confige[mat].pl_enabled;
 }else
 {
 	confige[mat].pl_fe_fh=0.0;
