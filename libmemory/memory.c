@@ -316,8 +316,8 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_zx_gdouble(in,&(in->Jpright));
 	malloc_zx_int(in,&(in->n_contact_r));
 	malloc_zx_int(in,&(in->n_contact_l));
-	malloc_zx_int(in,&(in->n_passivate_r));
-	malloc_zx_int(in,&(in->n_passivate_l));
+	malloc_zx_int(in,&(in->passivate_r));
+	malloc_zx_int(in,&(in->passivate_l));
 
 
 	//3d
