@@ -422,7 +422,9 @@ struct device
 	int dump_energy_slice_ypos;
 	int dump_energy_slice_zpos;
 
+	//pl
 	gdouble pl_intensity;
+	int pl_enabled;
 
 	gdouble Rext;
 	gdouble Cext;

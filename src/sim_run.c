@@ -130,7 +130,7 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 	char tempp[100];
 	i=0;
 
-
+	cell.pl_enabled=FALSE;
 	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
 	{
 		dos_init(&cell,i);
@@ -138,6 +138,10 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 		sprintf(tempn,"%s_dosn.dat",cell.my_epitaxy.dos_file[i]);
 		sprintf(tempp,"%s_dosp.dat",cell.my_epitaxy.dos_file[i]);
 		load_dos(sim,&cell,tempn,tempp,i);
+		if (cell.dosn[i].config.pl_enabled==TRUE)
+		{
+			cell.pl_enabled=TRUE;
+		}
 	}
 
 

@@ -374,9 +374,11 @@ FILE* out;
 		dumped=TRUE;
 	}
 
-	if (get_dump_status(sim,dump_pl)==TRUE)
+	if (in->pl_enabled==TRUE)
 	{
-		exp_cal_emission(sim,dump_number,in);
+		printf("%s\n",out_dir);
+		getchar();
+		exp_cal_emission(sim,out_dir,in);
 		dumped=TRUE;
 	}
 

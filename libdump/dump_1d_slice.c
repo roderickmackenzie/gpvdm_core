@@ -1345,7 +1345,7 @@ buffer_init(&buf);
 
 
 	buffer_malloc(&buf);
-	sprintf(name,"%s","Photon_gen.dat");
+	sprintf(name,"%s","emission_xyz.dat");
 	buf.y_mul=1e9;
 	buf.x_mul=1e9;
 	buf.z_mul=1e9;

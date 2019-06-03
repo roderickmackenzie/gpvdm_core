@@ -28,7 +28,7 @@
 #include <sim_struct.h>
 
 long double calculate_photon_energy(struct istruct* in);
-void exp_cal_emission(struct simulation *sim,int number,struct device *in);
+void exp_cal_emission(struct simulation *sim,char *out_dir,struct device *in);
 long double pl_get_light_energy();
 
 #endif

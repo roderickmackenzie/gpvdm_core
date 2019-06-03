@@ -122,9 +122,6 @@ void dump_load_config(struct simulation* sim,struct device *in)
 	dump=inp_search_english(sim,&inp,"#dump_print_pos_error");
 	set_dump_status(sim,dump_print_pos_error, dump);
 
-	dump=inp_search_english(sim,&inp,"#dump_pl");
-	set_dump_status(sim,dump_pl, dump);
-
 	dump=inp_search_english(sim,&inp,"#dump_zip_files");
 	set_dump_status(sim,dump_zip_files, dump);
 

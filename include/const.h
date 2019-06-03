@@ -101,7 +101,6 @@
 #define dump_1d_slices 18
 #define dump_print_pos_error 19
 #define dump_optics_verbose 20
-#define dump_pl 21
 #define dump_dynamic 22
 #define dump_norm_y_axis 24
 #define dump_write_out_band_structure 25
