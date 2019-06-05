@@ -1,5 +1,5 @@
 // 
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
 // 
@@ -16,6 +16,7 @@
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
+// 
 // 
 // 
 
