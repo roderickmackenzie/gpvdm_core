@@ -81,6 +81,6 @@ void buffer_dump_aes(char *path,char * file,struct buffer *in,char *key_text);
 void buffer_add_xy_data_z_label(struct buffer *in,gdouble *x, gdouble *y, gdouble *z, int len);
 void buffer_dump_cache(struct simulation *sim,char * file,struct buffer *in);
 void buffer_add_dir(struct simulation *sim,char * file_name);
-void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double left,long double right);
-
+void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double **left,long double **right);
+void buffer_add_2d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int **data);
 #endif

@@ -229,7 +229,57 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double left,long double right)
+void buffer_add_2d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int **data)
+{
+int x=0;
+int z=0;
+
+gdouble xpos=0.0;
+gdouble zpos=0.0;
+
+char string[200];
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#data\n");
+	buffer_add_string(buf,string);
+}
+
+if ((in->xmeshpoints>1)&&(in->zmeshpoints>1))
+{
+	for (z=0;z<in->zmeshpoints;z++)
+	{
+		for (x=0;x<in->xmeshpoints;x++)
+		{
+				sprintf(string,"%Le %Le %d\n",in->xmesh[x],in->zmesh[z],data[z][x]);
+				buffer_add_string(buf,string);
+		}
+
+		buffer_add_string(buf,"\n");
+	}
+}else
+if ((in->xmeshpoints>1))
+{
+	z=0;
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		sprintf(string,"%Le %d\n",in->xmesh[x],data[z][x]);
+		buffer_add_string(buf,string);
+	}
+}else
+{
+	sprintf(string,"%Le %d\n",in->ymesh[0],data[0][0]);
+	buffer_add_string(buf,string);
+}
+
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#end\n");
+	buffer_add_string(buf,string);
+}
+
+}
+
+void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double **left,long double **right)
 {
 int x=0;
 int y=0;
@@ -253,7 +303,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
 	{
 		for (x=0;x<in->xmeshpoints;x++)
 		{
-			sprintf(string,"%Le %Le %Le\n",in->xmesh[x],(long double)0.0,left);
+			sprintf(string,"%Le %Le %Le\n",in->xmesh[x],(long double)0.0,left[z][x]);
 			buffer_add_string(buf,string);
 
 			for (y=0;y<in->ymeshpoints;y++)
@@ -262,7 +312,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
 				buffer_add_string(buf,string);
 			}
 
-			sprintf(string,"%Le %Le %Le\n",in->xmesh[x],in->ylen,right);
+			sprintf(string,"%Le %Le %Le\n",in->xmesh[x],in->ylen,right[z][x]);
 			buffer_add_string(buf,string);
 
 		}
@@ -273,7 +323,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 	z=0;
 	for (x=0;x<in->xmeshpoints;x++)
 	{
-		sprintf(string,"%Le %Le %Le\n",in->xmesh[x],(long double)0.0,left);
+		sprintf(string,"%Le %Le %Le\n",in->xmesh[x],(long double)0.0,left[z][x]);
 		buffer_add_string(buf,string);
 
 		for (y=0;y<in->ymeshpoints;y++)
@@ -282,7 +332,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 			buffer_add_string(buf,string);
 		}
 
-		sprintf(string,"%Le %Le %Le\n",in->xmesh[x],in->ylen,right);
+		sprintf(string,"%Le %Le %Le\n",in->xmesh[x],in->ylen,right[z][x]);
 		buffer_add_string(buf,string);
 
 		buffer_add_string(buf,"\n");
@@ -291,7 +341,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 {
 	x=0;
 	z=0;
-	sprintf(string,"%Le %Le\n",(long double)0.0,left);
+	sprintf(string,"%Le %Le\n",(long double)0.0,left[z][x]);
 	buffer_add_string(buf,string);
 
 	for (y=0;y<in->ymeshpoints;y++)
@@ -300,7 +350,7 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 		buffer_add_string(buf,string);
 	}
 
-	sprintf(string,"%Le %Le\n",in->ylen,right);
+	sprintf(string,"%Le %Le\n",in->ylen,right[z][x]);
 	buffer_add_string(buf,string);
 
 }
@@ -376,8 +426,6 @@ FILE* out;
 
 	if (in->pl_enabled==TRUE)
 	{
-		printf("%s\n",out_dir);
-		getchar();
 		exp_cal_emission(sim,out_dir,in);
 		dumped=TRUE;
 	}

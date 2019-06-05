@@ -378,10 +378,10 @@ struct device
 	gdouble lcharge;
 	gdouble rcharge;
 
-	gdouble l_electrons;
-	gdouble l_holes;
-	gdouble r_electrons;
-	gdouble r_holes;
+	long double **l_electrons;
+	long double **l_holes;
+	long double **r_electrons;
+	long double **r_holes;
 
 
 	int dumpitdos;

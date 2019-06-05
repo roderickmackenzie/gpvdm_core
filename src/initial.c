@@ -280,11 +280,16 @@ gdouble Ln=get_n_den(in,Ef-(-in->Xi[0][0][0]-in->phi[0][0][0]),in->Te[0][0][0],i
 gdouble Rp=get_p_den(in,(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
 gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi),in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
 
-in->l_electrons=Ln;
-in->l_holes=Lp;
-in->r_electrons=Rn;
-in->r_holes=Rp;
-
+for (z=0;z<in->zmeshpoints;z++)
+{
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		in->l_electrons[z][x]=Ln;
+		in->l_holes[z][x]=Lp;
+		in->r_electrons[z][x]=Rn;
+		in->r_holes[z][x]=Rp;
+	}
+}
 printf_log(sim,"Lp = %Le\n",Lp);
 printf_log(sim,"Ln = %Le\n",Ln);
 printf_log(sim,"Rp = %Le\n",Rp);

@@ -179,6 +179,8 @@ void contacts_load(struct simulation *sim,struct device *in)
 
 	in->lcharge=contacts_get_lcharge(sim,in);
 	in->rcharge=contacts_get_rcharge(sim,in);
+
+
 }
 
 void contacts_force_to_zero(struct simulation *sim,struct device *in)
@@ -226,9 +228,11 @@ if (in->xmeshpoints==1)
 {
 	for (z=0;z<in->zmeshpoints;z++)
 	{
+		in->passivate_r[z][0]=FALSE;
+		in->passivate_l[z][0]=FALSE;
 		for (i=0;i<in->ncontacts;i++)
 		{
-			if (in->contacts[i].position==TOP)
+			if ((in->contacts[i].position==TOP)&&(in->contacts[i].active==TRUE))
 			{
 				in->Vapplied_l[z][0]=in->contacts[i].voltage;
 			}else
@@ -248,27 +252,52 @@ for (z=0;z<in->zmeshpoints;z++)
 {
 	for (x=0;x<in->xmeshpoints;x++)
 	{
+		in->Vapplied_l[z][x]=0.0;
 		in->Vapplied_r[z][x]=0.0;
-		in->n_contact_r[z][x]=-1;
 
-		for (i=0;i<in->ncontacts;i++)
+		in->n_contact_r[z][x]=-1;
+		in->n_contact_l[z][x]=-1;
+
+		in->passivate_r[z][x]=TRUE;
+		in->passivate_l[z][x]=TRUE;
+	}
+}
+
+for (i=0;i<in->ncontacts;i++)
+{
+	for (z=0;z<in->zmeshpoints;z++)
+	{
+		for (x=0;x<in->xmeshpoints;x++)
 		{
 			if ((in->xmesh[x]>=in->contacts[i].start)&&(in->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 			{
+
 				if (in->contacts[i].position==TOP)
 				{
+					if (in->n_contact_l[z][x]!=-1)
+					{
+						ewe(sim,"You have overlapping contacts\n");
+					}
+
 					in->Vapplied_l[z][x]=in->contacts[i].voltage;
 					in->n_contact_l[z][x]=i;
+					in->passivate_l[z][x]=FALSE;
 				}else
 				{
+					if (in->n_contact_r[z][x]!=-1)
+					{
+						ewe(sim,"You have overlapping contacts\n");
+					}
+
 					in->Vapplied_r[z][x]=in->contacts[i].voltage;
 					in->n_contact_r[z][x]=i;
+					in->passivate_r[z][x]=FALSE;
 				}
 			}
 		}
-
-
 	}
+
+
 }
 
 }
