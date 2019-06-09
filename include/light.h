@@ -56,6 +56,7 @@ gdouble **E_tot_r;
 gdouble **E_tot_i;
 gdouble **H;
 gdouble *reflect;
+gdouble *transmit;
 int *layer;
 gdouble *sun_E;
 gdouble *H1d;

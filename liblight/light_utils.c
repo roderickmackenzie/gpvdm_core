@@ -140,6 +140,8 @@ if (in->disable_cal_photon_density==FALSE)
 	for (i=0;i<in->lpoints;i++)
 	{
 		in->reflect[i]=(gpow(in->En[i][0],2.0)+gpow(in->Enz[i][0],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
+		in->transmit[i]=(gpow(in->Ep[i][in->points-1],2.0)+gpow(in->Epz[i][in->points-1],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
+
 	}
 
 	}

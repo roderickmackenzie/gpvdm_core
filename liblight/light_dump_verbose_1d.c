@@ -36,7 +36,9 @@
 
 void light_dump_verbose_1d(struct simulation *sim,struct light *in, int i,char *ext)
 {
+	return;
 	char line[1024];
+	char temp[1024];
 	int ii=0;
 	//int max=0;
 	struct buffer data_photons;
@@ -50,10 +52,13 @@ void light_dump_verbose_1d(struct simulation *sim,struct light *in, int i,char *
 	struct buffer data_n;
 	struct buffer data_alpha;
 
+	struct buffer buf;
+
 	buffer_init(&data_light_1d_Ep);
 	buffer_init(&data_light_1d_En);
 	buffer_init(&data_pointing);
 	buffer_init(&data_E_tot);
+	buffer_init(&buf);
 
 	buffer_init(&data_r);
 	buffer_init(&data_t);
@@ -146,5 +151,107 @@ void light_dump_verbose_1d(struct simulation *sim,struct light *in, int i,char *
 	buffer_free(&data_t);
 	buffer_free(&data_n);
 	buffer_free(&data_alpha);
+
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"|Electric field| vs position");
+	strcpy(buf.type,"xy");
+	strcpy(buf.x_label,_("Position"));
+	strcpy(buf.data_label,_("|Electric field|"));
+	strcpy(buf.x_units,"nm");
+	strcpy(buf.data_units,"V/m");
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->points;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
+
+	sprintf(temp,"#data\n");
+	buffer_add_string(&buf,temp);
+
+	for (ii=0;ii<in->points;ii++)
+	{
+		sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gpow(gpow(in->Ep[i][ii]+in->En[i][ii],2.0)+gpow(in->Enz[i][ii]+in->Epz[i][ii],2.0),0.5));
+		buffer_add_string(&buf,line);
+	}
+
+
+	sprintf(temp,"#end\n");
+	buffer_add_string(&buf,temp);
+
+	sprintf(temp,"light_1d_%.0Lf_E%s.dat",in->l[i]*1e9,ext);
+	buffer_dump_path(sim,in->dump_dir,temp,&buf);
+	buffer_free(&buf);
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Transmittance vs position");
+	strcpy(buf.type,"xy");
+	strcpy(buf.x_label,_("Position"));
+	strcpy(buf.data_label,_("Transmittance"));
+	strcpy(buf.x_units,"nm");
+	strcpy(buf.data_units,"au");
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->points;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
+
+	sprintf(temp,"#data\n");
+	buffer_add_string(&buf,temp);
+
+	for (ii=0;ii<in->points;ii++)
+	{
+		sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gcabs(in->t[i][ii]));
+		buffer_add_string(&buf,line);
+	}
+
+
+	sprintf(temp,"#end\n");
+	buffer_add_string(&buf,temp);
+
+	sprintf(temp,"light_1d_%.0Lf_t%s.dat",in->l[i]*1e9,ext);
+	buffer_dump_path(sim,in->dump_dir,temp,&buf);
+	buffer_free(&buf);
+
+
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Reflectance vs position");
+	strcpy(buf.type,"xy");
+	strcpy(buf.x_label,_("Position"));
+	strcpy(buf.data_label,_("Reflectance"));
+	strcpy(buf.x_units,"nm");
+	strcpy(buf.data_units,"au");
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->points;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
+
+	sprintf(temp,"#data\n");
+	buffer_add_string(&buf,temp);
+
+	for (ii=0;ii<in->points;ii++)
+	{
+		sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gcabs(in->r[i][ii]));
+		buffer_add_string(&buf,line);
+	}
+
+
+	sprintf(temp,"#end\n");
+	buffer_add_string(&buf,temp);
+
+	sprintf(temp,"light_1d_%.0Lf_r%s.dat",in->l[i]*1e9,ext);
+	buffer_dump_path(sim,in->dump_dir,temp,&buf);
+	buffer_free(&buf);
 
 }

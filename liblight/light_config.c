@@ -96,7 +96,7 @@ void light_load_config_file(struct simulation *sim,struct light *in)
 
 	in->disable_transfer_to_electrical_mesh=FALSE;
 
-	join_path(2,path_temp,get_output_path(sim),"light_dump");
+	join_path(2,path_temp,get_output_path(sim),"optical_output");
 	remove_dir(sim,path_temp);
 
 	join_path(2,in->config_file,get_output_path(sim),"light.inp");

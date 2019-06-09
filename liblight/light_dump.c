@@ -41,7 +41,8 @@ FILE *out;
 char out_dir[1024];
 int i;
 
-	sprintf(out_dir,"%s/light_dump/",get_output_path(sim));
+	join_path(2,out_dir,get_output_path(sim),"optical_output");
+	//sprintf(out_dir,"%s/optical_output/",get_output_path(sim));
 	struct stat st = {0};
 
 	if (stat(out_dir, &st) == -1)
@@ -341,9 +342,9 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buf.x_mul=1e9;
 		strcpy(buf.title,"Wavelength - Reflected light");
 		strcpy(buf.type,"xy");
-		strcpy(buf.x_label,"Wavelength");
+		strcpy(buf.y_label,"Wavelength");
 		strcpy(buf.data_label,"Reflected light");
-		strcpy(buf.x_units,"nm");
+		strcpy(buf.y_units,"nm");
 		strcpy(buf.data_units,"a.u.");
 		buf.logscale_x=0;
 		buf.logscale_y=0;
@@ -352,7 +353,26 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buf.z=1;
 		buffer_add_info(sim,&buf);
 		buffer_add_xy_data(sim,&buf,in->l, in->reflect, in->lpoints);
-		buffer_dump_path(sim,in->dump_dir,"reflect.dat",&buf);
+		buffer_dump_path(sim,get_output_path(sim),"reflect.dat",&buf);
+		buffer_free(&buf);
+
+		buffer_malloc(&buf);
+		buf.y_mul=1.0;
+		buf.x_mul=1e9;
+		strcpy(buf.title,"Wavelength - Transmitted light");
+		strcpy(buf.type,"xy");
+		strcpy(buf.y_label,"Wavelength");
+		strcpy(buf.data_label,"Transmitted light");
+		strcpy(buf.y_units,"nm");
+		strcpy(buf.data_units,"a.u.");
+		buf.logscale_x=0;
+		buf.logscale_y=0;
+		buf.x=1;
+		buf.y=in->lpoints;
+		buf.z=1;
+		buffer_add_info(sim,&buf);
+		buffer_add_xy_data(sim,&buf,in->l, in->transmit, in->lpoints);
+		buffer_dump_path(sim,get_output_path(sim),"transmit.dat",&buf);
 		buffer_free(&buf);
 
 	}
@@ -424,109 +444,6 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buffer_add_string(&buf,temp);
 
 		sprintf(name,"light_1d_%.0Lf_layer%s.dat",in->l[i]*1e9,ext);
-		buffer_dump_path(sim,in->dump_dir,name,&buf);
-		buffer_free(&buf);
-
-
-		buffer_malloc(&buf);
-		buf.y_mul=1.0;
-		buf.x_mul=1e9;
-		strcpy(buf.title,"|Electric field| vs position");
-		strcpy(buf.type,"xy");
-		strcpy(buf.x_label,_("Position"));
-		strcpy(buf.data_label,_("|Electric field|"));
-		strcpy(buf.x_units,"nm");
-		strcpy(buf.data_units,"V/m");
-		buf.logscale_x=0;
-		buf.logscale_y=0;
-		buf.x=1;
-		buf.y=in->points;
-		buf.z=1;
-		buffer_add_info(sim,&buf);
-
-		sprintf(temp,"#data\n");
-		buffer_add_string(&buf,temp);
-	
-		for (ii=0;ii<in->points;ii++)
-		{
-			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gpow(gpow(in->Ep[i][ii]+in->En[i][ii],2.0)+gpow(in->Enz[i][ii]+in->Epz[i][ii],2.0),0.5));
-			buffer_add_string(&buf,line);
-		}
-
-
-		sprintf(temp,"#end\n");
-		buffer_add_string(&buf,temp);
-
-		sprintf(name,"light_1d_%.0Lf_E%s.dat",in->l[i]*1e9,ext);
-		buffer_dump_path(sim,in->dump_dir,name,&buf);
-		buffer_free(&buf);
-
-
-		buffer_malloc(&buf);
-		buf.y_mul=1.0;
-		buf.x_mul=1e9;
-		strcpy(buf.title,"Transmittance vs position");
-		strcpy(buf.type,"xy");
-		strcpy(buf.x_label,_("Position"));
-		strcpy(buf.data_label,_("Transmittance"));
-		strcpy(buf.x_units,"nm");
-		strcpy(buf.data_units,"au");
-		buf.logscale_x=0;
-		buf.logscale_y=0;
-		buf.x=1;
-		buf.y=in->points;
-		buf.z=1;
-		buffer_add_info(sim,&buf);
-
-		sprintf(temp,"#data\n");
-		buffer_add_string(&buf,temp);
-	
-		for (ii=0;ii<in->points;ii++)
-		{
-			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gcabs(in->t[i][ii]));
-			buffer_add_string(&buf,line);
-		}
-
-
-		sprintf(temp,"#end\n");
-		buffer_add_string(&buf,temp);
-
-		sprintf(name,"light_1d_%.0Lf_t%s.dat",in->l[i]*1e9,ext);
-		buffer_dump_path(sim,in->dump_dir,name,&buf);
-		buffer_free(&buf);
-
-
-
-		buffer_malloc(&buf);
-		buf.y_mul=1.0;
-		buf.x_mul=1e9;
-		strcpy(buf.title,"Reflectance vs position");
-		strcpy(buf.type,"xy");
-		strcpy(buf.x_label,_("Position"));
-		strcpy(buf.data_label,_("Reflectance"));
-		strcpy(buf.x_units,"nm");
-		strcpy(buf.data_units,"au");
-		buf.logscale_x=0;
-		buf.logscale_y=0;
-		buf.x=1;
-		buf.y=in->points;
-		buf.z=1;
-		buffer_add_info(sim,&buf);
-
-		sprintf(temp,"#data\n");
-		buffer_add_string(&buf,temp);
-	
-		for (ii=0;ii<in->points;ii++)
-		{
-			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,gcabs(in->r[i][ii]));
-			buffer_add_string(&buf,line);
-		}
-
-
-		sprintf(temp,"#end\n");
-		buffer_add_string(&buf,temp);
-
-		sprintf(name,"light_1d_%.0Lf_r%s.dat",in->l[i]*1e9,ext);
 		buffer_dump_path(sim,in->dump_dir,name,&buf);
 		buffer_free(&buf);
 

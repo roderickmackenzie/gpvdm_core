@@ -98,6 +98,8 @@ int i;
 	}
 
 	in->reflect=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
+	in->transmit=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
+
 	in->extract_eff=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
 
 	for (i=0;i<in->lpoints;i++)
@@ -176,6 +178,7 @@ void light_free_memory(struct simulation *sim,struct light *in)
 	free(in->n);
 	free(in->H);
 	free(in->reflect);
+	free(in->transmit);
 	free(in->extract_eff);
 
 	free(in->sun);
