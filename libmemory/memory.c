@@ -129,6 +129,10 @@ void device_free_traps(struct device *in)
 
 void device_free(struct simulation *sim,struct device *in)
 {
+	if (in->ymeshpoints==0)
+	{
+		return;
+	}
 
 	//1d
 	free(in->xmesh);
@@ -275,6 +279,16 @@ void device_free(struct simulation *sim,struct device *in)
 void device_get_memory(struct simulation *sim,struct device *in)
 {
 	in->odes = 0;
+	in->Ti = NULL;
+	in->Tj = NULL;
+	in->Tx = NULL;
+	in->b = NULL;
+	in->Tdebug = NULL;
+
+	if (in->ymeshpoints==0)
+	{
+		return;
+	}
 
 	if ((in->ymeshpoints<1)||(in->xmeshpoints<1)||(in->zmeshpoints<1))
 	{
@@ -286,11 +300,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 		ewe(sim,"%s\n",_("You are asking me to simulate a device with more than 50000 mesh points, although I could do this I am not going to because it seems a bad idea to me."));
 	}
 
-	in->Ti = NULL;
-	in->Tj = NULL;
-	in->Tx = NULL;
-	in->b = NULL;
-	in->Tdebug = NULL;
+
 
 	//1d
 	in->zmesh = (gdouble *) malloc(in->zmeshpoints * sizeof(gdouble));

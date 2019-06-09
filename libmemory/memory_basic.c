@@ -277,6 +277,11 @@ void free_3d_gdouble(struct device *in, gdouble ***var)
 	int y=0;
 	int z=0;
 
+	if (var==NULL)
+	{
+		return;
+	}
+
 	for (z = 0; z < in->zmeshpoints; z++)
 	{
 
@@ -309,6 +314,11 @@ void free_zx_gdouble(struct device *in, gdouble **var)
 {
 	int z=0;
 
+	if (var==NULL)
+	{
+		return;
+	}
+
 	for (z = 0; z < in->zmeshpoints; z++)
 	{
 		free(var[z]);
@@ -334,6 +344,11 @@ void malloc_zx_int(struct device *in, int * (**var))
 void free_zx_int(struct device *in, int **var)
 {
 	int z=0;
+
+	if (var==NULL)
+	{
+		return;
+	}
 
 	for (z = 0; z < in->zmeshpoints; z++)
 	{
@@ -370,6 +385,11 @@ void free_3d_int(struct device *in, int ***var)
 	int x=0;
 	int y=0;
 	int z=0;
+
+	if (var==NULL)
+	{
+		return;
+	}
 
 	for (z = 0; z < in->zmeshpoints; z++)
 	{

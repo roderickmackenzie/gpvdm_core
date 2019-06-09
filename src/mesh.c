@@ -287,6 +287,12 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 		ewe(sim,"%s",_("Direction wrong"));
 	}
 
+	//Don't continue if there are no points on the y mesh.
+	if (in->ymesh==0)
+	{
+		return;
+	}
+
 	len=0.0;
 	for (i=0;i<meshlayers;i++)
 	{
