@@ -35,6 +35,7 @@
 #include "hard_limit.h"
 #include "lang.h"
 #include "log.h"
+#include "memory.h"
 
 static int unused __attribute__((unused));
 
@@ -104,6 +105,7 @@ if (in->disable_cal_photon_density==FALSE)
 		tot=0.0;
 		H_tot=0.0;
 		photons_tot=0.0;
+
 		for (i=0;i<in->lpoints;i++)
 		{
 			in->E_tot_r[i][ii]=in->Ep[i][ii]+in->En[i][ii];
@@ -132,18 +134,33 @@ if (in->disable_cal_photon_density==FALSE)
 
 		}
 
-	in->Gn[ii]=tot;
-	in->Gp[ii]=tot;
-	in->H1d[ii]=H_tot;
-	in->photons_tot[ii]=photons_tot;
+		in->Gn[ii]=tot;
+		in->Gp[ii]=tot;
+		in->H1d[ii]=H_tot;
+		in->photons_tot[ii]=photons_tot;
 
-	for (i=0;i<in->lpoints;i++)
-	{
-		in->reflect[i]=(gpow(in->En[i][0],2.0)+gpow(in->Enz[i][0],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
-		in->transmit[i]=(gpow(in->Ep[i][in->points-1],2.0)+gpow(in->Epz[i][in->points-1],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
+		for (i=0;i<in->lpoints;i++)
+		{
+			in->reflect[i]=(gpow(in->En[i][0],2.0)+gpow(in->Enz[i][0],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
+			in->transmit[i]=(gpow(in->Ep[i][in->points-1],2.0)+gpow(in->Epz[i][in->points-1],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
+
+		}
 
 	}
 
+	if (in->flip_field==TRUE)
+	{
+		memory_flip_1d_long_double(in->Gn,in->points);
+		memory_flip_1d_long_double(in->Gp,in->points);
+		memory_flip_1d_long_double(in->H1d,in->points);
+		memory_flip_1d_long_double(in->photons_tot,in->points);
+
+		for (i=0;i<in->lpoints;i++)
+		{
+			memory_flip_1d_long_double(in->H[i],in->points);
+			memory_flip_1d_long_double(in->photons_asb[i],in->points);
+			memory_flip_1d_long_double(in->photons[i],in->points);
+		}
 	}
 
 }else
@@ -410,38 +427,24 @@ int y=0;
 
 gdouble Gn=0.0;
 gdouble Gp=0.0;
-
-	if (in->align_mesh==FALSE)
+long double pos=0;
+	for (y=0;y<cell->ymeshpoints;y++)
 	{
-		for (y=0;y<cell->ymeshpoints;y++)
-		{
+		pos=in->device_start+cell->ymesh[y];
 
-			Gn=inter_get_raw(in->x,in->Gn,in->points,in->device_start+cell->ymesh[y])*in->Dphotoneff;
-			Gp=inter_get_raw(in->x,in->Gp,in->points,in->device_start+cell->ymesh[y])*in->Dphotoneff;
-			for (z=0;z<cell->zmeshpoints;z++)
-			{
-				for (x=0;x<cell->xmeshpoints;x++)
-				{
-					cell->Gn[z][x][y]=Gn*in->electron_eff;
-					cell->Gp[z][x][y]=Gp*in->hole_eff;
-					cell->Habs[z][x][y]=0.0;
-				}
-			}
-		}
-	}else
-	{
+		Gn=inter_get_raw(in->x,in->Gn,in->points,pos)*in->Dphotoneff;
+		Gp=inter_get_raw(in->x,in->Gp,in->points,pos)*in->Dphotoneff;
 		for (z=0;z<cell->zmeshpoints;z++)
 		{
 			for (x=0;x<cell->xmeshpoints;x++)
 			{
-				for (y=0;y<cell->ymeshpoints;y++)
-				{
-					cell->Gn[z][x][y]=in->Gn[in->device_start_i+y]*in->Dphotoneff;
-					cell->Gp[z][x][y]=in->Gp[in->device_start_i+y]*in->Dphotoneff;
-				}
+				cell->Gn[z][x][y]=Gn*in->electron_eff;
+				cell->Gp[z][x][y]=Gp*in->hole_eff;
+				cell->Habs[z][x][y]=0.0;
 			}
 		}
 	}
+	
 
 }
 

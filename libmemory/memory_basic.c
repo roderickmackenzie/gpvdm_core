@@ -405,6 +405,46 @@ void free_3d_int(struct device *in, int ***var)
 
 }
 
+void memory_flip_1d_int(int *var,int len)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	int * data=malloc(sizeof(int)*len);
+	for (y=0;y<len;y++)
+	{
+		data[y]=var[len-1-y];
+	}
+
+	for (y=0;y<len;y++)
+	{
+		var[y]=data[y];
+	}
+
+	free(data);
+
+}
+
+void memory_flip_1d_long_double(long double *var,int len)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	long double * data=malloc(sizeof(long double)*len);
+	for (y=0;y<len;y++)
+	{
+		data[y]=var[len-1-y];
+	}
+
+	for (y=0;y<len;y++)
+	{
+		var[y]=data[y];
+	}
+
+	free(data);
+
+}
+
 void malloc_srh_bands(struct device *in, gdouble * (****var))
 {
 	int x=0;

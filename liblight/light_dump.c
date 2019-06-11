@@ -339,7 +339,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		buffer_malloc(&buf);
 		buf.y_mul=1.0;
-		buf.x_mul=1e9;
+		buf.y_mul=1e9;
 		strcpy(buf.title,"Wavelength - Reflected light");
 		strcpy(buf.type,"xy");
 		strcpy(buf.y_label,"Wavelength");
@@ -358,7 +358,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		buffer_malloc(&buf);
 		buf.y_mul=1.0;
-		buf.x_mul=1e9;
+		buf.y_mul=1e9;
 		strcpy(buf.title,"Wavelength - Transmitted light");
 		strcpy(buf.type,"xy");
 		strcpy(buf.y_label,"Wavelength");

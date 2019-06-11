@@ -35,6 +35,8 @@
 #include "hard_limit.h"
 #include "lang.h"
 #include "log.h"
+#include "memory.h"
+
 
 static int unused __attribute__((unused));
 
@@ -90,12 +92,25 @@ printf_log(sim,"init: mesh\n");
 	{
 		for (ii=0;ii<in->points;ii++)
 		{
+
 			in->alpha[i][ii]=inter_get_noend(&(my_epitaxy->mat[in->layer[ii]]),in->l[i]);
 			in->alpha0[i][ii]=in->alpha[i][ii];
 			in->n[i][ii]=inter_get_noend(&(my_epitaxy->mat_n[in->layer[ii]]),in->l[i]);
 
 		}
 	}
+
+	if (in->flip_field==TRUE)
+	{
+		for (i=0;i<in->lpoints;i++)
+		{
+			memory_flip_1d_long_double(in->alpha[i],in->points);
+			memory_flip_1d_long_double(in->alpha0[i],in->points);
+			memory_flip_1d_long_double(in->n[i],in->points);
+		}
+	}
+
+
 
 	light_calculate_complex_n(in);
 

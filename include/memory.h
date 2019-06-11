@@ -49,4 +49,9 @@ void three_d_printf(struct device *in, long double ***src);
 void three_d_set_gdouble(struct device *in, gdouble ***var, gdouble val);
 void three_d_sub_gdouble(struct device *in, gdouble ***var, gdouble ***sub);
 void three_d_add_gdouble(struct device *in, gdouble ***var, gdouble ***add);
+
+void memory_flip_1d_long_double(long double *var,int len);
+void memory_flip_1d_int(int *var,int len);
+
+void malloc_srh_bands(struct device *in, gdouble * (****var));
 #endif
