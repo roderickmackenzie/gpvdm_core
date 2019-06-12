@@ -5,7 +5,7 @@ COMPILE_FLAG=@COMPILE_FLAG@
 LINK_FLAG=@LINK_FLAG@
 
 inc=-I../include/
-OBJS=time.o
+OBJS=time.o mesh.o
 
 all: $(OBJS)
 	$(AR) rcs libgpvdm_mesh.@SLIB_EXT@ $(OBJS)

@@ -551,7 +551,7 @@ inter_free(&lv);
 inter_free(&lj);
 inter_free(&klist);
 
-dump_dynamic_save(sim,get_output_path(sim),&store);
+dump_dynamic_save(sim,in,get_output_path(sim),&store);
 dump_dynamic_free(sim,in,&store);
 
 

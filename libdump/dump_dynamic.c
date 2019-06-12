@@ -90,7 +90,10 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	inter_init(sim,&(store->E_field));
 	inter_init(sim,&(store->dynamic_Vapplied));
 	inter_init(sim,&(store->dynamic_charge_tot));
-	inter_init(sim,&(store->dynamic_pl));
+	if (in->pl_enabled==TRUE)
+	{
+		inter_init(sim,&(store->dynamic_pl));
+	}
 	inter_init(sim,&(store->dynamic_jn_drift));
 	inter_init(sim,&(store->dynamic_jn_diffusion));
 
@@ -125,7 +128,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 }
 }
 
-void dump_dynamic_save(struct simulation *sim,char *outputpath,struct dynamic_store *store)
+void dump_dynamic_save(struct simulation *sim,struct device *in,char *outputpath,struct dynamic_store *store)
 {
 int i;
 int sub=TRUE;
@@ -155,7 +158,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	char outpath[200];
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->jnout_mid).x, (store->jnout_mid).data, (store->jnout_mid).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jn_mid.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_mid.dat",&buf);
 	buffer_free(&buf);
 
 	struct istruct one;
@@ -163,31 +166,31 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	inter_deriv(&one,&(store->jnout_mid));
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,one.x, one.data, one.len);
-	buffer_dump_path(sim,out_dir,"dynamic_djn.dat",&buf);
+	buffer_dump_path(sim,out_dir,"djn.dat",&buf);
 	buffer_free(&buf);
 	inter_free(&one);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->jpout_mid).x, (store->jpout_mid).data, (store->jpout_mid).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jp_mid.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_mid.dat",&buf);
 	buffer_free(&buf);
 
 	inter_copy(&one,&(store->jpout_mid),TRUE);
 	inter_deriv(&one,&(store->jpout_mid));
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,one.x, one.data, one.len);
-	buffer_dump_path(sim,out_dir,"dynamic_djp.dat",&buf);
+	buffer_dump_path(sim,out_dir,"djp.dat",&buf);
 	buffer_free(&buf);
 	inter_free(&one);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s + %s",_("Hole drift current"),_(" Hole diffusion current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,"Time");
+	strcpy(buf.y_label,"Time");
 	strcpy(buf.data_label,"Hole current density");
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -201,17 +204,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		sprintf(temp,"%Le %Le\n",(store->dynamic_jp_drift).x[i],(store->dynamic_jp_drift).data[i]+(store->dynamic_jp_diffusion).data[i]);
 		buffer_add_string(&buf,temp);
 	}
-	buffer_dump_path(sim,out_dir,"dynamic_jp_drift_plus_diffusion.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_drift_plus_diffusion.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s + %s",_("Electron drift current"),_("Electron diffusion current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -224,17 +227,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		sprintf(temp,"%Le %Le\n",(store->dynamic_jn_drift).x[i],(store->dynamic_jn_drift).data[i]+(store->dynamic_jn_diffusion).data[i]);
 		buffer_add_string(&buf,temp);
 	}
-	buffer_dump_path(sim,out_dir,"dynamic_jn_drift_plus_diffusion.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_drift_plus_diffusion.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Current density at contacts"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -248,17 +251,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		inter_mul(&(store->jout),-1.0);
 	}
 	buffer_add_xy_data(sim,&buf,(store->jout).x, (store->jout).data, (store->jout).len);
-	buffer_dump_path(sim,out_dir,"dynamic_j.dat",&buf);
+	buffer_dump_path(sim,out_dir,"j.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Change in charge distribution"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("percent"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"\\%");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -267,17 +270,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->charge_change).x, (store->charge_change).data, (store->charge_change).len);
-	buffer_dump_path(sim,out_dir,"dynamic_charge_change.dat",&buf);
+	buffer_dump_path(sim,out_dir,"charge_change.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s",_("Electron drift current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -286,17 +289,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jn_drift).x, (store->dynamic_jn_drift).data, (store->dynamic_jn_drift).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jn_drift.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_drift.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Electron diffusion current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -305,17 +308,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jn_diffusion).x, (store->dynamic_jn_diffusion).data, (store->dynamic_jn_diffusion).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jn_diffusion.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_diffusion.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s",_("Hole drift current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -324,17 +327,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jp_drift).x, (store->dynamic_jp_drift).data, (store->dynamic_jp_drift).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jp_drift.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_drift.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s",_("Hole diffusion current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -343,17 +346,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jp_diffusion).x, (store->dynamic_jp_diffusion).data, (store->dynamic_jp_diffusion).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jp_diffusion.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_diffusion.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s",_("Jn at contacts"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -362,17 +365,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jn).x, (store->dynamic_jn).data, (store->dynamic_jn).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jn_contacts.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_contacts.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Jp at contacts"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole current density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"A m^{-2}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -381,27 +384,27 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_jp).x, (store->dynamic_jp).data, (store->dynamic_jp).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jp_contacts.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_contacts.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->jn_avg).x, (store->jn_avg).data, (store->jn_avg).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jn_avg.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jn_avg.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->jp_avg).x, (store->jp_avg).data, (store->jp_avg).len);
-	buffer_dump_path(sim,out_dir,"dynamic_jp_avg.dat",&buf);
+	buffer_dump_path(sim,out_dir,"jp_avg.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("External Current"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Current"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"Amps");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -410,28 +413,28 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->iout).x, (store->iout).data, (store->iout).len);
-	join_path(3, outpath,outputpath,"dynamic","dynamic_i.dat");
+	join_path(3, outpath,outputpath,"dynamic","i.dat");
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->iout_left).x, (store->iout_left).data, (store->iout_left).len);
-	buffer_dump_path(sim,out_dir,"dynamic_i_left.dat",&buf);
+	buffer_dump_path(sim,out_dir,"i_left.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->iout_right).x, (store->iout_right).data, (store->iout_right).len);
-	buffer_dump_path(sim,out_dir,"dynamic_i_right.dat",&buf);
+	buffer_dump_path(sim,out_dir,"i_right.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Free carrier generation rate"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Generation rate"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -440,17 +443,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->gexout).x, (store->gexout).data, (store->gexout).len);
-	buffer_dump_path(sim,out_dir,"dynamic_gex.dat",&buf);
+	buffer_dump_path(sim,out_dir,"gex.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Dynamic quantum efficiency"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Percent"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"\%");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -459,23 +462,23 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_qe).x, (store->dynamic_qe).data, (store->dynamic_qe).len);
-	buffer_dump_path(sim,out_dir,"dynamic_qe.dat",&buf);
+	buffer_dump_path(sim,out_dir,"qe.dat",&buf);
 	buffer_free(&buf);
 
 
 	gdouble sum=inter_intergrate(&(store->nfree_to_ptrap));
-	FILE *out=fopen("dynamic_Rn_int.dat","w");
+	FILE *out=fopen("Rn_int.dat","w");
 	fprintf(out,"%Le",sum);
 	fclose(out);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Free hole recombination"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Recombination"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -484,18 +487,18 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->pfree_to_ntrap).x, (store->pfree_to_ntrap).data,(store->pfree_to_ntrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pf_to_nt.dat",&buf);
+	buffer_dump_path(sim,out_dir,"pf_to_nt.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Free electron recombination"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Recombination"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -504,19 +507,19 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->nfree_to_ptrap).x, (store->nfree_to_ptrap).data,(store->nfree_to_ptrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_nf_to_pt.dat",&buf);
+	buffer_dump_path(sim,out_dir,"nf_to_pt.dat",&buf);
 	buffer_free(&buf);
 
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s - %s",_("Free electron loss"),_("time"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Free electron loss"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -525,18 +528,18 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->Rnout).x, (store->Rnout).data, (store->Rnout).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Rn.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Rn.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	sprintf(buf.title,"%s - %s",_("Free hole loss"),_("time"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Free hole loss"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -545,11 +548,11 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->Rpout).x, (store->Rpout).data, (store->Rpout).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Rp.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Rp.dat",&buf);
 	buffer_free(&buf);
 
 	sum=inter_intergrate(&(store->pfree_to_ntrap));
-	out=fopen("dynamic_Rp_int.dat","w");
+	out=fopen("Rp_int.dat","w");
 	fprintf(out,"%Le",sum);
 	fclose(out);
 
@@ -558,7 +561,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->nfree_to_ptrap).x, (store->nfree_to_ptrap).data, (store->nfree_to_ptrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Rn_cumulative.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Rn_cumulative.dat",&buf);
 	buffer_free(&buf);
 
 	inter_make_cumulative(&(store->pfree_to_ntrap));
@@ -566,18 +569,18 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->pfree_to_ntrap).x, (store->pfree_to_ntrap).data, (store->pfree_to_ntrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Rp_cumulative.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Rp_cumulative.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Electron relaxation"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Relaxation"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -586,17 +589,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->nrelax_out).x, (store->nrelax_out).data, (store->nrelax_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_nrelax.dat",&buf);
+	buffer_dump_path(sim,out_dir,"nrelax.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	strcpy(buf.title,_("Hole relaxation"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Relaxation"));
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -605,17 +608,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->prelax_out).x, (store->prelax_out).data, (store->prelax_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_prelax.dat",&buf);
+	buffer_dump_path(sim,out_dir,"prelax.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Trapped electron density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron density"));
-	strcpy(buf.x_units,"$\\mu s$");
+	strcpy(buf.y_units,"$\\mu s$");
 	strcpy(buf.data_units,"$m^{-3}$");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -624,17 +627,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->ntrap).x, (store->ntrap).data, (store->ntrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_nt.dat",&buf);
+	buffer_dump_path(sim,out_dir,"nt.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Trapped hole density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -643,17 +646,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->ptrap).x, (store->ptrap).data, (store->ptrap).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pt.dat",&buf);
+	buffer_dump_path(sim,out_dir,"pt.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Free electron density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -662,17 +665,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->nfree).x, (store->nfree).data, (store->nfree).len);
-	buffer_dump_path(sim,out_dir,"dynamic_nf.dat",&buf);
+	buffer_dump_path(sim,out_dir,"nf.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Free hole density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -681,53 +684,53 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->pfree).x, (store->pfree).data, (store->pfree).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pf.dat",&buf);
+	buffer_dump_path(sim,out_dir,"pf.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->nfree_delta_out).x, (store->nfree_delta_out).data, (store->nfree_delta_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_nfree_delta.dat",&buf);
+	buffer_dump_path(sim,out_dir,"nfree_delta.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->pfree_delta_out).x, (store->pfree_delta_out).data, (store->pfree_delta_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pfree_delta.dat",&buf);
+	buffer_dump_path(sim,out_dir,"pfree_delta.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->ntrap_delta_out).x, (store->ntrap_delta_out).data, (store->ntrap_delta_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_ntrap_delta.dat",&buf);
+	buffer_dump_path(sim,out_dir,"ntrap_delta.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->ptrap_delta_out).x, (store->ptrap_delta_out).data, (store->ptrap_delta_out).len);
-	buffer_dump_path(sim,out_dir,"dynamic_ptrap_delta.dat",&buf);
+	buffer_dump_path(sim,out_dir,"ptrap_delta.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->tpc_filledn).x, (store->tpc_filledn).data, (store->tpc_filledn).len);
-	buffer_dump_path(sim,out_dir,"dynamic_filledn.dat",&buf);
+	buffer_dump_path(sim,out_dir,"filledn.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->Rnpout).x, (store->Rnpout).data, (store->Rnpout).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Rn-p.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Rn-p.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->tpc_filledp).x, (store->tpc_filledp).data, (store->tpc_filledp).len);
-	buffer_dump_path(sim,out_dir,"dynamic_filledp.dat",&buf);
+	buffer_dump_path(sim,out_dir,"filledp.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Electron mobility"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Mobility"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{2}V^{-1}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -736,17 +739,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->tpc_mue).x, (store->tpc_mue).data,(store->tpc_mue).len);
-	buffer_dump_path(sim,out_dir,"dynamic_mue.dat",&buf);
+	buffer_dump_path(sim,out_dir,"mue.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Hole mobility"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Mobility"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{2}V^{-1}s^{-1}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -755,23 +758,23 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->tpc_muh).x, (store->tpc_muh).data,(store->tpc_muh).len);
-	buffer_dump_path(sim,out_dir,"dynamic_muh.dat",&buf);
+	buffer_dump_path(sim,out_dir,"muh.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->tpc_mu_avg).x, (store->tpc_mu_avg).data, (store->tpc_mu_avg).len);
-	buffer_dump_path(sim,out_dir,"dynamic_mu_avg.dat",&buf);
+	buffer_dump_path(sim,out_dir,"mu_avg.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Total electron density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Electron density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -780,18 +783,18 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->only_n).x, (store->only_n).data, (store->only_n).len);
-	buffer_dump_path(sim,out_dir,"dynamic_n.dat",&buf);
+	buffer_dump_path(sim,out_dir,"n.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Total hole density"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Hole density"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -800,7 +803,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->only_p).x, (store->only_p).data, (store->only_p).len);
-	buffer_dump_path(sim,out_dir,"dynamic_p.dat",&buf);
+	buffer_dump_path(sim,out_dir,"p.dat",&buf);
 	buffer_free(&buf);
 
 
@@ -808,32 +811,32 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_np).x, (store->dynamic_np).data, (store->dynamic_np).len);
-	buffer_dump_path(sim,out_dir,"dynamic_np.dat",&buf);
+	buffer_dump_path(sim,out_dir,"np.dat",&buf);
 	buffer_free(&buf);
 
 	inter_norm(&(store->dynamic_np),1.0);
 
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_np).x, (store->dynamic_np).data, (store->dynamic_np).len);
-	buffer_dump_path(sim,out_dir,"dynamic_np_norm.dat",&buf);
+	buffer_dump_path(sim,out_dir,"np_norm.dat",&buf);
 	buffer_free(&buf);
 
 
 	inter_div_long_double(&(store->E_field),(store->E_field).data[0]);
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->E_field).x, (store->E_field).data, (store->E_field).len);
-	buffer_dump_path(sim,out_dir,"dynamic_E_field.dat",&buf);
+	buffer_dump_path(sim,out_dir,"E_field.dat",&buf);
 	buffer_free(&buf);
 
 
 	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1e6;
+	buf.data_mul=1.0;
+	buf.y_mul=1e6;
 	strcpy(buf.title,_("Voltage applied to diode"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("Voltage"));
-	strcpy(buf.x_units,"\\mu s");
+	strcpy(buf.y_units,"\\mu s");
 	strcpy(buf.data_units,"V");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
@@ -842,66 +845,68 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_Vapplied).x, (store->dynamic_Vapplied).data, (store->dynamic_Vapplied).len);
-	buffer_dump_path(sim,out_dir,"dynamic_Vapplied.dat",&buf);
+	buffer_dump_path(sim,out_dir,"Vapplied.dat",&buf);
 	buffer_free(&buf);
 
 
 	inter_sub_long_double(&(store->dynamic_charge_tot),(store->dynamic_charge_tot).data[0]);
 	buffer_malloc(&buf);
 	buffer_add_xy_data(sim,&buf,(store->dynamic_charge_tot).x, (store->dynamic_charge_tot).data, (store->dynamic_charge_tot).len);
-	buffer_dump_path(sim,out_dir,"dynamic_charge_tot.dat",&buf);
+	buffer_dump_path(sim,out_dir,"charge_tot.dat",&buf);
 	buffer_free(&buf);
 
+	if (in->pl_enabled==TRUE)
+	{
+		inter_chop(&(store->dynamic_pl),1.0e-9, 1.0);
+		buffer_malloc(&buf);
+		buf.data_mul=1.0;
+		buf.y_mul=1.0;
+		strcpy(buf.title,_("PL intensity"));
+		strcpy(buf.type,"xy");
+		strcpy(buf.y_label,_("Time"));
+		strcpy(buf.data_label,_("PL Intensity"));
+		strcpy(buf.y_units,"s");
+		strcpy(buf.data_units,"Photons m^{-2}");
+		buf.logscale_x=1;
+		buf.logscale_y=1;
+		buf.x=1;
+		buf.y=(store->dynamic_pl).len;
+		buf.z=1;
+		buffer_add_info(sim,&buf);
+		buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
+		buffer_dump_path(sim,out_dir,"pl.dat",&buf);
+		buffer_free(&buf);
 
-	inter_chop(&(store->dynamic_pl),1.0e-9, 1.0);
-	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1.0;
-	strcpy(buf.title,_("PL intensity"));
-	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
-	strcpy(buf.data_label,_("PL Intensity"));
-	strcpy(buf.x_units,"s");
-	strcpy(buf.data_units,"au");
-	buf.logscale_x=1;
-	buf.logscale_y=1;
-	buf.x=1;
-	buf.y=(store->dynamic_pl).len;
-	buf.z=1;
-	buffer_add_info(sim,&buf);
-	buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pl.dat",&buf);
-	buffer_free(&buf);
-
-	gdouble max=inter_get_max(&(store->dynamic_pl));
-	inter_div_long_double(&(store->dynamic_pl),max);
-	buffer_malloc(&buf);
-	buf.y_mul=1.0;
-	buf.x_mul=1.0;
-	strcpy(buf.title,_("PL intensity normalized"));
-	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
-	strcpy(buf.data_label,_("PL Intensity"));
-	strcpy(buf.x_units,"s");
-	strcpy(buf.data_units,"au");
-	buf.logscale_x=1;
-	buf.logscale_y=1;
-	buf.x=1;
-	buf.y=(store->dynamic_pl).len;
-	buf.z=1;
-	buffer_add_info(sim,&buf);
-	buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
-	buffer_dump_path(sim,out_dir,"dynamic_pl_norm.dat",&buf);
-	buffer_free(&buf);
+		gdouble max=inter_get_max(&(store->dynamic_pl));
+		inter_div_long_double(&(store->dynamic_pl),max);
+		buffer_malloc(&buf);
+		buf.data_mul=1.0;
+		buf.y_mul=1.0;
+		strcpy(buf.title,_("PL intensity normalized"));
+		strcpy(buf.type,"xy");
+		strcpy(buf.y_label,_("Time"));
+		strcpy(buf.data_label,_("PL Intensity"));
+		strcpy(buf.y_units,"s");
+		strcpy(buf.data_units,"au");
+		buf.logscale_x=1;
+		buf.logscale_y=1;
+		buf.x=1;
+		buf.y=(store->dynamic_pl).len;
+		buf.z=1;
+		buffer_add_info(sim,&buf);
+		buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
+		buffer_dump_path(sim,out_dir,"pl_norm.dat",&buf);
+		buffer_free(&buf);
+	}
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_n_r1");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_n_r1");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3} s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -910,17 +915,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_n_r1).x, (store->srh_n_r1).data, (store->srh_n_r1).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_n_r1.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_n_r1.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_n_r2");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_n_r2");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -929,17 +934,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_n_r2).x, (store->srh_n_r2).data, (store->srh_n_r2).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_n_r2.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_n_r2.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_n_r3");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_n_r3");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -948,17 +953,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_n_r3).x, (store->srh_n_r3).data, (store->srh_n_r3).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_n_r3.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_n_r3.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s %s",_("time"),"srh_n_r4");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_n_r4");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -967,17 +972,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_n_r4).x, (store->srh_n_r4).data, (store->srh_n_r4).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_n_r4.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_n_r4.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s %s",_("time"),"srh_p_r1");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_p_r1");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -986,17 +991,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_p_r1).x, (store->srh_p_r1).data, (store->srh_p_r1).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_p_r1.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_p_r1.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_p_r2");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_p_r2");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -1005,17 +1010,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_p_r2).x, (store->srh_p_r2).data, (store->srh_p_r2).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_p_r2.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_p_r2.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_p_r3");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_p_r3");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -1024,17 +1029,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_p_r3).x, (store->srh_p_r3).data, (store->srh_p_r3).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_p_r3.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_p_r3.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s - %s",_("time"),"srh_p_r4");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,"srh_p_r4");
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,"m^{-3}s^{-1}");
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -1043,17 +1048,17 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->srh_p_r4).x, (store->srh_p_r4).data, (store->srh_p_r4).len);
-	buffer_dump_path(sim,out_dir,"dynamic_srh_p_r4.dat",&buf);
+	buffer_dump_path(sim,out_dir,"srh_p_r4.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
+	buf.data_mul=1.0;
 	buf.y_mul=1.0;
-	buf.x_mul=1.0;
 	sprintf(buf.title,"%s %s",_("time"),_("band bend (percent)"));
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,_("Time"));
+	strcpy(buf.y_label,_("Time"));
 	strcpy(buf.data_label,_("band bend"));
-	strcpy(buf.x_units,"s");
+	strcpy(buf.y_units,"s");
 	strcpy(buf.data_units,_("percent"));
 	buf.logscale_x=1;
 	buf.logscale_y=1;
@@ -1062,7 +1067,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	buffer_add_xy_data(sim,&buf,(store->band_bend).x, (store->band_bend).data, (store->band_bend).len);
-	buffer_dump_path(sim,out_dir,"dynamic_band_bend.dat",&buf);
+	buffer_dump_path(sim,out_dir,"band_bend.dat",&buf);
 	buffer_free(&buf);
 }
 
@@ -1127,7 +1132,10 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_append(&(store->dynamic_charge_tot),x_value,get_charge_tot(in));
 
-	inter_append(&(store->dynamic_pl),x_value,in->pl_intensity);
+	if (in->pl_enabled==TRUE)
+	{
+		inter_append(&(store->dynamic_pl),x_value,in->pl_intensity);
+	}
 
 	inter_append(&(store->ptrap),x_value,get_p_trapped_charge(in));
 
@@ -1263,7 +1271,10 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	inter_free(&(store->E_field));
 	inter_free(&(store->dynamic_Vapplied));
 	inter_free(&(store->dynamic_charge_tot));
-	inter_free(&(store->dynamic_pl));
+	if (in->pl_enabled==TRUE)
+	{
+		inter_free(&(store->dynamic_pl));
+	}
 	inter_free(&(store->dynamic_jn_drift));
 	inter_free(&(store->dynamic_jn_diffusion));
 	inter_free(&(store->dynamic_jp_drift));

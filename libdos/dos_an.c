@@ -60,14 +60,17 @@ do
 	text=inp_get_string(sim,&inp);
 	text=inp_get_string(sim,&inp);
 	sscanf(text,"%le",&(in->a[in->items]));
+	in->a[in->items]=fabs(in->a[in->items]);
 
 	text=inp_get_string(sim,&inp);
 	text=inp_get_string(sim,&inp);
 	sscanf(text,"%le",&(in->b[in->items]));
+	in->b[in->items]=fabs(in->b[in->items]);
 
 	text=inp_get_string(sim,&inp);
 	text=inp_get_string(sim,&inp);
 	sscanf(text,"%le",&(in->c[in->items]));
+	in->c[in->items]=fabs(in->c[in->items]);
 
 	in->items++;
 }while(text!=NULL);
