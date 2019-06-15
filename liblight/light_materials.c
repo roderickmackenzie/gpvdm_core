@@ -76,6 +76,8 @@ inter_sort(&(in->sun_read));
 
 inter_mod(&(in->sun_read));
 
+long double Power=inter_intergrate(&(in->sun_read));
+printf_log(sim,"%s %Le Wm^{-2}\n",_("Power density of the optical spectra:"),Power);
 }
 
 

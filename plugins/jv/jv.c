@@ -177,8 +177,6 @@ in->stop=FALSE;
 
 	do
 	{
-
-
 		Vapplied=V;
 		contact_set_active_contact_voltage(sim,in,Vapplied);
 		newton_sim_simple(sim,in);
@@ -188,7 +186,6 @@ in->stop=FALSE;
 		Vexternal=get_equiv_V(sim,in);
 
 		gui_send_data(sim,"pulse");
-
 		if (ittr>0)
 		{
 
@@ -222,6 +219,11 @@ in->stop=FALSE;
 			stop_start(sim,in);
 			dump_dynamic_add_data(sim,&store,in,Vexternal);
 			dump_contacts_add_data(sim,in,&contact_store);
+
+			if (get_dump_status(sim,dump_print_converge)==TRUE)
+			{
+			printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,in->last_error);
+			}
 
 			if (first==FALSE)
 			{
@@ -270,10 +272,7 @@ in->stop=FALSE;
 
 			}
 
-			if (get_dump_status(sim,dump_print_converge)==TRUE)
-			{
-			printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,in->last_error);
-			}
+
 
 
 			Jlast=J;
