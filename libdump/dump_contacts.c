@@ -69,15 +69,16 @@ void dump_contacts_save(struct simulation *sim,struct device *in,struct contacts
 		{
 			buffer_malloc(&buf);
 			buf.y_mul=1.0;
-			buf.x_mul=1e6;
+			buf.data_mul=1.0;
 			sprintf(buf.title,"%s (%s)",_("Voltage - Current"), in->contacts[i].name);
 			strcpy(buf.type,"xy");
-			strcpy(buf.x_label,_("Voltage"));
-			strcpy(buf.x_units,"V");
+			strcpy(buf.y_label,_("Voltage"));
+			strcpy(buf.y_units,"V");
+
 			strcpy(buf.data_label,_("Current"));
 			strcpy(buf.data_units,"A m^{-2}");
-			buf.logscale_x=0;
 			buf.logscale_y=0;
+			buf.logscale_data=0;
 			buf.x=1;
 			buf.y=store->i[i].len;
 			buf.z=1;

@@ -31,6 +31,7 @@
 #include <cal_path.h>
 #include "contacts.h"
 #include <log.h>
+#include <dump.h>
 
 int contacts_get_lcharge_type(struct simulation *sim,struct device *in)
 {
@@ -101,6 +102,83 @@ void contacts_time_step(struct simulation *sim,struct device *in)
 	}
 }
 
+int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in)
+{
+int i;
+static long double dV=0.1;
+int up=TRUE;
+int changed=FALSE;
+
+	for (i=0;i<in->ncontacts;i++)
+	{
+
+		up=TRUE;
+		if (in->contacts[i].voltage_want!=in->contacts[i].voltage)
+		{
+			changed=TRUE;
+			if ((in->contacts[i].voltage_want-in->contacts[i].voltage)<0.0)
+			{
+				up=FALSE;
+			}
+
+			if (in->last_ittr<16)
+			{
+				dV=dV*(1.0+0.001);
+			}
+
+			if (in->last_ittr>18)
+			{
+				dV*=(1.0-0.001);
+			}
+
+			if (dV<0.1)
+			{
+				dV=0.1;
+			}
+
+			/*if (in->contacts[i].voltage<5.0)
+			{
+				dV=0.1;
+			}else
+			{
+				dV=0.1+fabs(in->contacts[i].voltage)*0.005;
+			}*/
+
+			if (up==TRUE)
+			{
+				if ((in->contacts[i].voltage+dV)>=in->contacts[i].voltage_want)
+				{
+					in->contacts[i].voltage=in->contacts[i].voltage_want;
+				}else
+				{
+					in->contacts[i].voltage+=dV;
+				}
+
+			}else
+			{
+				if ((in->contacts[i].voltage-dV)<=in->contacts[i].voltage_want)
+				{
+					in->contacts[i].voltage=in->contacts[i].voltage_want;
+				}else
+				{
+					in->contacts[i].voltage-=dV;
+				}
+			}
+
+			printf_log(sim,"Ramping: %s %.2Lf %.2Lf dV=%Lf ittr=%d\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want,dV,in->last_ittr);
+		}
+
+		
+	}
+
+	if (changed==TRUE)
+	{
+		contacts_update(sim,in);
+	}
+
+	return changed;
+}
+
 void contacts_load(struct simulation *sim,struct device *in)
 {
 	int i;
@@ -152,7 +230,8 @@ void contacts_load(struct simulation *sim,struct device *in)
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].depth));
 
 		inp_get_string(sim,&inp);	//voltage
-		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].voltage));
+		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].voltage_want));
+		in->contacts[i].voltage=0.0;
 		in->contacts[i].voltage_last=in->contacts[i].voltage;
 
 		inp_get_string(sim,&inp);	//np
@@ -203,15 +282,17 @@ for (x=0;x<in->xmeshpoints;x++)
 void contacts_dump(struct simulation *sim,struct device *in)
 {
 int i;
-	for (i=0;i<in->ncontacts;i++)
+	if (get_dump_status(sim,dump_print_text)==TRUE)
 	{
-		printf_log(sim,"%s %Le\n",in->contacts[i].name,in->contacts[i].voltage);
+		for (i=0;i<in->ncontacts;i++)
+		{
+			printf_log(sim,"%s %Le\n",in->contacts[i].name,in->contacts[i].voltage);
+		}
+
+		printf("%Le %Le\n",in->Vapplied_l[0][0],in->Vapplied_r[0][0]);
+
+		printf("%Le\n",in->flip_current);
 	}
-
-	printf("%Le %Le\n",in->Vapplied_l[0][0],in->Vapplied_r[0][0]);
-
-	printf("%Le\n",in->flip_current);
-
 }
 
 void contacts_update(struct simulation *sim,struct device *in)
@@ -529,7 +610,7 @@ int i;
 int x;
 int y;
 int z;
-
+return;
 //passivate under each contact
 for (x=0;x<in->xmeshpoints;x++)
 {

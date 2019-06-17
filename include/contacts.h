@@ -53,4 +53,5 @@ int contacts_get_lcharge_type(struct simulation *sim,struct device *in);
 int contacts_get_rcharge_type(struct simulation *sim,struct device *in);
 int contact_get_active_contact_index(struct simulation *sim,struct device *in);
 void contact_set_flip_current(struct simulation *sim,struct device *in);
+int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in);
 #endif

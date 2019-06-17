@@ -385,8 +385,6 @@ struct device
 	long double **r_holes;
 
 
-	int dumpitdos;
-
 
 	gdouble t_big_offset;
 
@@ -419,12 +417,23 @@ struct device
 	int newton_min_itt;
 	gdouble vbi;
 	gdouble avg_gen;
+
+	//dump
 	int dump_energy_slice_xpos;
 	int dump_energy_slice_ypos;
 	int dump_energy_slice_zpos;
 
+	int dump_1d_slice_xpos;
+	int dump_1d_slice_zpos;
+
+	int dumpitdos;
+
+	long double dump_dynamic_pl_energy;
+	
+
 	//pl
-	gdouble pl_intensity;
+	long double pl_intensity;
+	long double pl_intensity_tot;
 	int pl_enabled;
 
 	gdouble Rext;
@@ -475,9 +484,6 @@ struct device
 
 	gdouble map_start;
 	gdouble map_stop;
-
-	int dump_1d_slice_xpos;
-	int dump_1d_slice_zpos;
 
 	long double flip_current;
 

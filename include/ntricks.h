@@ -41,9 +41,10 @@ gdouble sim_externalv(struct simulation *sim,struct device *in,gdouble wantedv);
 gdouble sim_i(struct simulation *sim,struct device *in,gdouble wantedi);
 void save_state(struct simulation *sim,struct device *in,gdouble to);
 int load_state(struct simulation *sim,struct device *in,gdouble voltage);
-void ramp(struct simulation *sim,struct device *in,gdouble from,gdouble to,gdouble steps);
+void auto_ramp_contacts(struct simulation *sim,struct device *in);
 void ramp_externalv(struct simulation *sim,struct device *in,gdouble from,gdouble to);
 void set_ntricks_fast(int val);
 gdouble sim_voc(struct device *in);
 void newton_sim_simple(struct simulation  *sim,struct device *in);
+void ntricks_auto_ramp_contacts(struct simulation *sim,struct device *in);
 #endif

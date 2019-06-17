@@ -36,6 +36,7 @@ struct contact
 	gdouble width;
 	gdouble depth;
 	gdouble voltage;
+	long double voltage_want;
 	gdouble voltage_last;
 	gdouble start;
 	gdouble store;

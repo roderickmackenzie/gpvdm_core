@@ -68,6 +68,7 @@ struct dynamic_store
 	struct istruct only_p;
 	struct istruct E_field;
 	struct istruct dynamic_pl;
+	struct istruct dynamic_pl_tot;
 	struct istruct dynamic_Vapplied;
 	struct istruct dynamic_charge_tot;
 	struct istruct dynamic_jn_drift;

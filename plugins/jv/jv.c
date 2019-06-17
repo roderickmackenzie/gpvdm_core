@@ -51,6 +51,7 @@ void sim_jv(struct simulation *sim,struct device *in)
 light_solve_and_update(sim,in,&(in->mylight),0.0);
 
 int lam=0;
+int up=TRUE;
 printf_log(sim,_("Running JV simulation\n"));
 struct buffer buf;
 buffer_init(&buf);
@@ -129,9 +130,15 @@ inter_init(sim,&lj);
 gdouble Vapplied=0.0;
 contact_set_active_contact_voltage(sim,in,Vapplied);
 
-if (gfabs(config.Vstart-Vapplied)>0.2)
+if ((in->zmeshpoints>1) || (in->xmeshpoints>1))
 {
-	ramp_externalv(sim,in,Vapplied,config.Vstart);
+	ntricks_auto_ramp_contacts(sim,in);
+}else
+{
+	if (gfabs(config.Vstart-Vapplied)>0.2)
+	{
+		ramp_externalv(sim,in,Vapplied,config.Vstart);
+	}
 }
 
 
@@ -175,6 +182,12 @@ gdouble mue_pmax=0.0;
 gdouble muh_pmax=0.0;
 in->stop=FALSE;
 
+up=TRUE;
+if (config.Vstop<config.Vstart)
+{
+	up=FALSE;
+}
+
 	do
 	{
 		Vapplied=V;
@@ -200,114 +213,114 @@ in->stop=FALSE;
 
 		inter_append(&charge,Vexternal,get_extracted_np(in));
 		inter_append(&charge_tot,Vexternal,get_np_tot(in));
-/*
-		FILE *deriv=fopen("dfn.dat","w");
-		for (r=0;r<in->ymeshpoints-1;r++)
+
+		Pden=gfabs(J*Vexternal);
+
+		plot_now(sim,in,"jv.plot");
+		stop_start(sim,in);
+		dump_dynamic_add_data(sim,&store,in,Vexternal);
+		dump_contacts_add_data(sim,in,&contact_store);
+
+		if (get_dump_status(sim,dump_print_converge)==TRUE)
 		{
-			gdouble d=(in->Fn[r+1]-in->Fn[r])/(in->ymesh[r+1]-in->ymesh[r]);
-			d*=(in->n[r]+in->n[r+1])/2;
-			d*=(in->mun[r]+in->mun[r+1])/2;
-
-			fprintf(deriv,"%Le %Le\n",in->ymesh[r],d);
+		printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,in->last_error);
 		}
-		fclose(deriv);
-		getchar();
-*/
-			Pden=gfabs(J*Vexternal);
 
-			plot_now(sim,in,"jv.plot");
-			stop_start(sim,in);
-			dump_dynamic_add_data(sim,&store,in,Vexternal);
-			dump_contacts_add_data(sim,in,&contact_store);
+		if (first==FALSE)
+		{
 
-			if (get_dump_status(sim,dump_print_converge)==TRUE)
+			//check if we have crossed 0V
+			if ((Vlast<=0)&&(Vexternal>=0.0))
 			{
-			printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,in->last_error);
+				in->Jsc=Jlast+(J-Jlast)*(0-Vlast)/(V-Vlast);
+				nsc=get_extracted_np(in);
+				printf_log(sim,"nsc=%Le\n",nsc);
+				printf_log(sim,"Jsc = %Le\n",in->Jsc);
 			}
 
-			if (first==FALSE)
+			if ((Jlast<=0)&&(J>=0.0))
 			{
-
-				//check if we have crossed 0V
-				if ((Vlast<=0)&&(Vexternal>=0.0))
-				{
-					in->Jsc=Jlast+(J-Jlast)*(0-Vlast)/(V-Vlast);
-					nsc=get_extracted_np(in);
-					printf_log(sim,"nsc=%Le\n",nsc);
-					printf_log(sim,"Jsc = %Le\n",in->Jsc);
-				}
-
-				if ((Jlast<=0)&&(J>=0.0))
-				{
-					in->Voc=Vlast+(Vexternal-Vlast)*(0-Jlast)/(J-Jlast);
-					printf_log(sim,"Voc = %Le\n",in->Voc);
-					//k_voc=get_avg_recom(in)/pow(get_extracted_np(in),2.0);
-					r_voc=get_avg_recom(in);
-					n_voc=get_extracted_np(in);
-					np_voc_tot=get_total_np(in);
-					n_trap_voc=get_n_trapped_charge(in);
-					n_free_voc=get_free_n_charge(in);
-					p_trap_voc=get_p_trapped_charge(in);
-					p_free_voc=get_free_p_charge(in);
+				in->Voc=Vlast+(Vexternal-Vlast)*(0-Jlast)/(J-Jlast);
+				printf_log(sim,"Voc = %Le\n",in->Voc);
+				//k_voc=get_avg_recom(in)/pow(get_extracted_np(in),2.0);
+				r_voc=get_avg_recom(in);
+				n_voc=get_extracted_np(in);
+				np_voc_tot=get_total_np(in);
+				n_trap_voc=get_n_trapped_charge(in);
+				n_free_voc=get_free_n_charge(in);
+				p_trap_voc=get_p_trapped_charge(in);
+				p_free_voc=get_free_p_charge(in);
 
 
 
-				}
+			}
 
-				if ((Pden>Pdenlast)&&(Vexternal>0.0)&&(J<0.0))
-				{
-					in->Pmax=Pden;
-					in->Pmax_voltage=Vexternal;
-					r_pmax=get_avg_recom(in);
-					n_pmax=get_extracted_np(in);
-					mue_pmax=get_avg_mue(in);
-					muh_pmax=get_avg_muh(in);
-				}
+			if ((Pden>Pdenlast)&&(Vexternal>0.0)&&(J<0.0))
+			{
+				in->Pmax=Pden;
+				in->Pmax_voltage=Vexternal;
+				r_pmax=get_avg_recom(in);
+				n_pmax=get_extracted_np(in);
+				mue_pmax=get_avg_mue(in);
+				muh_pmax=get_avg_muh(in);
+			}
 
+			if (up==TRUE)
+			{
 				if (Vexternal>Vstop)
 				{
 					printf_log(sim,"%s %Le>%Le\n",_("Stopping because of Vexternal"),Vexternal,Vstop);
 					break;
 				}
-
-			}
-
-
-
-
-			Jlast=J;
-			Vlast=Vexternal;
-			Pdenlast=Pden;
-			first=FALSE;
-
-			dump_write_to_disk(sim,in);
-
-			inter_append(&lv,Vexternal,pl_get_light_energy()*in->mylight.extract_eff[lam]);
-			//printf("%Le %Le\n",pl_get_light_energy(),in->mylight.extract_eff[lam]);
-			inter_append(&lj,J,pl_get_light_energy()*in->mylight.extract_eff[lam]);
-			//printf("%Le\n",pl_get_light_energy());
-			V+=Vstep;
-			Vstep*=config.jv_step_mul;
-			//dialog_set_progress ((in->Vstart+V)/(in->Vstop-in->Vstart));
-			if ((Vstep>=0)&&(V>Vstop))
+			}else
 			{
-				in->stop=TRUE;
+				if (Vexternal<Vstop)
+				{
+					printf_log(sim,"%s %Le>%Le\n",_("Stopping because of Vexternal"),Vexternal,Vstop);
+					break;
+				}
 			}
 
-			if ((Vstep<0)&&(V<Vstop))
-			{
-				in->stop=TRUE;
-			}
 
-			if (get_equiv_J(sim,in)>config.jv_max_j)
-			{
-				in->stop=TRUE;
-			}
+		}
+
+
+
+
+		Jlast=J;
+		Vlast=Vexternal;
+		Pdenlast=Pden;
+		first=FALSE;
+
+		dump_write_to_disk(sim,in);
+
+		inter_append(&lv,Vexternal,pl_get_light_energy()*in->mylight.extract_eff[lam]);
+		//printf("%Le %Le\n",pl_get_light_energy(),in->mylight.extract_eff[lam]);
+		inter_append(&lj,J,pl_get_light_energy()*in->mylight.extract_eff[lam]);
+		//printf("%Le\n",pl_get_light_energy());
+		V+=Vstep;
+		Vstep*=config.jv_step_mul;
+		//dialog_set_progress ((in->Vstart+V)/(in->Vstop-in->Vstart));
+		if ((up==TRUE)&&(V>Vstop))
+		{
+			in->stop=TRUE;
+		}
+
+		if ((up==FALSE)&&(V<Vstop))
+		{
+			in->stop=TRUE;
+		}
+
+		if (get_equiv_J(sim,in)>config.jv_max_j)
+		{
+			in->stop=TRUE;
+		}
 
 		if (in->stop==TRUE)
 		{
 			break;
 		}
+
 		inter_append(&klist,get_extracted_np(in),get_avg_recom(in)/(pow(get_extracted_np(in),2.0)));
 
 		stop_start(sim,in);
@@ -385,7 +398,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Charge density"),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -405,7 +418,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Total charge density"),_("App.ed voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -425,7 +438,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Current density"),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -444,7 +457,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Current density"),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -463,7 +476,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Current density"),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -483,7 +496,7 @@ buffer_free(&buf);
 inter_mul(&jvexternal,in->area);
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Current "),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
@@ -502,7 +515,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 buf.data_mul=1;
 sprintf(buf.title,"%s - %s",_("Voltage"),_("Light flux"));
 strcpy(buf.type,"xy");
@@ -524,7 +537,7 @@ buffer_free(&buf);
 
 buffer_malloc(&buf);
 buf.y_mul=1.0;
-buf.x_mul=1.0;
+buf.data_mul=1.0;
 sprintf(buf.title,"%s - %s",_("Current density"),_("Light flux"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,("Current density"));
@@ -572,6 +585,13 @@ inp_check(sim,&inp,1.22);
 inp_search_gdouble(sim,&inp,&(in->Vstart),"#Vstart");
 inp_search_gdouble(sim,&inp,&(in->Vstop),"#Vstop");
 inp_search_gdouble(sim,&inp,&(in->Vstep),"#Vstep");
+in->Vstep=fabs(in->Vstep);
+
+if (in->Vstop<in->Vstart)
+{
+	in->Vstep*=-1.0;
+}
+
 inp_search_gdouble(sim,&inp,&(in->jv_step_mul),"#jv_step_mul");
 inp_search_gdouble(sim,&inp,&(in->jv_light_efficiency),"#jv_light_efficiency");
 inp_search_gdouble(sim,&inp,&(in->jv_max_j),"#jv_max_j");

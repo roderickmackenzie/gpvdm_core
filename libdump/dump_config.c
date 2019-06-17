@@ -164,6 +164,9 @@ void dump_load_config(struct simulation* sim,struct device *in)
 	dump=inp_search_english(sim,&inp,"#dump_remove_dos_cache");
 	set_dump_status(sim,dump_remove_dos_cache, dump);
 
+	inp_search_gdouble(sim,&inp,&(in->dump_dynamic_pl_energy), "#dump_dynamic_pl_energy");
+
+
 	inp_free(sim,&inp);
 
 

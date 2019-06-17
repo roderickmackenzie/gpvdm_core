@@ -93,6 +93,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	if (in->pl_enabled==TRUE)
 	{
 		inter_init(sim,&(store->dynamic_pl));
+		inter_init(sim,&(store->dynamic_pl_tot));
 	}
 	inter_init(sim,&(store->dynamic_jn_drift));
 	inter_init(sim,&(store->dynamic_jn_diffusion));
@@ -857,32 +858,31 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	if (in->pl_enabled==TRUE)
 	{
-		inter_chop(&(store->dynamic_pl),1.0e-9, 1.0);
+		inter_chop(&(store->dynamic_pl_tot),1.0e-9, 1.0);
 		buffer_malloc(&buf);
 		buf.data_mul=1.0;
 		buf.y_mul=1.0;
-		strcpy(buf.title,_("PL intensity"));
+		strcpy(buf.title,_("Total PL intensity"));
 		strcpy(buf.type,"xy");
 		strcpy(buf.y_label,_("Time"));
-		strcpy(buf.data_label,_("PL Intensity"));
+		strcpy(buf.data_label,_("Total PL Intensity"));
 		strcpy(buf.y_units,"s");
 		strcpy(buf.data_units,"Photons m^{-2}");
 		buf.logscale_x=1;
 		buf.logscale_y=1;
 		buf.x=1;
-		buf.y=(store->dynamic_pl).len;
+		buf.y=(store->dynamic_pl_tot).len;
 		buf.z=1;
 		buffer_add_info(sim,&buf);
-		buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
-		buffer_dump_path(sim,out_dir,"pl.dat",&buf);
+		buffer_add_xy_data(sim,&buf,(store->dynamic_pl_tot).x, (store->dynamic_pl_tot).data, (store->dynamic_pl_tot).len);
+		buffer_dump_path(sim,out_dir,"pl_tot.dat",&buf);
 		buffer_free(&buf);
 
 		gdouble max=inter_get_max(&(store->dynamic_pl));
-		inter_div_long_double(&(store->dynamic_pl),max);
 		buffer_malloc(&buf);
 		buf.data_mul=1.0;
 		buf.y_mul=1.0;
-		strcpy(buf.title,_("PL intensity normalized"));
+		strcpy(buf.title,_("PL intensity at given energy"));
 		strcpy(buf.type,"xy");
 		strcpy(buf.y_label,_("Time"));
 		strcpy(buf.data_label,_("PL Intensity"));
@@ -895,7 +895,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		buf.z=1;
 		buffer_add_info(sim,&buf);
 		buffer_add_xy_data(sim,&buf,(store->dynamic_pl).x, (store->dynamic_pl).data, (store->dynamic_pl).len);
-		buffer_dump_path(sim,out_dir,"pl_norm.dat",&buf);
+		buffer_dump_path(sim,out_dir,"pl.dat",&buf);
 		buffer_free(&buf);
 	}
 
@@ -1135,6 +1135,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	if (in->pl_enabled==TRUE)
 	{
 		inter_append(&(store->dynamic_pl),x_value,in->pl_intensity);
+		inter_append(&(store->dynamic_pl_tot),x_value,in->pl_intensity_tot);
 	}
 
 	inter_append(&(store->ptrap),x_value,get_p_trapped_charge(in));
@@ -1274,6 +1275,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	if (in->pl_enabled==TRUE)
 	{
 		inter_free(&(store->dynamic_pl));
+		inter_free(&(store->dynamic_pl_tot));
 	}
 	inter_free(&(store->dynamic_jn_drift));
 	inter_free(&(store->dynamic_jn_diffusion));
