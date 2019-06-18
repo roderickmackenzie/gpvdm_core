@@ -46,28 +46,35 @@ char fit_plugin[200];
 double error;
 };
 
+struct fititem
+{
+	double min;
+	double max;
+	double add_error;
+	char fit_file[100];
+	char fit_token[100];
+};
+
 struct fitvars
 {
-struct fits_struct data_set[FIT_MAX];
+	struct fits_struct data_set[FIT_MAX];
 
-double simplexmul;
-int simplexreset;
-int fitvars;
-char fit_file[FIT_VAR_MAX][100];
-char fit_token[FIT_VAR_MAX][100];
-
-int randomize;
-int random_reset_ittr;
-double disable_reset_at;
-double converge_error;
-int enable_simple_reset;
-double constraints_error[100];
-int n_constraints;
-int iterations;
-int sub_iterations;
-int sub_iterations_two;
-int stall_steps;
-int fit_method;
+	double simplexmul;
+	int simplexreset;
+	int fitvars;
+	struct fititem fititem[FIT_VAR_MAX];
+	int randomize;
+	int random_reset_ittr;
+	double disable_reset_at;
+	double converge_error;
+	int enable_simple_reset;
+	double constraints_error[100];
+	int n_constraints;
+	int iterations;
+	int sub_iterations;
+	int sub_iterations_two;
+	int stall_steps;
+	int fit_method;
 };
 
 int fit_simplex(struct simulation *sim,struct fitvars *fitconfig);
