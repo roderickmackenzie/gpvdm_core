@@ -32,7 +32,7 @@ struct contacts_vti_store
 {
 	struct istruct x[10];
 	struct istruct v[10];
-	struct istruct i[10];
+	struct istruct J[10];
 };
 
 void dump_contacts_init(struct simulation *sim,struct device *in,struct contacts_vti_store *store);

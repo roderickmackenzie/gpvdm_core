@@ -51,16 +51,18 @@ void dump_contacts_init(struct simulation *sim,struct device *in,struct contacts
 
 		for (i=0;i<in->ncontacts;i++)
 		{
-			inter_init(sim,&(store->i[i]));
+			inter_init(sim,&(store->J[i]));
 		}
 	}
 }
 
 void dump_contacts_save(struct simulation *sim,struct device *in,struct contacts_vti_store *store)
 {
+	char string[200];
 	if (in->ncontacts>2)
 	{
 		int i;
+		int ii;
 		int sub=TRUE;
 		char temp[200];
 		struct buffer buf;
@@ -70,23 +72,49 @@ void dump_contacts_save(struct simulation *sim,struct device *in,struct contacts
 			buffer_malloc(&buf);
 			buf.y_mul=1.0;
 			buf.data_mul=1.0;
-			sprintf(buf.title,"%s (%s)",_("Voltage - Current"), in->contacts[i].name);
+			sprintf(buf.title,"%s (%s)",_("Voltage - Current density"), in->contacts[i].name);
 			strcpy(buf.type,"xy");
 			strcpy(buf.y_label,_("Voltage"));
 			strcpy(buf.y_units,"V");
-
 			strcpy(buf.data_label,_("Current"));
 			strcpy(buf.data_units,"A m^{-2}");
 			buf.logscale_y=0;
 			buf.logscale_data=0;
 			buf.x=1;
-			buf.y=store->i[i].len;
+			buf.y=store->J[i].len;
 			buf.z=1;
 			buffer_add_info(sim,&buf);
-			buffer_add_xy_data(sim,&buf,store->i[i].x, store->i[i].data, store->i[i].len);
-			sprintf(temp,"contact%d_i.dat",i);
+			buffer_add_xy_data(sim,&buf,store->J[i].x, store->J[i].data, store->J[i].len);
+			sprintf(temp,"jv_contact%d.dat",i);
 			buffer_dump_path(sim,sim->output_path,temp,&buf);
 			buffer_free(&buf);
+
+			buffer_malloc(&buf);
+			buf.y_mul=1.0;
+			buf.data_mul=1.0;
+			sprintf(buf.title,"%s (%s)",_("Voltage - Current"), in->contacts[i].name);
+			strcpy(buf.type,"xy");
+			strcpy(buf.y_label,_("Voltage"));
+			strcpy(buf.y_units,"V");
+			strcpy(buf.data_label,_("Current"));
+			strcpy(buf.data_units,"A m^{-2}");
+			buf.logscale_y=0;
+			buf.logscale_data=0;
+			buf.x=1;
+			buf.y=store->J[i].len;
+			buf.z=1;
+			buffer_add_info(sim,&buf);
+
+			for (ii=0;ii<store->J[i].len;ii++)
+			{
+				sprintf(string,"%Le %Le\n",store->J[i].x[ii],store->J[i].data[ii]*in->contacts[i].area);
+				buffer_add_string(&buf,string);
+			}
+
+			sprintf(temp,"iv_contact%d.dat",i);
+			buffer_dump_path(sim,sim->output_path,temp,&buf);
+			buffer_free(&buf);
+
 		}
 	}
 }
@@ -101,7 +129,7 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 		{
 			x_value=contact_get_active_contact_voltage(sim,in);
 	//		inter_append(&(store->v),x_value,contact_get_voltage(sim,in,i));
-			inter_append(&(store->i[i]),x_value,contacts_get_J(in,i));
+			inter_append(&(store->J[i]),x_value,contacts_get_J(in,i));
 		}
 
 	}
@@ -116,7 +144,7 @@ void dump_contacts_free(struct simulation *sim,struct device *in,struct contacts
 		for (i=0;i<in->ncontacts;i++)
 		{
 			//inter_free(&(store->v[i]));
-			inter_free(&(store->i[i]));
+			inter_free(&(store->J[i]));
 		}
 	}
 }

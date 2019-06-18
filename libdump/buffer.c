@@ -62,6 +62,9 @@ strcpy(in->title,"");
 in->x_mul=1.0;
 in->y_mul=1.0;
 in->z_mul=1.0;
+in->x_offset=0.0;
+in->y_offset=0.0;
+in->z_offset=0.0;
 in->data_mul=1.0;
 strcpy(in->x_label,"");
 strcpy(in->y_label,"");
@@ -227,6 +230,24 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 	sprintf(temp,"#data_mul %Lf\n",in->data_mul);
 	buffer_add_string(in,temp);
+
+	if (in->x_offset!=0)
+	{
+		sprintf(temp,"#x_offset %Le\n",in->x_offset);
+		buffer_add_string(in,temp);
+	}
+
+	if (in->y_offset!=0)
+	{
+		sprintf(temp,"#y_offset %Le\n",in->y_offset);
+		buffer_add_string(in,temp);
+	}
+
+	if (in->z_offset!=0)
+	{
+		sprintf(temp,"#z_offset %Le\n",in->z_offset);
+		buffer_add_string(in,temp);
+	}
 
 	sprintf(temp,"#x_label %s\n",in->x_label);
 	buffer_add_string(in,temp);

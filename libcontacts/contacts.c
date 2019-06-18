@@ -260,6 +260,9 @@ void contacts_load(struct simulation *sim,struct device *in)
 	in->rcharge=contacts_get_rcharge(sim,in);
 
 
+	contacts_cal_area(sim,in);
+	//contacts_dump(sim,in);
+	//getchar();
 }
 
 void contacts_force_to_zero(struct simulation *sim,struct device *in)
@@ -286,7 +289,7 @@ int i;
 	{
 		for (i=0;i<in->ncontacts;i++)
 		{
-			printf_log(sim,"%s %Le\n",in->contacts[i].name,in->contacts[i].voltage);
+			printf_log(sim,"%-10s\tV=%Le\tA=%Le\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].area);
 		}
 
 		printf("%Le %Le\n",in->Vapplied_l[0][0],in->Vapplied_r[0][0]);
@@ -564,6 +567,38 @@ int i;
 	}
 
 return -1;
+}
+
+void contacts_cal_area(struct simulation *sim,struct device *in)
+{
+int i;
+int x;
+int z;
+
+for (i=0;i<in->ncontacts;i++)
+{
+	in->contacts[i].area=0.0;
+}
+
+for (x=0;x<in->xmeshpoints;x++)
+{
+		for (z=0;z<in->zmeshpoints;z++)
+		{
+			i=in->n_contact_r[z][x];
+			if (i!=-1)
+			{
+				in->contacts[i].area+=in->dxmesh[x]*in->dzmesh[z];
+			}
+
+			i=in->n_contact_l[z][x];
+			if (i!=-1)
+			{
+				in->contacts[i].area+=in->dxmesh[x]*in->dzmesh[z];
+			}
+
+		}
+}
+
 }
 
 //Average the current over both contacts
