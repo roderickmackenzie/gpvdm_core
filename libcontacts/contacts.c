@@ -241,7 +241,6 @@ void contacts_load(struct simulation *sim,struct device *in)
 		inp_get_string(sim,&inp);	//charge_type
 		in->contacts[i].charge_type=english_to_bin(sim, inp_get_string(sim,&inp));
 
-
 		pos+=in->contacts[i].width;
 	}
 

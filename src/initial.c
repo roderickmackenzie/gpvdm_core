@@ -213,23 +213,6 @@ long double left_ref_to_zero=0.0;
 long double right_ref_to_zero=0.0;
 gdouble delta_phi=0.0;
 
-
-if (contacts_get_lcharge_type(sim,in)==HOLE)
-{
-	top_l=get_top_from_p(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
-	in->electron_affinity_left= -in->Xi[0][0][0]-in->Eg[0][0][0]-get_top_from_p(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
-	Ef= -(top_l+Xi+Eg);
-	left_ref_to_zero=-(Eg+top_l)-in->Xi[0][0][0];
-
-}else
-{
-	top_l= get_top_from_n(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
-	in->electron_affinity_left= -in->Xi[0][0][0]+top_l;
-	Ef= -Xi+top_l;
-	left_ref_to_zero=top_l-in->Xi[0][0][0];
-}
-
-
 if (contacts_get_rcharge_type(sim,in)==ELECTRON)
 {
 	top_r=get_top_from_n(in,charge_right,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
@@ -241,6 +224,42 @@ if (contacts_get_rcharge_type(sim,in)==ELECTRON)
 	in->electron_affinity_right= -in->Xi[0][0][in->ymeshpoints-1]-in->Eg[0][0][in->ymeshpoints-1]-get_top_from_p(in,charge_right,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
 	right_ref_to_zero=-(in->Eg[0][0][in->ymeshpoints-1]+top_r)-in->Xi[0][0][in->ymeshpoints-1];
 }
+
+//in->electron_affinity_left= -in->Xi[0][0][0]-in->Eg[0][0][0]-get_top_from_p(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
+//in->electron_affinity_left= -in->Xi[0][0][0]+top_l;
+in->electron_affinity_left=0.0;
+int c=0;
+int type=0;
+for (z=0;z<in->zmeshpoints;z++)
+{
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		c=in->n_contact_l[z][x];
+
+		if (c!=-1)
+		{
+			if (in->contacts[c].charge_type==HOLE)
+			{
+				top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
+				in->Fi0_top[z][x]= -(top_l+Xi+Eg);
+			}else
+			{
+				top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
+				in->Fi0_top[z][x]= -Xi+top_l;
+			}
+		}else
+		{		//No contact
+			top_l=get_top_from_p(in,1e15,in->Te[z][x][0],in->imat[z][x][0]);
+			in->Fi0_top[z][x]= -(top_l+Xi+Eg);
+		}
+
+		in->Vl[z][x]=in->Fi0_top[z][x]-in->Fi0_top[0][0];		//Everything is referenced to the [0][0] point.
+		//printf("%Le\n",in->Vl[z][x]);
+	}
+}
+//getchar();
+left_ref_to_zero=in->Fi0_top[0][0];
+Ef=in->Fi0_top[0][0];
 
 if (get_dump_status(sim,dump_info_text)==TRUE)
 {
@@ -360,11 +379,10 @@ for (z=0;z<in->zmeshpoints;z++)
 	}
 }
 
-in->Vl=0.0;
 in->Vr=delta_phi;
 in->Vbi=delta_phi;
 init_dump(sim,in);
-//getchar();
+
 contacts_passivate(sim,in);
 if (in->stoppoint==1) exit(0);
 return;

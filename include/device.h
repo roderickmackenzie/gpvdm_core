@@ -63,7 +63,6 @@ struct device
 		int remesh_y;
 		int remesh_z;
 		int newmeshsize;
-		gdouble Vl;
 		gdouble Vr;
 		int excite_conv;
 		int thermal_conv;
@@ -100,6 +99,9 @@ struct device
 		gdouble **Jnright;
 		gdouble **Jpleft;
 		gdouble **Jpright;
+
+		gdouble **Fi0_top;		//This is the equilibrium fermi level of the contact were it in free space, i.e. with no phi subtracted
+		gdouble **Vl;
 
 
 		//3D arrays zxy
@@ -146,6 +148,7 @@ struct device
 
 		gdouble ***R;
 		gdouble ***Fi;
+
 		int ***imat;
 		int ***imat_epitaxy;
 		gdouble ***Jn;

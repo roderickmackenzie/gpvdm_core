@@ -43,7 +43,6 @@ struct contact
 	long double np;
 	int charge_type;
 	long double area;
-
 };
 
 #endif
