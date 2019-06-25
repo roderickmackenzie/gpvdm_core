@@ -158,6 +158,7 @@ void device_free(struct simulation *sim,struct device *in)
 	free_zx_gdouble(in,in->r_holes);
 	free_zx_gdouble(in,in->Fi0_top);
 	free_zx_gdouble(in,in->Vl);
+	free_zx_gdouble(in,in->Vr);
 
 	//3d
 	free_3d_gdouble(in,in->phi);
@@ -340,6 +341,8 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_zx_gdouble(in,&(in->r_holes));
 	malloc_zx_gdouble(in,&(in->Fi0_top));
 	malloc_zx_gdouble(in,&(in->Vl));
+	malloc_zx_gdouble(in,&(in->Vr));
+
 
 	//3d
 	malloc_3d_gdouble(in,&(in->nf_save));

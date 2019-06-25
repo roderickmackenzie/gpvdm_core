@@ -310,6 +310,37 @@ void malloc_zx_gdouble(struct device *in, gdouble * (**var))
 
 }
 
+void mem_set_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in)
+{
+	int z=0;
+	int x=0;
+
+
+	for (z = 0; z < in->zmeshpoints; z++)
+	{
+		for (x = 0; x < in->xmeshpoints; x++)
+		{
+			data_out[z][x]=data_in[z][x];
+		}
+	}
+
+}
+
+void mem_add_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in)
+{
+	int z=0;
+	int x=0;
+
+
+	for (z = 0; z < in->zmeshpoints; z++)
+	{
+		for (x = 0; x < in->xmeshpoints; x++)
+		{
+			data_out[z][x]+=data_in[z][x];
+		}
+	}
+
+}
 void free_zx_gdouble(struct device *in, gdouble **var)
 {
 	int z=0;

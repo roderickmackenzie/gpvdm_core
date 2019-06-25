@@ -105,7 +105,7 @@ void contacts_time_step(struct simulation *sim,struct device *in)
 int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in)
 {
 int i;
-static long double dV=0.1;
+static long double dV=0.12;
 int up=TRUE;
 int changed=FALSE;
 
@@ -281,6 +281,7 @@ for (x=0;x<in->xmeshpoints;x++)
 
 }
 
+
 void contacts_dump(struct simulation *sim,struct device *in)
 {
 int i;
@@ -291,10 +292,22 @@ int i;
 			printf_log(sim,"%-10s\tV=%Le\tA=%Le\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].area);
 		}
 
-		printf("%Le %Le\n",in->Vapplied_l[0][0],in->Vapplied_r[0][0]);
 
-		printf("%Le\n",in->flip_current);
+		//printf("%Le\n",in->flip_current);
 	}
+
+	int z=0;
+	int x=0;
+
+
+	for (z = 0; z < in->zmeshpoints; z++)
+	{
+		for (x = 0; x < in->xmeshpoints; x++)
+		{
+			printf("%.2Lf %.2Lf\n",in->Vapplied_l[z][x],in->Vapplied_r[z][x]);
+		}
+	}
+
 }
 
 void contacts_update(struct simulation *sim,struct device *in)
@@ -382,6 +395,8 @@ for (i=0;i<in->ncontacts;i++)
 
 
 }
+
+//contacts_dump(sim,in);
 
 }
 

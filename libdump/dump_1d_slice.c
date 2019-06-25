@@ -47,6 +47,8 @@ int x;
 int y;
 int z;
 long double ***temp_3d;
+long double **temp_top;
+long double **temp_btm;
 int band;
 char name[100];
 char temp[200];
@@ -459,10 +461,24 @@ buffer_init(&buf);
 	buf.time=in->time;
 	buf.Vexternal=Vexternal;
 	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
+	buf.y=in->ymeshpoints+2;
 	buf.z=in->zmeshpoints;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->phi);
+
+	malloc_zx_gdouble(in, &temp_top);
+	malloc_zx_gdouble(in, &temp_btm);
+
+	mem_set_zx_gdouble_from_zx_gdouble(in, temp_top, in->Vl);
+	mem_add_zx_gdouble_from_zx_gdouble(in, temp_top, in->Vapplied_l);
+
+	mem_set_zx_gdouble_from_zx_gdouble(in, temp_btm, in->Vr);
+	mem_add_zx_gdouble_from_zx_gdouble(in, temp_btm, in->Vapplied_r);
+
+	buffer_add_3d_device_data_including_boundaries(sim,&buf,in,  in->phi,temp_top,temp_btm);
+
+	free_zx_gdouble(in, temp_btm);
+	free_zx_gdouble(in, temp_top);
+
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -1051,6 +1067,7 @@ buffer_init(&buf);
 	strcpy(buf.section_two,_("Charge density"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
+	buf.logscale_data=1;
 	buf.time=in->time;
 	buf.Vexternal=Vexternal;
 	buf.x=in->xmeshpoints;

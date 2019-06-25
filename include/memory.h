@@ -50,6 +50,10 @@ void three_d_set_gdouble(struct device *in, gdouble ***var, gdouble val);
 void three_d_sub_gdouble(struct device *in, gdouble ***var, gdouble ***sub);
 void three_d_add_gdouble(struct device *in, gdouble ***var, gdouble ***add);
 
+//2d opps
+void mem_set_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in);
+void mem_add_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in);
+
 void memory_flip_1d_long_double(long double *var,int len);
 void memory_flip_1d_int(int *var,int len);
 

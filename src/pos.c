@@ -268,7 +268,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 		if (in->interfaceright==TRUE)
 		{
-			in->phi[z][x][in->ymeshpoints-1]=in->Vr;
+			in->phi[z][x][in->ymeshpoints-1]=in->Vr[z][x];
 		}
 
 		pos=0;
@@ -293,7 +293,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 			if (i==(in->ymeshpoints-1))
 			{
-				phir=in->Vr;
+				phir=in->Vr[z][x];
 				er=in->epsilonr[z][x][i]*epsilon0;
 				yr=in->ymesh[i]+(in->ymesh[i]-in->ymesh[i-1]);
 			}else
@@ -370,7 +370,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 				if (i==in->ymeshpoints-2)
 				{
 					dphir_d=0.0;
-					phir=in->Vr;
+					phir=in->Vr[z][x];
 
 				}
 
@@ -609,7 +609,7 @@ free(b);
 
 
 //printf_log(sim,"%s\n",_("Converged"));
-printf_log(sim,"Vl=%Le Vr=%Le phi_mid=%Le\n",in->Vl[0][0],in->Vr, in->phi[z][x][in->ymeshpoints/2]);
+printf_log(sim,"Vl=%Le Vr=%Le phi_mid=%Le\n",in->Vl[0][0],in->Vr[z][x], in->phi[z][x][in->ymeshpoints/2]);
 
 return 0;
 }

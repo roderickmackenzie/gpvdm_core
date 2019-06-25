@@ -261,17 +261,10 @@ for (z=0;z<in->zmeshpoints;z++)
 left_ref_to_zero=in->Fi0_top[0][0];
 Ef=in->Fi0_top[0][0];
 
-if (get_dump_status(sim,dump_info_text)==TRUE)
-{
-	printf_log(sim,"check1= %Le %Le\n",get_p_den(in,top_l,in->Te[0][0][0],in->imat[0][0][0]),charge_left);
-	printf_log(sim,"check2= %Le %Le\n",get_n_den(in,top_r,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]),charge_right);
-}
 
 delta_phi=right_ref_to_zero-left_ref_to_zero;
 
 
-//printf("%Le %Le %Le %Le %Le\n",left_ref_to_zero,right_ref_to_zero,delta_phi,top_l,charge_left);
-//getchar();
 in->vbi=delta_phi;
 if (get_dump_status(sim,dump_print_text)==TRUE)
 {
@@ -283,18 +276,11 @@ if (get_dump_status(sim,dump_print_text)==TRUE)
 }
 
 
-//printf("%Lf %Lf %Lf %Lf\n",top_l,Xi,Eg,top_r);
-//printf("top_l %Le \n",top_l);
-//printf("Xi %Le\n",in->Xi[0][0][0]);
-//printf("phi %Le\n",in->phi[0][0][0]);
-//printf("Eg %Le\n",Eg);
-//printf("Ef %Le\n",Ef);
+
 
 //printf("total %Le\n",(-in->Xi[0][0][0]-in->phi[0][0][0]-Eg)-Ef);
 
 printf(">>rod>>%Le\n",Ef-(-in->Xi[0][0][0]-in->phi[0][0][0]));
-gdouble Lp=get_p_den(in,(-in->Xi[0][0][0]-in->phi[0][0][0]-Eg)-Ef,in->Th[0][0][0],in->imat[0][0][0]);
-gdouble Ln=get_n_den(in,Ef-(-in->Xi[0][0][0]-in->phi[0][0][0]),in->Te[0][0][0],in->imat[0][0][0]);
 
 gdouble Rp=get_p_den(in,(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
 gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi),in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
@@ -303,14 +289,17 @@ for (z=0;z<in->zmeshpoints;z++)
 {
 	for (x=0;x<in->xmeshpoints;x++)
 	{
-		in->l_electrons[z][x]=Ln;
-		in->l_holes[z][x]=Lp;
+		in->l_electrons[z][x]=get_n_den(in,Ef-(-in->Xi[z][x][0]-in->Vl[z][x]),in->Te[z][x][0],in->imat[z][x][0]);
+		in->l_holes[z][x]=get_p_den(in,(-in->Xi[z][x][0]-in->Vl[z][x]-in->Eg[z][x][0])-Ef,in->Th[z][x][0],in->imat[z][x][0]);;
+		printf_log(sim,"Left (%d,%d)  p=%Le n=%Le\n",z,x,in->l_holes[z][x],in->l_electrons[z][x]);
+
 		in->r_electrons[z][x]=Rn;
 		in->r_holes[z][x]=Rp;
+
+		in->Vr[z][x]=delta_phi;
+
 	}
 }
-printf_log(sim,"Lp = %Le\n",Lp);
-printf_log(sim,"Ln = %Le\n",Ln);
 printf_log(sim,"Rp = %Le\n",Rp);
 printf_log(sim,"Rn = %Le\n",Rn);
 
@@ -379,7 +368,6 @@ for (z=0;z<in->zmeshpoints;z++)
 	}
 }
 
-in->Vr=delta_phi;
 in->Vbi=delta_phi;
 init_dump(sim,in);
 
