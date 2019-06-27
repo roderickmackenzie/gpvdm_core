@@ -399,7 +399,7 @@ buffer_free(&buf);
 buffer_malloc(&buf);
 buf.y_mul=1.0;
 buf.data_mul=1.0;
-sprintf(buf.title,"%s - %s",_("Charge density"),_("Applied voltage"));
+sprintf(buf.title,"%s - %s",_("Excess charge density above equilibrium"),_("Applied voltage"));
 strcpy(buf.type,"xy");
 strcpy(buf.y_label,_("Applied Voltage"));
 strcpy(buf.data_label,_("Charge density"));
@@ -455,6 +455,7 @@ buffer_add_xy_data(sim,&buf,jvexternal.x, jvexternal.data, jvexternal.len);
 buffer_dump_path(sim,get_output_path(sim),"jv.dat",&buf);
 buffer_free(&buf);
 
+/*
 buffer_malloc(&buf);
 buf.y_mul=1.0;
 buf.data_mul=1.0;
@@ -473,7 +474,8 @@ buffer_add_info(sim,&buf);
 buffer_add_xy_data(sim,&buf,jv.x, jv.data, jv.len);
 buffer_dump_path(sim,get_output_path(sim),"jv_internal.dat",&buf);
 buffer_free(&buf);
-
+*/
+/*
 buffer_malloc(&buf);
 buf.y_mul=1.0;
 buf.data_mul=1.0;
@@ -492,6 +494,7 @@ buffer_add_info(sim,&buf);
 buffer_add_xy_data(sim,&buf,jvavg.x, jvavg.data, jvavg.len);
 buffer_dump_path(sim,get_output_path(sim),"jv_avg.dat",&buf);
 buffer_free(&buf);
+*/
 
 inter_mul(&jvexternal,in->area);
 buffer_malloc(&buf);

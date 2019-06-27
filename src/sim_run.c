@@ -61,7 +61,7 @@ dump_init(sim,&cell);
 
 set_dump_status(sim,dump_stop_plot, FALSE);
 set_dump_status(sim,dump_print_text, TRUE);
-
+dump_load_config(sim,&cell);
 
 char temp[PATHLEN];
 
@@ -71,7 +71,7 @@ cell.kl_in_newton=FALSE;
 
 //if (strcmp(inputpath,"")!=0) strcpy(get_input_path(sim),inputpath);
 
-dump_load_config(sim,&cell);
+
 
 int i;
 int z;

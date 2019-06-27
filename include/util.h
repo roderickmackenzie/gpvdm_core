@@ -74,5 +74,6 @@ int replace_number_in_string(char *buf, char* in, double replace, int n);
 int get_number_in_string(double *out, char* in, int n);
 void remove_file(struct simulation *sim,char* file_name);
 void poll_gui(struct simulation *sim);
+int str_isnumber(char *input) ;
 
 #endif

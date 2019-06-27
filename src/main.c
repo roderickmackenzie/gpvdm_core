@@ -267,6 +267,7 @@ if (scanarg( argv,argc,"--simmode")==TRUE)
 
 if (run==FALSE)
 {
+	set_logging_level(&sim,log_level_screen_and_disk);
 	gen_dos_fd_gaus_fd(&sim);
 
 	server_add_job(&sim,sim.output_path,sim.input_path);
