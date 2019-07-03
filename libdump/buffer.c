@@ -35,8 +35,6 @@
 #include "dump.h"
 #include <log.h>
 #include <cache.h>
-#include <lock.h>
-
 
 void buffer_zip_set_name(struct buffer *in,char * name)
 {
@@ -346,13 +344,9 @@ void buffer_dump(struct simulation *sim,char * file,struct buffer *in)
 	int out_len;
 	char *out_data;
 
-	if (lock_is_trial()==TRUE)
 	{
-		lock_ecrypt(&out_data,in->buf,&out_len,in->len,"hello");
+		fwrite(in->buf, in->len, 1, out);
 	}
-
-	fwrite(out_data, out_len, 1, out);
-	free(out_data);
 
 	fclose(out);
 
