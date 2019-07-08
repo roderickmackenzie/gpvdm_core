@@ -44,6 +44,8 @@
 #include <cache.h>
 #include <sys/stat.h>
 #include "measure.h"
+#include <color.h>
+
 
 int run_simulation(struct simulation *sim)
 {
@@ -112,6 +114,7 @@ join_path(2,temp,get_output_path(sim),"frequency");
 remove_dir(sim,temp);
 
 load_config(sim,&cell);
+color_cie_load(sim,&cell);
 
 if (strcmp(sim->force_sim_mode,"")!=0)
 {
@@ -310,6 +313,7 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 		device_free(sim,&cell);
 		device_free_traps(&cell);
 		mesh_free(sim,&cell);
+		color_cie_load(sim,&cell);
 		return 0;
 	}
 }
@@ -347,6 +351,8 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 	device_free(sim,&cell);
 	device_free_traps(&cell);
 	mesh_free(sim,&cell);
+	color_cie_load(sim,&cell);
+
 	plot_close(sim);
 
 	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)

@@ -73,6 +73,7 @@ strcpy(in->data_label,"");
 strcpy(in->x_units,"");
 strcpy(in->y_units,"");
 strcpy(in->z_units,"");
+strcpy(in->rgb,"");
 strcpy(in->data_units,"");
 strcpy(in->section_one,"");
 strcpy(in->section_two,"");
@@ -269,6 +270,12 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 	sprintf(temp,"#z_units %s\n",in->z_units);
 	buffer_add_string(in,temp);
+
+	if (strcmp(in->rgb,"")!=0)
+	{
+		sprintf(temp,"#rgb %s\n",in->rgb);
+		buffer_add_string(in,temp);
+	}
 
 	sprintf(temp,"#data_units %s\n",in->data_units);
 	buffer_add_string(in,temp);

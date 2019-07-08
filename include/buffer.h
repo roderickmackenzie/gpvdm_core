@@ -48,6 +48,7 @@ char data_label[100];
 char x_units[100];
 char y_units[100];
 char z_units[100];
+char rgb[100];
 char data_units[100];
 char section_one[100];
 char section_two[100];

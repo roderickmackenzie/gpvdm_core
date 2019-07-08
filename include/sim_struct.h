@@ -67,6 +67,7 @@ struct simulation
 	char exe_path[400];
 	char exe_path_dot_dot[400];
 	char materials_path[400];
+	char cie_color_path[400];
 	char spectra_path[400];
 	char home_path[400];
 

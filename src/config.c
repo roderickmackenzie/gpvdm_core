@@ -78,7 +78,6 @@ join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
 
 epitaxy_load(sim,&(in->my_epitaxy),device_file_path);
 
-
 mesh_load(sim,in);
 device_get_memory(sim,in);
 mesh_build(sim,in);

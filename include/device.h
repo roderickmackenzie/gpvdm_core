@@ -490,6 +490,11 @@ struct device
 
 	long double flip_current;
 
+	struct istruct cie_x;
+	struct istruct cie_y;
+	struct istruct cie_z;
+
+
 };
 
 void device_init(struct device *in);
