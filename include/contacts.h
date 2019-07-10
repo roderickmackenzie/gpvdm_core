@@ -29,6 +29,8 @@
 #define contacts_h
 
 #include "contact_struct.h"
+#include <sim_struct.h>
+#include <device.h>
 
 gdouble contact_get_active_contact_voltage_last(struct simulation *sim,struct device *in);
 void contacts_passivate(struct simulation *sim,struct device *in);

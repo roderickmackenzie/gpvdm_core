@@ -27,7 +27,7 @@
 
 #ifndef cal_path_h
 #define cal_path_h
-#include <device.h>
+#include <sim_struct.h>
 
 void cal_path(struct simulation *sim);
 char *get_plugins_path(struct simulation *sim);

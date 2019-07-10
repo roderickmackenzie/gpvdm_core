@@ -26,6 +26,8 @@
 
 #ifndef cie_color_h
 #define cie_color_h
+#include <sim_struct.h>
+#include <device.h>
 
 void color_cie_load(struct simulation *sim,struct device *in);
 void color_cie_free(struct simulation *sim,struct device *in);

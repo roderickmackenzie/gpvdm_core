@@ -45,6 +45,8 @@
 #include <sys/stat.h>
 #include "measure.h"
 #include <color.h>
+#include <ray_fun.h>
+
 
 
 int run_simulation(struct simulation *sim)
@@ -233,7 +235,8 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 	}
 
 	light_load_dlls(sim,&cell.mylight);
-	light_setup_ray(sim,&cell,&cell.mylight,&cell.my_epitaxy);
+
+	light_setup_ray(sim,&cell,&(cell.mylight.my_image),&cell.my_epitaxy);
 
 
 	if (cell.led_on==TRUE)

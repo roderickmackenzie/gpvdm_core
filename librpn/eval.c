@@ -32,6 +32,7 @@
 #include "const.h"
 #include <rpn.h>
 #include <log.h>
+#include <math.h>
 
 char* eval_sin(char *out,char* a,char* b)
 {
