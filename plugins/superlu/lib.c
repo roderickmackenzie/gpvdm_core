@@ -269,7 +269,6 @@ for (i=0;i<nz;i++)
 //	printf("boom\n");
 //	getchar();
     StatFree(&stat);
-
 //printf("finished\n");
 //getchar();
 
