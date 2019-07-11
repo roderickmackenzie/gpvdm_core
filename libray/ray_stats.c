@@ -19,26 +19,43 @@
 // 
 // 
 
-/** @file plugin.c
-	@brief JV plugin interface.
+#include <stdio.h>
+#include <ray.h>
+#include <const.h>
+#include <math.h>
+#include <stdlib.h>
+#include <cal_path.h>
+#include <log.h>
+#include <ray_fun.h>
+
+/** @file ray_stats.c
+	@brief Perfrom stats on the ray tracing image
 */
 
-
-#include <solver_interface.h>
-#include <dll_export.h>
-#include <log.h>
-#include <dump.h>
-#include "jv.h"
-
-struct dll_interface *fun;
-
-EXPORT void set_interface()
+void ray_cal_escape_angle(struct image *in,int l)
 {
+	for (i=0;i<in->escape_angle_bins;i++)
+	{
+		in->ang_escape[l][i]=0.0;
+	}
+
 }
 
-EXPORT void dll_run_simulation(struct simulation *sim,struct device *in)
+double get_eff(struct image *in)
 {
-sim_jv(sim,in);
+int i;
+double tot=0.0;
+	for (i=0;i<in->nrays;i++)
+	{
+		if (in->rays[i].state==DONE)
+		{
+			if (in->rays[i].xy_end.y<in->y_escape_level)
+			{
+				tot+=in->rays[i].mag;
+			}
+		}
+		
+	}
+
+return tot;
 }
-
-

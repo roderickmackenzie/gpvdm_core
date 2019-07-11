@@ -70,6 +70,17 @@ struct image
 	int n_start_rays;
 	int theta_steps;
 	double y_escape_level;
+
+	int escape_angle_bins;
+	long double *angle;
+	long double **ang_escape;
+	int ray_wavelength_points;
+	long double ray_wavelength_start;
+	long double ray_wavelength_stop;
+	long double *lam;
+	long double *extract_eff;
+	int ray_auto_run;
+	int ray_escape_bins;
 };
 
 

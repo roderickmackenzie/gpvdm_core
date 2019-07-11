@@ -35,6 +35,7 @@
 #include "log.h"
 #include <solver_interface.h>
 #include "memory.h"
+#include "ray_fun.h"
 
 void device_alloc_traps(struct device *in)
 {
@@ -276,6 +277,9 @@ void device_free(struct simulation *sim,struct device *in)
 	solver_free(sim);
 	complex_solver_free(sim);
 	printf_log(sim,"%s %i %s\n", _("Solved"), in->odes, _("Equations"));
+
+	ray_free(sim,&(in->my_image));
+
 }
 
 void device_get_memory(struct simulation *sim,struct device *in)
@@ -530,6 +534,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 
 	malloc_3d_int(in,&(in->imat));
 	malloc_3d_int(in,&(in->imat_epitaxy));
+
 
 
 }

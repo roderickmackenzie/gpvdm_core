@@ -52,7 +52,6 @@ void light_import_epitaxy(struct simulation *sim,struct light *in,struct epitaxy
 {
 	int i;
 	in->my_epitaxy=my_epitaxy;
-	in->ray_trace=FALSE;
 	in->force_update=FALSE;
 	
 

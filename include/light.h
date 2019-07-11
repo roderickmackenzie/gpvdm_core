@@ -118,11 +118,7 @@ int force_update;
 int device_start_layer;
 int device_start_i;
 
-//Ray tracing
-int ray_trace;
 long double *extract_eff;
-
-struct image my_image;
 
 //Flags
 int align_mesh;

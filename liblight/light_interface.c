@@ -188,7 +188,6 @@ void light_init(struct light *in)
 	in->layers=-1;
 	in->thick=NULL;
 	in->G_percent=NULL;
-	image_init(&in->my_image);
 	in->disable_cal_photon_density=FALSE;
 }
 

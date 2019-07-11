@@ -106,7 +106,10 @@ if (get_dump_status(sim,dump_newton)==TRUE)
 //remove_dir(sim,temp);
 dump_remove_snapshots(sim);
 
-join_path(2,temp,get_output_path(sim),"light_dump");
+join_path(2,temp,get_output_path(sim),"optics_output");
+remove_dir(sim,temp);
+
+join_path(2,temp,get_output_path(sim),"ray_trace");
 remove_dir(sim,temp);
 
 join_path(2,temp,get_output_path(sim),"dynamic");
@@ -117,6 +120,7 @@ remove_dir(sim,temp);
 
 load_config(sim,&cell);
 color_cie_load(sim,&cell);
+ray_read_config(sim,&(cell.my_image));
 
 if (strcmp(sim->force_sim_mode,"")!=0)
 {
@@ -228,31 +232,14 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 		light_setup_dump_dir(sim,&cell.mylight);
 	}
 
-	if (cell.led_on==TRUE)
-	{
-		strcpy(old_model,cell.mylight.mode);
-		strcpy(cell.mylight.mode,"ray");
-	}
-
 	light_load_dlls(sim,&cell.mylight);
 
-	light_setup_ray(sim,&cell,&(cell.mylight.my_image),&cell.my_epitaxy);
+	light_setup_ray(sim,&cell,&(cell.my_image),&cell.my_epitaxy);
 
-
-	if (cell.led_on==TRUE)
+	if (cell.my_image.ray_auto_run==TRUE)
 	{
-		cell.mylight.force_update=TRUE;
-
-		light_set_sun(&(cell.mylight),1.0);
-		light_set_sun_delta_at_wavelength(sim,&(cell.mylight),cell.led_wavelength);
-		//light_set_unity_power(&(cell.mylight));
-		light_solve_all(sim,&(cell.mylight));
-
-		cell.mylight.force_update=FALSE;
-		strcpy(cell.mylight.mode,old_model);
-		light_set_sun(&(cell.mylight),old_Psun);
-		light_free_dlls(sim,&cell.mylight);
-		light_load_dlls(sim,&cell.mylight);
+		ray_solve(sim,&cell, 0);
+		
 	}
 	///////////////////////
 
