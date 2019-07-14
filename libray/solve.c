@@ -46,6 +46,8 @@ double get_rand()
 
 void ray_solve(struct simulation *sim,struct device *in, int l)
 {
+	ray_escape_angle_reset(&(in->my_image),l);
+
 	int i;
 	double x_vec;
 	double y_vec;
@@ -88,12 +90,15 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 	//for (x=0;x<in->my_image.n_start_rays;x++)
 	x=5;
 	{
-		angle=0.0;
-		for (ii=0;ii<nang;ii++)
+		angle=in->my_image.ray_theta_start;
+		dang=((in->my_image.ray_theta_stop-in->my_image.ray_theta_start)/(long double)in->my_image.theta_steps);
+
+		while(angle<in->my_image.ray_theta_stop)
 		{
-			angle+=dang;
 			//angle=42.0;
 			//angle=get_rand()*360.0;
+			//printf("%lf %lf\n",dang,angle);
+			//getchar();
 			x_vec=cos(2*PI*(angle/360.0));
 			y_vec=sin(2*PI*(angle/360.0));
 
@@ -136,10 +141,14 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 				dump_plane_to_file(name,&in->my_image);
 			//}
 
+			ray_cal_escape_angle(&(in->my_image),l);
+
 			double e=get_eff(&in->my_image);
 			eff+=e;
 			sims++;
 			ray_reset(&in->my_image);
+
+			angle+=dang;
 		}
 		
 	}

@@ -37,6 +37,8 @@
 #endif
 
 
+#include <dirent.h>
+
 struct dumpfiles_struct
 {
 char file_name[100];
@@ -58,18 +60,19 @@ struct simulation
 
 	int log_level;
 	//paths
-	char plugins_path[400];
-	char lang_path[400];
-	char input_path[400];
-	char root_simulation_path[400];
-	char output_path[400];
-	char share_path[400];
-	char exe_path[400];
-	char exe_path_dot_dot[400];
-	char materials_path[400];
-	char cie_color_path[400];
-	char spectra_path[400];
-	char home_path[400];
+	char plugins_path[PATH_MAX];
+	char lang_path[PATH_MAX];
+	char input_path[PATH_MAX];
+	char root_simulation_path[PATH_MAX];
+	char output_path[PATH_MAX];
+	char share_path[PATH_MAX];
+	char exe_path[PATH_MAX];
+	char exe_path_dot_dot[PATH_MAX];
+	char materials_path[PATH_MAX];
+	char cie_color_path[PATH_MAX];
+	char emission_path[PATH_MAX];
+	char spectra_path[PATH_MAX];
+	char home_path[PATH_MAX];
 
 	//Matrix solver
 	int last_col;

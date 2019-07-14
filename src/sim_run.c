@@ -119,7 +119,7 @@ join_path(2,temp,get_output_path(sim),"frequency");
 remove_dir(sim,temp);
 
 load_config(sim,&cell);
-color_cie_load(sim,&cell);
+color_cie_load(sim);
 ray_read_config(sim,&(cell.my_image));
 
 if (strcmp(sim->force_sim_mode,"")!=0)
@@ -303,7 +303,7 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 		device_free(sim,&cell);
 		device_free_traps(&cell);
 		mesh_free(sim,&cell);
-		color_cie_load(sim,&cell);
+		color_cie_load(sim);
 		return 0;
 	}
 }
@@ -341,7 +341,7 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 	device_free(sim,&cell);
 	device_free_traps(&cell);
 	mesh_free(sim,&cell);
-	color_cie_load(sim,&cell);
+	color_cie_load(sim);
 
 	plot_close(sim);
 

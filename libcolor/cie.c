@@ -32,54 +32,60 @@
 	@brief Turn a wavelegngth to an RGB color.
 */
 
-void color_cie_load(struct simulation *sim,struct device *in)
+static	struct istruct cie_x;
+static	struct istruct cie_y;
+static	struct istruct cie_z;
+
+void color_cie_load(struct simulation *sim)
 {
 	char path[PATH_MAX];
 	join_path(2, path,get_cie_color_path(sim),"x.inp");
 
-	inter_load(sim,&(in->cie_x),path);
-	inter_sort(&(in->cie_x));
+	inter_load(sim,&(cie_x),path);
+	inter_sort(&(cie_x));
 
 	join_path(2, path,get_cie_color_path(sim),"y.inp");
-	inter_load(sim,&(in->cie_y),path);
-	inter_sort(&(in->cie_y));
+	inter_load(sim,&(cie_y),path);
+	inter_sort(&(cie_y));
 
 	join_path(2, path,get_cie_color_path(sim),"z.inp");
-	inter_load(sim,&(in->cie_z),path);
-	inter_sort(&(in->cie_z));
+	inter_load(sim,&(cie_z),path);
+	inter_sort(&(cie_z));
 }
 
-void color_cie_cal_XYZ_from_eV(struct simulation *sim,struct device *in,long double *X,long double *Y,long double *Z,struct istruct *L_eV)
+void color_cie_cal_XYZ(struct simulation *sim,long double *X,long double *Y,long double *Z,struct istruct *L_input, int input_in_ev)
 {
 int i;
 struct istruct L;
-inter_copy(&L,L_eV,TRUE);
+inter_copy(&L,L_input,TRUE);
 *X=0.0;
 *Y=0.0;
 *Z=0.0;
 
-for (i=0;i<L.len;i++)
+if (input_in_ev==TRUE)
 {
-	L.x[i]=	(hp*cl)/(L.x[i]*Q);
+	for (i=0;i<L.len;i++)
+	{
+		L.x[i]=	(hp*cl)/(L.x[i]*Q);
+	}
 }
-
 inter_sort(&L);
 
 inter_save(&L,"e.dat");
 
 long double dl=0.0;
-//inter_dump(sim,&(in->cie_x));
-for (i=0;i<in->cie_x.len-1;i++)
+//inter_dump(sim,&(cie_x));
+for (i=0;i<cie_x.len-1;i++)
 {
-	dl=in->cie_x.x[i+1]-in->cie_x.x[i];
-	(*X)+=dl*inter_get_hard(&L,in->cie_x.x[i])*(in->cie_x.data[i]);
+	dl=cie_x.x[i+1]-cie_x.x[i];
+	(*X)+=dl*inter_get_hard(&L,cie_x.x[i])*(cie_x.data[i]);
 
-	dl=in->cie_y.x[i+1]-in->cie_y.x[i];
-	(*Y)+=dl*inter_get_hard(&L,in->cie_y.x[i])*(in->cie_y.data[i]);
+	dl=cie_y.x[i+1]-cie_y.x[i];
+	(*Y)+=dl*inter_get_hard(&L,cie_y.x[i])*(cie_y.data[i]);
 
-	dl=in->cie_z.x[i+1]-in->cie_z.x[i];
-	(*Z)+=dl*inter_get_hard(&L,in->cie_z.x[i])*(in->cie_z.data[i]);
-	//printf("X=%Le %Le %Le\n",inter_get_hard(&L,in->cie_y.x[i]),in->cie_x.data[i],dl);
+	dl=cie_z.x[i+1]-cie_z.x[i];
+	(*Z)+=dl*inter_get_hard(&L,cie_z.x[i])*(cie_z.data[i]);
+	//printf("X=%Le %Le %Le\n",inter_get_hard(&L,cie_y.x[i]),cie_x.data[i],dl);
 	//getchar();
 }
 
@@ -127,11 +133,11 @@ if (max!=0)
 *B=(int)(b);
 }
 
-void color_cie_free(struct simulation *sim,struct device *in)
+void color_cie_free(struct simulation *sim)
 {
-	inter_free(&(in->cie_x));
-	inter_free(&(in->cie_y));
-	inter_free(&(in->cie_z));
+	inter_free(&(cie_x));
+	inter_free(&(cie_y));
+	inter_free(&(cie_z));
 
 }
 

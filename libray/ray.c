@@ -38,12 +38,15 @@ void image_init(struct image *in)
 	in->nrays=0;
 	in->objects=0;
 	in->n_start_rays=0;
-	in->ray_wavelength_start=0.0;
-	in->ray_wavelength_stop=0.0;
 	in->ray_wavelength_points=0;
 	in->extract_eff=NULL;
 	in->ray_auto_run=FALSE;
-	in->ray_escape_bins=0;
+	in->escape_bins=0;
+	in->ray_xsrc=-1.0;
+	in->ray_ysrc=-1.0;
+	in->ray_zsrc=-1.0;
+	in->ray_theta_start=0.0;
+	in->ray_theta_stop=360.0;
 }
 
 int between(double v, double x0, double x1)

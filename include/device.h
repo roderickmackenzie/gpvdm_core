@@ -487,10 +487,6 @@ struct device
 
 	long double flip_current;
 
-	struct istruct cie_x;
-	struct istruct cie_y;
-	struct istruct cie_z;
-
 	//Ray tracing
 
 	struct image my_image;

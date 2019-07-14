@@ -29,9 +29,9 @@
 #include <sim_struct.h>
 #include <device.h>
 
-void color_cie_load(struct simulation *sim,struct device *in);
-void color_cie_free(struct simulation *sim,struct device *in);
+void color_cie_load(struct simulation *sim);
+void color_cie_free(struct simulation *sim);
 void wavelength_to_rgb(int *r,int *g,int *b,double wavelength);
-void color_cie_cal_XYZ_from_eV(struct simulation *sim,struct device *in,long double *X,long double *Y,long double *Z,struct istruct *L);
+void color_cie_cal_XYZ(struct simulation *sim,long double *X,long double *Y,long double *Z,struct istruct *L_input, int input_in_ev);
 void color_XYZ_to_rgb(int *R,int *G, int *B,long double X,long double Y, long double Z);
 #endif

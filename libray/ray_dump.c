@@ -28,6 +28,7 @@
 #include <log.h>
 #include <ray_fun.h>
 #include <buffer.h>
+#include <string.h>
 
 /** @file ray.c
 	@brief Ray tracing for the optical model, this should really be split out into it's own library.
@@ -148,28 +149,29 @@ void dump_ang_escape(struct simulation *sim,struct image *in)
 
 	buffer_malloc(&buf);
 	buf.y_mul=1.0;
-	buf.y_mul=1e9;
+	buf.x_mul=1e9;
 	strcpy(buf.title,"Photon escape probability");
 	strcpy(buf.type,"heat");
-	strcpy(buf.y_label,"Angle");
-	strcpy(buf.x_label,"Wavelength");
-
+	strcpy(buf.y_label,"Wavelength");
+	strcpy(buf.x_label,"Angle");
 	strcpy(buf.data_label,"Probability");
-	strcpy(buf.y_units,"Degrees");
+
 	strcpy(buf.y_units,"nm");
+	strcpy(buf.x_units,"Degrees");
 	strcpy(buf.data_units,"a.u.");
+
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->escape_angle_bins;
+	buf.x=in->escape_bins;
 	buf.y=in->ray_wavelength_points;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
-
-	for (y=0;y<in->escape_angle_bins;y++)
+	
+	for (x=0;x<in->ray_wavelength_points;x++)
 	{
-		for (x=0;x<in->ray_wavelength_points;x++)
+		for (y=0;y<in->escape_bins;y++)
 		{
-			sprintf(temp,"%Le %Le %Le\n",in->lam[x],my_image->angle[y],in->ang_escape[x][y]);
+			sprintf(temp,"%Le %Le %Le\n",in->lam[x],in->angle[y],in->ang_escape[x][y]);
 			buffer_add_string(&buf,temp);
 		}
 		buffer_add_string(&buf,"\n");

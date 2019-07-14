@@ -6,7 +6,7 @@ LINK_FLAG=@LINK_FLAG@
 
 inc=-I../include/
 
-OBJS=ray.o build.o solve.o ray_dump.o ray_stats.o
+OBJS=ray.o build.o solve.o ray_dump.o ray_stats.o ray_mat.o
 
 all: $(OBJS)
 	$(AR) rcs libgpvdm_ray.@SLIB_EXT@ $(OBJS)

@@ -27,6 +27,7 @@
 #define ray_h
 
 #include <vec.h>
+#include <i.h>
 #include <sim_struct.h>
 
 #define WAIT 0
@@ -42,6 +43,7 @@ struct plane
 {
 	struct vec xy0;
 	struct vec xy1;
+	struct vec xy2;
 	int id;
 	int edge;
 };
@@ -70,17 +72,21 @@ struct image
 	int n_start_rays;
 	int theta_steps;
 	double y_escape_level;
-
-	int escape_angle_bins;
+	char input_spectrum_file[PATH_MAX];
+	struct istruct input_spectrum;
 	long double *angle;
 	long double **ang_escape;
 	int ray_wavelength_points;
-	long double ray_wavelength_start;
-	long double ray_wavelength_stop;
 	long double *lam;
 	long double *extract_eff;
 	int ray_auto_run;
-	int ray_escape_bins;
+	int escape_bins;
+	long double ray_xsrc;
+	long double ray_ysrc;
+	long double ray_zsrc;
+	long double ray_theta_start;
+	long double ray_theta_stop;
+
 };
 
 
