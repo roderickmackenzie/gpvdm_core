@@ -71,7 +71,6 @@ double ray_cal_escape_angle(struct image *in,int l)
 	}
 
 return tot;
-//getchar();
 }
 
 double get_eff(struct image *in)

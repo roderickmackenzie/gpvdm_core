@@ -74,17 +74,6 @@ int between(double v, double x0, double x1)
 	return -1;
 }
 
-void add_plane(struct image *in, double x0,double y0,double x1,double y1,int id,int edge)
-{
-	in->p[in->lines].xy0.x=x0;
-	in->p[in->lines].xy1.x=x1;
-	in->p[in->lines].xy0.y=y0;
-	in->p[in->lines].xy1.y=y1;
-	in->p[in->lines].edge=edge;
-	in->p[in->lines].id=id;
-	in->lines++;
-}
-
 
 void ray_reset(struct image *in)
 {
@@ -113,7 +102,7 @@ void add_ray(struct simulation *sim,struct image *in,struct vec *start,struct ve
 
 
 
-void obj_norm(struct vec *ret,struct plane *my_obj)
+void obj_norm(struct vec *ret,struct triangle *my_obj)
 {
 	double norm=0.0;
 	vec_cpy(ret,&(my_obj->xy0));
@@ -124,7 +113,7 @@ void obj_norm(struct vec *ret,struct plane *my_obj)
 }
 
 
-int ray_intersect(struct vec *ret,struct plane *my_obj,struct ray *my_ray)
+int ray_intersect(struct vec *ret,struct triangle *my_obj,struct ray *my_ray)
 {
 double x1=my_obj->xy0.x;
 double x2=my_obj->xy1.x;
@@ -547,13 +536,4 @@ int propergate_next_ray(struct simulation *sim,struct image *in)
 return 0;
 }
 
-void add_box(struct image *in,double start_x,double start_y,double x_len,double y_len,int material,int sim_edge)
-{
-	add_plane(in,start_x,start_y,start_x+x_len,start_y,in->objects,sim_edge);	
-	add_plane(in,start_x+x_len,start_y,start_x+x_len,start_y+y_len,in->objects,sim_edge);
-	add_plane(in,start_x,start_y+y_len,start_x+x_len,start_y+y_len,in->objects,sim_edge);
-	add_plane(in,start_x,start_y,start_x,start_y+y_len,in->objects,sim_edge);
-	in->obj_mat_number[in->objects]=material;
-	in->objects++;
-}
 

@@ -44,8 +44,10 @@ void dump_plane_to_file(char *file_name,struct image *in)
 
 	for (i=0;i<in->lines;i++)
 	{
-		fprintf(out,"%le %le\n",in->p[i].xy0.x,in->p[i].xy0.y);
-		fprintf(out,"%le %le\n",in->p[i].xy1.x,in->p[i].xy1.y);
+		fprintf(out,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
+		fprintf(out,"%le %le %le\n",in->p[i].xy1.z,in->p[i].xy1.x,in->p[i].xy1.y);
+		fprintf(out,"%le %le %le\n",in->p[i].xy2.z,in->p[i].xy2.x,in->p[i].xy2.y);
+		fprintf(out,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
 		fprintf(out,"\n");
 		fprintf(out,"\n");
 

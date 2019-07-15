@@ -39,7 +39,7 @@
 
 #define RAY_MAX 5000
 
-struct plane
+struct triangle
 {
 	struct vec xy0;
 	struct vec xy1;
@@ -60,7 +60,7 @@ struct ray
 
 struct image
 {
-	struct plane p[1000];
+	struct triangle p[1000];
 	struct ray rays[RAY_MAX];
 	int lines;
 	int nrays;

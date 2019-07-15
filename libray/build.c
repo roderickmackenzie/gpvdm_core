@@ -165,7 +165,11 @@ void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my
 	int i;
 
 	double xlen=cell->xlen;
+	double zlen=cell->zlen;
+
 	double dx=xlen*0.01;
+	double dz=zlen*0.01;
+
 	double device_start=epitaxy_get_device_start(my_epitaxy);
 	double device_stop=epitaxy_get_device_stop(my_epitaxy);
 
@@ -177,13 +181,14 @@ void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my
 
 	my_image->y_escape_level=-device_height*1.1;
 
-	add_box(my_image,0.0,sim_window_btm,xlen+dx*2.0,sim_window_top,-1,TRUE);
+	add_box(my_image,0.0,sim_window_btm, 0.0, xlen+dx*2.0,(sim_window_top-sim_window_btm),cell->zlen,-1,TRUE);
 
 	for (i=0;i<my_epitaxy->layers;i++)
 	{
-		add_box(my_image,dx,my_epitaxy->y_pos[i],xlen,fabs(my_epitaxy->width[i]),i,FALSE);
+		add_box(my_image,dx,my_epitaxy->y_pos[i],0.0,xlen,fabs(my_epitaxy->width[i]),zlen,i,FALSE);
 	}
-
+	//dump_plane_to_file("l.dat",my_image);
+	//exit(0);
 
 	my_image->n_start_rays=10;
 	double x_start=dx+dx/2.0;
