@@ -93,7 +93,7 @@ void ray_reset(struct image *in)
 
 void add_ray(struct simulation *sim,struct image *in,struct vec *start,struct vec *dir,double mag)
 {
-	if (mag>1e-2)
+	if (mag>1e-3)
 	{
 		vec_cpy(&(in->rays[in->nrays].xy),start);
 		vec_cpy(&(in->rays[in->nrays].dir),dir);

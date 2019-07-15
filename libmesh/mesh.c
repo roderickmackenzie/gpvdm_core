@@ -243,8 +243,8 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 	int pos=0;
 	int i=0;
 	int ii=0;
-	int z=0;
-	int x=0;
+	//int z=0;
+	//int x=0;
 	gdouble dpos=0.0;
 	long double dx=0.0;
 	long double len=0.0;
@@ -386,14 +386,14 @@ void mesh_build(struct simulation *sim,struct device *in)
 {
 
 	int shape=0;
-	int pos=0;
+	//int pos=0;
 	int z=0;
 	int x=0;
 	int y=0;
 
 	gdouble dpos=0.0;
-	long double dx=0.0;
-	long double len=0.0;
+	//long double dx=0.0;
+	//long double len=0.0;
 
 	//printf("%d\n",in->meshdata_y[0].n_points);
 	//getchar();
@@ -407,7 +407,7 @@ void mesh_build(struct simulation *sim,struct device *in)
 	//in->xmesh[pos]=dpos;
 	//in->ymesh[pos]=dpos;
 
-	len=0.0;
+	//len=0.0;
 	for (y=0;y<in->ymeshpoints;y++)
 	{
 		dpos=in->ymesh[y];

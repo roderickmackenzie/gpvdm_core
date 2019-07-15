@@ -31,6 +31,7 @@
 #include <inp.h>
 #include <util.h>
 #include <buffer.h>
+#include <color.h>
 
 /** @file ray_bat.c
 	@brief Materials loader for ray plugin
@@ -40,8 +41,6 @@
 
 void ray_load_emission(struct simulation *sim,struct image *my_image)
 {
-	int i;
-	char temp[200];
 	struct buffer buf;
 	long double max;
 	long double X;
@@ -55,6 +54,7 @@ void ray_load_emission(struct simulation *sim,struct image *my_image)
 	inter_sort(&(my_image->input_spectrum));
 
 	max=inter_get_max(&(my_image->input_spectrum));
+	inter_div_long_double(&(my_image->input_spectrum),max);
 
 	int min_pos=0;
 	int max_pos=0;
@@ -73,7 +73,10 @@ void ray_load_emission(struct simulation *sim,struct image *my_image)
 			break;
 		}
 	}
-	inter_chop(&(my_image->input_spectrum),my_image->input_spectrum.x[min_pos], my_image->input_spectrum.data[max_pos]);
+
+	//printf("%ld %ld\n",my_image->input_spectrum.len,max_pos);
+	//getchar();
+	inter_chop(&(my_image->input_spectrum),my_image->input_spectrum.x[min_pos], my_image->input_spectrum.x[max_pos]);
 
 	color_cie_cal_XYZ(sim,&X,&Y,&Z,&(my_image->input_spectrum),FALSE);
 	color_XYZ_to_rgb(&R,&G,&B,X,Y,Z);

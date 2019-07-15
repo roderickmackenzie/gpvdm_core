@@ -41,12 +41,12 @@ void ray_escape_angle_reset(struct image *in,int l)
 	}
 }
 
-void ray_cal_escape_angle(struct image *in,int l)
+
+double ray_cal_escape_angle(struct image *in,int l)
 {
 	int i;
-	int ii;
 	double mag=0.0;
-
+	double tot=0.0;
 	for (i=0;i<in->nrays;i++)
 	{
 		if (in->rays[i].state==DONE)
@@ -62,6 +62,7 @@ void ray_cal_escape_angle(struct image *in,int l)
 				double ang=raw_ang;
 				int bin=(int)((ang/180.0)*(double)in->escape_bins);
 				in->ang_escape[l][bin]+=in->rays[i].mag;
+				tot=tot+in->rays[i].mag;
 				//printf("%lf %lf %lf %lf\n",in->rays[i].dir.x,fabs(in->rays[i].dir.y),ang,raw_ang);
 				//getchar();
 			}
@@ -69,6 +70,8 @@ void ray_cal_escape_angle(struct image *in,int l)
 		
 	}
 
+return tot;
+//getchar();
 }
 
 double get_eff(struct image *in)

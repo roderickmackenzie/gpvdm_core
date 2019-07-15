@@ -55,14 +55,15 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 
 	long double lam =in->my_image.lam[l];
 	int x=0;
-	int ii=0;
 	int nang=(in->my_image.theta_steps);
 	double dang=360.0/((double)nang);
 	double eff=0.0;
 	int sims=0;
+	long double mag=0.0;
 
 	char name[400];
 	char out_dir[400];
+	char one[200];
 	struct stat st = {0};
 
 	FILE *out;
@@ -81,13 +82,19 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 	
 	//if (get_dump_status(sim,dump_optics)==TRUE)
 	//{
-	char one[100];
-	sprintf(one,"Ray tracing at %Lf nm\n",lam*1e9);
-	waveprint(sim,one,in->my_image.lam[l]*1e9);
+
+	mag=inter_get_hard(&(in->my_image.input_spectrum),lam);
+
+	sprintf(one,"Ray tracing at %Lf nm mag=%Lf\n",lam*1e9,mag);
+	//printf("%Lf\n",in->my_image.input_spectrum.data[in->my_image.input_spectrum.len-1]);
+	//inter_dump(sim,&(in->my_image.input_spectrum));
+	waveprint(sim,one,lam*1e9);
 	//}
 	light_update_ray_mat(sim,&(in->my_epitaxy),&(in->my_image),lam);
 
 	//for (x=0;x<in->my_image.n_start_rays;x++)
+
+
 	x=5;
 	{
 		angle=in->my_image.ray_theta_start;
@@ -108,11 +115,10 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 			struct vec dir;
 			vec_init(&dir);
 
-		
 			vec_set(&start,in->my_image.start_rays[x].x,in->my_image.start_rays[x].y,0.0);
 			vec_set(&dir,x_vec,y_vec,0.0);
 			
-			add_ray(sim,&in->my_image,&start,&dir,1.0);
+			add_ray(sim,&in->my_image,&start,&dir,mag);
 			activate_rays(&in->my_image);
 
 			//dump_plane(sim,&in->my_image);
@@ -140,8 +146,8 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 			//{
 				dump_plane_to_file(name,&in->my_image);
 			//}
-
-			ray_cal_escape_angle(&(in->my_image),l);
+			double tot=ray_cal_escape_angle(&(in->my_image),l);
+			//printf("%lf %lf\n",angle,tot);
 
 			double e=get_eff(&in->my_image);
 			eff+=e;

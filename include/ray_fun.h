@@ -63,7 +63,8 @@ void ray_read_config(struct simulation *sim,struct image *my_image);
 void ray_solve(struct simulation *sim,struct device *in, int l);
 void dump_extraction_efficiency(struct simulation *sim,struct image *in);
 void dump_ang_escape(struct simulation *sim,struct image *in);
-void ray_cal_escape_angle(struct image *in,int l);
+double ray_cal_escape_angle(struct image *in,int l);
 void ray_escape_angle_reset(struct image *in,int l);
 void ray_load_emission(struct simulation *sim,struct image *my_image);
+void dump_ang_escape_as_rgb(struct simulation *sim,struct image *in);
 #endif

@@ -166,7 +166,6 @@ void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my
 
 	double xlen=cell->xlen;
 	double dx=xlen*0.01;
-	double dy=cell->ylen*0.1;
 	double device_start=epitaxy_get_device_start(my_epitaxy);
 	double device_stop=epitaxy_get_device_stop(my_epitaxy);
 

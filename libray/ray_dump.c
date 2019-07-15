@@ -29,6 +29,7 @@
 #include <ray_fun.h>
 #include <buffer.h>
 #include <string.h>
+#include <color.h>
 
 /** @file ray.c
 	@brief Ray tracing for the optical model, this should really be split out into it's own library.
@@ -162,8 +163,8 @@ void dump_ang_escape(struct simulation *sim,struct image *in)
 
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->escape_bins;
-	buf.y=in->ray_wavelength_points;
+	buf.x=in->ray_wavelength_points;
+	buf.y=in->escape_bins;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 	
@@ -178,5 +179,67 @@ void dump_ang_escape(struct simulation *sim,struct image *in)
 	}
 
 	buffer_dump_path(sim,"","ang_escape.dat",&buf);
+	buffer_free(&buf);
+}
+
+void dump_ang_escape_as_rgb(struct simulation *sim,struct image *in)
+{
+	long double X;
+	long double Y;
+	long double Z;
+	int R;
+	int G;
+	int B;
+
+	int x;
+	int y;
+	char temp[200];
+	struct buffer buf;
+
+	struct istruct spec_out;
+
+	buffer_init(&buf);
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Photon escape probability");
+	strcpy(buf.type,"rgb");
+	strcpy(buf.y_label,"Angle");
+	strcpy(buf.x_label,"Angle");
+	strcpy(buf.data_label,"Color");
+
+	strcpy(buf.y_units,"Degrees");
+	strcpy(buf.x_units,"Degrees");
+	strcpy(buf.data_units,"a.u.");
+
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->escape_bins;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
+	
+
+	for (y=0;y<in->escape_bins;y++)
+	{
+		inter_init(sim,&spec_out);
+
+		for (x=0;x<in->ray_wavelength_points;x++)
+		{
+			inter_append(&spec_out,in->lam[x],in->ang_escape[x][y]);
+		}
+
+		color_cie_cal_XYZ(sim,&X,&Y,&Z,&spec_out,FALSE);
+
+		color_XYZ_to_rgb(&R,&G,&B,X,Y,Z);
+
+		sprintf(temp,"%Le %.2x%.2x%.2x\n",in->angle[y],R,G,B);
+		buffer_add_string(&buf,temp);
+
+		inter_free(&spec_out);
+	}
+
+	buffer_dump_path(sim,"","theta_color.dat",&buf);
 	buffer_free(&buf);
 }
