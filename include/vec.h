@@ -66,5 +66,5 @@ int vec_cmp(struct vec *my_vec1,struct vec *my_vec2);
 void rotx_vec(struct vec *out, struct vec *in,double a);
 void roty_vec(struct vec *out, struct vec *in,double a);
 void rotz_vec(struct vec *out, struct vec *in,double a);
-double ang_vec(struct vec *one,struct vec *two);
+double vec_ang(struct vec *one,struct vec *two);
 #endif

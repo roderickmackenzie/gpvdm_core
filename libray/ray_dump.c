@@ -37,9 +37,10 @@
 
 void dump_plane_to_file(char *file_name,struct image *in)
 {
+	printf("file dump\n");
 	FILE *out;
 
-	out=fopen("lines.dat","w");
+	out=fopen("triangles.dat","w");
 	int i=0;
 
 	for (i=0;i<in->lines;i++)
@@ -55,14 +56,17 @@ void dump_plane_to_file(char *file_name,struct image *in)
 
 	fclose(out);
 	//file_name
-	out=fopen(file_name,"a");
+	out=fopen("lines.dat","w");
 
 	for (i=0;i<in->nrays;i++)
 	{
 		if (in->rays[i].state==DONE)
 		{
-			fprintf(out,"%le %le\n",in->rays[i].xy.x,in->rays[i].xy.y);
-			fprintf(out,"%le %le\n",in->rays[i].xy_end.x,in->rays[i].xy_end.y);
+			fprintf(out,"%le %le %le\n",
+										in->rays[i].xy.z,		in->rays[i].xy.x,		in->rays[i].xy.y);
+			fprintf(out,"%le %le %le\n",
+										in->rays[i].xy_end.z,	in->rays[i].xy_end.x,	in->rays[i].xy_end.y);
+			fprintf(out,"\n");
 			fprintf(out,"\n");
 		}
 		
@@ -84,17 +88,24 @@ void dump_plane(struct simulation *sim,struct image *in)
 	int i=0;
 	printf_log(sim,"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
+	printf_log(sim,"start:\n");
 	for (i=0;i<in->n_start_rays;i++)
 	{
-		printf_log(sim,"%le %le\n",in->start_rays[i].x,in->start_rays[i].y);
+		printf_log(sim,"%le %le %le\n",in->start_rays[i].x,in->start_rays[i].y,in->start_rays[i].z);
 	}
 
-	printf_log(sim,"lines:\n");
+	printf_log(sim,"triangles:\n");
 	for (i=0;i<in->lines;i++)
 	{
-		printf_log(sim,"%le %le %le %le %d\n",in->p[i].xy0.x,in->p[i].xy0.y,in->p[i].xy1.x,in->p[i].xy1.y,in->p[i].edge);
+		printf_log(sim," (n=%le)\n",in->obj_n[in->p[i].id]);
+
+		printf_log(sim," (%le,%le,%le)\n",in->p[i].xy0.x,in->p[i].xy0.y,in->p[i].xy0.z);
+		printf_log(sim," (%le,%le,%le)\n",in->p[i].xy1.x,in->p[i].xy1.y,in->p[i].xy1.z);
+		printf_log(sim," (%le,%le,%le)\n",in->p[i].xy2.x,in->p[i].xy2.y,in->p[i].xy2.z);
+		printf_log(sim,"\n");
 
 
+//in->p[i].xy1.x,in->p[i].xy1.y,in->p[i].edge);
 	}
 
 	printf_log(sim,"rays x,y,x_vec,y_vec:\n");
@@ -102,7 +113,12 @@ void dump_plane(struct simulation *sim,struct image *in)
 
 	for (i=0;i<in->nrays;i++)
 	{
-		printf_log(sim,"%d (%le,%le) (%le,%le) %lf %lf mag=%lf\n",in->rays[i].state,in->rays[i].xy.x,in->rays[i].xy.y,in->rays[i].xy_end.x,in->rays[i].xy_end.y,in->rays[i].dir.x,in->rays[i].dir.y,in->rays[i].mag);
+		printf_log(sim,"%d (%le,%le,%le) (%le,%le,%le) (%lf,%lf,%lf) mag=%lf\n",
+				in->rays[i].state,
+				in->rays[i].xy.x		,	in->rays[i].xy.y	,	in->rays[i].xy.z,
+				in->rays[i].xy_end.x	,	in->rays[i].xy_end.y,	in->rays[i].xy_end.z,
+				in->rays[i].dir.x		,	in->rays[i].dir.y	,	in->rays[i].dir.z,
+				in->rays[i].mag);
 		
 	}
 	printf_log(sim,"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");

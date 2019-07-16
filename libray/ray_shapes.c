@@ -52,7 +52,6 @@ void add_triangle(struct image *in, double x0,double y0,double z0,double x1,doub
 }
 
 
-
 void add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int material,int sim_edge)
 {
 	//btm
@@ -78,7 +77,7 @@ void add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,
 					x0+dx	,y0+dy	,z0+dz		,
 					x0   	,y0+dy	,z0+dz		,
 													in->objects,sim_edge);
-
+	
 	//left
 	add_triangle(in,
 					x0		,y0		,z0			,
@@ -130,6 +129,7 @@ void add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,
 					x0+dx		,y0+dy	,z0+dz		,
 					x0+dx   	,y0		,z0+dz		,
 													in->objects,sim_edge);
+	
 	//top
 	in->obj_mat_number[in->objects]=material;
 	in->objects++;
