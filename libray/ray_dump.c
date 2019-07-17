@@ -35,52 +35,115 @@
 	@brief Ray tracing for the optical model, this should really be split out into it's own library.
 */
 
-void dump_plane_to_file(char *file_name,struct image *in)
+void dump_plane_to_file(struct simulation *sim,char *file_name,struct image *in)
 {
-	printf("file dump\n");
-	FILE *out;
+	int i;
 
-	out=fopen("triangles.dat","w");
-	int i=0;
+	int r;
+	int g;
+	int b;
+
+	char temp[200];
+
+	//printf("file dump\n");
+	FILE *out;
+	struct buffer buf;
+	buffer_init(&buf);
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Ray trace triange file");
+	strcpy(buf.type,"poly");
+	strcpy(buf.y_label,"Position");
+	strcpy(buf.x_label,"Position");
+	strcpy(buf.data_label,"Position");
+
+	strcpy(buf.y_units,"m");
+	strcpy(buf.x_units,"m");
+	strcpy(buf.data_units,"m");
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->lines;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
 
 	for (i=0;i<in->lines;i++)
 	{
-		fprintf(out,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
-		fprintf(out,"%le %le %le\n",in->p[i].xy1.z,in->p[i].xy1.x,in->p[i].xy1.y);
-		fprintf(out,"%le %le %le\n",in->p[i].xy2.z,in->p[i].xy2.x,in->p[i].xy2.y);
-		fprintf(out,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
-		fprintf(out,"\n");
-		fprintf(out,"\n");
+		sprintf(temp,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
+		buffer_add_string(&buf,temp);
+
+		sprintf(temp,"%le %le %le\n",in->p[i].xy1.z,in->p[i].xy1.x,in->p[i].xy1.y);
+		buffer_add_string(&buf,temp);
+
+		sprintf(temp,"%le %le %le\n",in->p[i].xy2.z,in->p[i].xy2.x,in->p[i].xy2.y);
+		buffer_add_string(&buf,temp);
+
+		sprintf(temp,"%le %le %le\n",in->p[i].xy0.z,in->p[i].xy0.x,in->p[i].xy0.y);
+		buffer_add_string(&buf,temp);
+
+		sprintf(temp,"\n");
+		buffer_add_string(&buf,temp);
+
+		sprintf(temp,"\n");
+		buffer_add_string(&buf,temp);
+
 
 	}
 
-	fclose(out);
-	//file_name
-	out=fopen("lines.dat","w");
+	buffer_dump_path(sim,"","triangles.dat",&buf);
+	buffer_free(&buf);
+
+
+	buffer_malloc(&buf);
+	buf.y_mul=1.0;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Ray trace triange file");
+	strcpy(buf.type,"poly");
+	strcpy(buf.y_label,"Position");
+	strcpy(buf.x_label,"Position");
+	strcpy(buf.data_label,"Position");
+
+	strcpy(buf.y_units,"m");
+	strcpy(buf.x_units,"m");
+	strcpy(buf.data_units,"m");
+
+	wavelength_to_rgb(&r,&g,&b,in->cur_lam);
+	sprintf(buf.rgb,"%.2x%.2x%.2x",r,g,b);
+
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=1;
+	buf.y=in->lines;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
+
 
 	for (i=0;i<in->nrays;i++)
 	{
 		if (in->rays[i].state==DONE)
 		{
-			fprintf(out,"%le %le %le\n",
+			sprintf(temp,"%le %le %le\n",
 										in->rays[i].xy.z,		in->rays[i].xy.x,		in->rays[i].xy.y);
-			fprintf(out,"%le %le %le\n",
+			buffer_add_string(&buf,temp);
+
+			sprintf(temp,"%le %le %le\n",
 										in->rays[i].xy_end.z,	in->rays[i].xy_end.x,	in->rays[i].xy_end.y);
-			fprintf(out,"\n");
-			fprintf(out,"\n");
+			buffer_add_string(&buf,temp);
+
+			sprintf(temp,"\n");
+			buffer_add_string(&buf,temp);
+
+			sprintf(temp,"\n");
+			buffer_add_string(&buf,temp);
 		}
 		
 	}
 
-	fclose(out);
-	
-	//out=fopen("start.out","w");
-	//for (i=0;i<in->n_start_rays;i++)
-	//{
-	//	fprintf(out,"%le %le\n\n",in->start_rays[i].x,in->start_rays[i].y);
-	//}
-	//fclose(out);
-	
+	buffer_dump_path(sim,"","lines.dat",&buf);
+	buffer_free(&buf);
+
 }
 
 void dump_plane(struct simulation *sim,struct image *in)

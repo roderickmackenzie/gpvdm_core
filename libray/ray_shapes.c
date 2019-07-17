@@ -78,6 +78,7 @@ void add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,
 					x0   	,y0+dy	,z0+dz		,
 													in->objects,sim_edge);
 	
+	sim_edge=TRUE;
 	//left
 	add_triangle(in,
 					x0		,y0		,z0			,

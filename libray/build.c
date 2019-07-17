@@ -36,7 +36,7 @@
 */
 
 //in->l[lam]
-void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,struct image *my_image,long double lambda)
+void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,struct image *my_image,double lambda)
 {
 	int i;
 	int layer;
@@ -63,6 +63,8 @@ void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,stru
 		//getchar();
 	}
 
+	my_image->cur_lam=lambda;
+
 
 
 }
@@ -79,7 +81,7 @@ void ray_read_config(struct simulation *sim,struct image *my_image)
 
 	inp_check(sim,&inp,1.0);
 
-	inp_search_int(sim,&inp,&(my_image->theta_steps),"#ray_theta_steps");
+
 	inp_search_int(sim,&inp,&(my_image->ray_wavelength_points),"#ray_wavelength_points");
 
 	inp_search_int(sim,&inp,&(my_image->escape_bins),"#ray_escape_bins");
@@ -88,8 +90,14 @@ void ray_read_config(struct simulation *sim,struct image *my_image)
 	inp_search_gdouble(sim,&inp,&(my_image->ray_ysrc),"#ray_ysrc");
 	inp_search_gdouble(sim,&inp,&(my_image->ray_zsrc),"#ray_zsrc");
 
-	inp_search_gdouble(sim,&inp,&(my_image->ray_theta_start),"#ray_theta_start");
-	inp_search_gdouble(sim,&inp,&(my_image->ray_theta_stop),"#ray_theta_stop");
+	inp_search_int(sim,&inp,&(my_image->theta_steps),"#ray_theta_steps");
+	inp_search_double(sim,&inp,&(my_image->ray_theta_start),"#ray_theta_start");
+	inp_search_double(sim,&inp,&(my_image->ray_theta_stop),"#ray_theta_stop");
+
+	inp_search_int(sim,&inp,&(my_image->phi_steps),"#ray_phi_steps");
+	inp_search_double(sim,&inp,&(my_image->ray_phi_start),"#ray_phi_start");
+	inp_search_double(sim,&inp,&(my_image->ray_phi_stop),"#ray_phi_stop");
+
 
 	inp_search_string(sim,&inp,temp,"#ray_auto_run");
 	my_image->ray_auto_run=english_to_bin(sim,temp);
@@ -106,6 +114,8 @@ void ray_read_config(struct simulation *sim,struct image *my_image)
 	ray_load_emission(sim,my_image);
 
 	inp_free(sim,&inp);
+
+	my_image->rays=malloc(sizeof(struct ray)*my_image->nray_max);
 
 	my_image->lam=malloc(sizeof(long double)*my_image->ray_wavelength_points);
 	my_image->extract_eff=malloc(sizeof(long double)*my_image->ray_wavelength_points);
@@ -137,6 +147,8 @@ void ray_read_config(struct simulation *sim,struct image *my_image)
 void ray_free(struct simulation *sim,struct image *my_image)
 {
 	int i=0;
+
+	free(my_image->rays);
 
 	if (my_image->lam!=NULL)
 	{

@@ -46,7 +46,7 @@ struct epitaxy
 	char lumo_file[20][100];
 	char homo_file[20][100];
 	char shape_file[20][100];
-
+	long double rgb[20][3];
 	char electrical_layer[20];
 	struct shape shapes[20];
 	int nshape;

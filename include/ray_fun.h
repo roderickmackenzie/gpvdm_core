@@ -39,13 +39,13 @@
 
 #define RAY_MAX 5000
 
-void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,struct image *my_image,long double lambda);
+void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,struct image *my_image,double lambda);
 void image_init(struct image *in);
 int between(double v, double x0, double x1);
 void add_triangle(struct image *in, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int id,int edge);
 void ray_reset(struct image *in);
 void add_ray(struct simulation *sim,struct image *in,struct vec *start,struct vec *dir,double mag);
-void dump_plane_to_file(char *file_name,struct image *in);
+void dump_plane_to_file(struct simulation *sim,char *file_name,struct image *in);
 void dump_plane(struct simulation *sim,struct image *in);
 double get_rand();
 void obj_norm(struct vec *ret,struct triangle *my_obj);

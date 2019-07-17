@@ -37,8 +37,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#define RAY_MAX 5000
-
 struct triangle
 {
 	struct vec xy0;
@@ -61,16 +59,17 @@ struct ray
 struct image
 {
 	struct triangle p[1000];
-	struct ray rays[RAY_MAX];
+	struct ray *rays;
 	int lines;
 	int nrays;
+	int nray_max;
 	int obj_mat_number[100];
 	double obj_n[100];
 	double obj_alpha[100];
 	int objects;
 	struct vec start_rays[100];
 	int n_start_rays;
-	int theta_steps;
+
 	double y_escape_level;
 	char input_spectrum_file[PATH_MAX];
 	struct istruct input_spectrum;
@@ -78,15 +77,22 @@ struct image
 	long double **ang_escape;
 	int ray_wavelength_points;
 	long double *lam;
+	double cur_lam;
 	long double *extract_eff;
 	int ray_auto_run;
 	int escape_bins;
 	long double ray_xsrc;
 	long double ray_ysrc;
 	long double ray_zsrc;
-	long double ray_theta_start;
-	long double ray_theta_stop;
 
+	int theta_steps;
+	double ray_theta_start;
+	double ray_theta_stop;
+
+
+	int phi_steps;
+	double ray_phi_start;
+	double ray_phi_stop;
 };
 
 

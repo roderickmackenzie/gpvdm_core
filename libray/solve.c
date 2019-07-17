@@ -52,12 +52,15 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 	double x_vec;
 	double y_vec;
 	double z_vec;
-	double angle;
 
 	long double lam =in->my_image.lam[l];
 	int x=0;
-	int nang=(in->my_image.theta_steps);
-	double dang=360.0/((double)nang);
+	double theta=0.0;
+	double dtheta=0.0;
+
+	double phi=0.0;
+	double dphi=0.0;
+
 	double eff=0.0;
 	int sims=0;
 	long double mag=0.0;
@@ -97,19 +100,23 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 
 
 	x=0;
-	{
-		angle=in->my_image.ray_theta_start;
-		dang=((in->my_image.ray_theta_stop-in->my_image.ray_theta_start)/(long double)in->my_image.theta_steps);
+	phi=in->my_image.ray_phi_start;
+	dphi=((in->my_image.ray_phi_stop-in->my_image.ray_phi_start)/(double)in->my_image.phi_steps);
 
-		while(angle<in->my_image.ray_theta_stop)
+	while(phi<in->my_image.ray_phi_stop)
+	{
+		theta=in->my_image.ray_theta_start;
+		dtheta=((in->my_image.ray_theta_stop-in->my_image.ray_theta_start)/(double)in->my_image.theta_steps);
+
+		while(theta<in->my_image.ray_theta_stop)
 		{
-			angle=70.0;//+10.0;
-			//angle=get_rand()*360.0;
-			//printf("%lf %lf\n",dang,angle);
+			//theta=70.0;//+10.0;
+			//theta=get_rand()*360.0;
+			//printf("%lf %lf\n",dtheta,theta);
 			//getchar();
-			x_vec=cos(2*PI*(angle/360.0));
-			y_vec=sin(2*PI*(angle/360.0));
-			z_vec=sin(2*PI*(5.0/360.0));
+			x_vec=cos(2*PI*(theta/360.0));
+			y_vec=sin(2*PI*(theta/360.0));
+			z_vec=sin(2*PI*(phi/360.0));
 
 			struct vec start;
 			vec_init(&start);
@@ -123,7 +130,7 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 			add_ray(sim,&in->my_image,&start,&dir,mag);
 			activate_rays(&in->my_image);
 
-			dump_plane(sim,&in->my_image);
+			//dump_plane(sim,&in->my_image);
 			//dump_plane_to_file(name,&in->my_image);
 
 			//vec_print(&start);
@@ -133,14 +140,14 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 			for (i=0;i<50;i++)
 			{
 				propergate_next_ray(sim,&in->my_image);
-				dump_plane(sim,&in->my_image);
+				//dump_plane(sim,&in->my_image);
 				//dump_plane_to_file(name,&in->my_image);
 				//getchar();
 				ret=activate_rays(&in->my_image);
 
-				dump_plane(sim,&in->my_image);
-				printf("bounce\n");
-				getchar();
+				//dump_plane(sim,&in->my_image);
+				//printf("bounce\n");
+				//getchar();
 
 				if (ret==0)
 				{
@@ -148,25 +155,32 @@ void ray_solve(struct simulation *sim,struct device *in, int l)
 				}
 
 			}
+			//getchar();
 			//exit(0);
 			//if (get_dump_status(sim,dump_ray_trace_map)==TRUE)
 			//{
-				//dump_plane_to_file(name,&in->my_image);
+			//getchar();
 			//}
 			double tot=ray_cal_escape_angle(&(in->my_image),l);
-			//printf("%lf %lf\n",angle,tot);
+			//printf("%lf %lf\n",theta,tot);
 
 			double e=get_eff(&in->my_image);
 			eff+=e;
 			sims++;
-			ray_reset(&in->my_image);
+			//ray_reset(&in->my_image);
 
-			angle+=dang;
-			getchar();
-			exit(0);
+			theta+=dtheta;
+			//getchar();
+			//exit(0);
 		}
-		
+
+		phi+=dphi;
+		printf("%lf\n",phi);
+		//getchar();
 	}
+
+	dump_plane_to_file(sim,"lines.dat",&in->my_image);
+
 	in->my_image.extract_eff[l]=eff/((double)sims);
 
 }

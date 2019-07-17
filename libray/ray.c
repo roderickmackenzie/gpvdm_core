@@ -47,6 +47,8 @@ void image_init(struct image *in)
 	in->ray_zsrc=-1.0;
 	in->ray_theta_start=0.0;
 	in->ray_theta_stop=360.0;
+	in->nray_max=1000;
+	in->rays=NULL;
 }
 
 int between(double v, double x0, double x1)
@@ -84,17 +86,22 @@ void add_ray(struct simulation *sim,struct image *in,struct vec *start,struct ve
 {
 	if (mag>5e-9)
 	{
+		if (in->nrays>=in->nray_max)
+		{
+			in->nray_max+=1000;
+			in->rays=realloc(in->rays,sizeof(struct ray)*in->nray_max);
+		}
+		/*if (in->nrays%20)
+		{
+			printf("%d %d\n",in->nrays,in->nray_max);
+		}*/
 		vec_cpy(&(in->rays[in->nrays].xy),start);
 		vec_cpy(&(in->rays[in->nrays].dir),dir);
 		in->rays[in->nrays].state=WAIT;
 		in->rays[in->nrays].bounce=0;
 		in->rays[in->nrays].mag=mag;
 		in->nrays++;
-		if (in->nrays>=RAY_MAX)
-		{
-			printf_log(sim,"too many rays!\n");
-			exit(0);
-		}
+
 	}
 		
 }
@@ -173,7 +180,7 @@ void get_refractive(struct simulation *sim,struct image *in,double *alpha,double
 	int obj=0;
 	i_back=search_object(sim,in,&back);	
 	i_fwd=search_object(sim,in,&fwd);
-	dump_plane_to_file("lines.dat",in);
+	//dump_plane_to_file(sim,"lines.dat",in);
 
 	if ((i_fwd!=-1))
 	{
@@ -288,10 +295,10 @@ int propergate_next_ray(struct simulation *sim,struct image *in)
 					threshold=asin(n1/n0);
 				}
 
-				printf("threshold=%lf\n",360.0*threshold/(2.0*3.1415));
-				printf("ang in=%lf\n",360.0*ang_in/(2.0*3.1415));
-				printf("%lf\n",n0);
-				printf("%lf\n",n1);
+				//printf("threshold=%lf\n",360.0*threshold/(2.0*3.1415));
+				//printf("ang in=%lf\n",360.0*ang_in/(2.0*3.1415));
+				//printf("%lf\n",n0);
+				//printf("%lf\n",n1);
 
 				//Vector form of snell's law taken from Wikipedia
 				R=0.5;
@@ -332,7 +339,7 @@ int propergate_next_ray(struct simulation *sim,struct image *in)
 
 				if (bounce<100)
 				{
-					printf("%d\n",in->p[item].edge);
+					//printf("%d\n",in->p[item].edge);
 					if (in->p[item].edge==FALSE)
 					{
 						double abs=exp(-alpha*dist);
