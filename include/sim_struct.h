@@ -38,6 +38,7 @@
 
 
 #include <dirent.h>
+#include <i_struct.h>
 
 struct dumpfiles_struct
 {
@@ -135,6 +136,9 @@ struct simulation
 	#endif
 
 
+	struct istruct cie_x;
+	struct istruct cie_y;
+	struct istruct cie_z;
 };
 
 #endif

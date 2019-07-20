@@ -49,7 +49,7 @@ printf_log(sim,"init: mesh\n");
 	pos=in->dx;
 
 	int layer=0;
-	gdouble layer_end=in->thick[layer];
+	gdouble layer_end=my_epitaxy->layer[layer].width;
 
 	for (i=0;i<in->points;i++)
 	{
@@ -70,7 +70,7 @@ printf_log(sim,"init: mesh\n");
 				layer++;
 			//}while(in->thick[layer]==0.0);
 
-				layer_end=layer_end+in->thick[layer];
+				layer_end=layer_end+my_epitaxy->layer[layer].width;
 			}
 		}
 

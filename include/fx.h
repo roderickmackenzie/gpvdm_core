@@ -31,7 +31,6 @@
 void fx_mesh_save(struct simulation *sim);
 void fx_load_mesh(struct simulation *sim,struct device *in,int number);
 void fx_step(struct simulation *sim,struct device *in);
-void fxdomain_load_config(struct simulation *sim,struct fxdomain *in,struct device *dev,char *config_file_name);
 int fx_run();
 long double fx_get_fx();
 void fx_memory_free();

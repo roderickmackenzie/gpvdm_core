@@ -67,7 +67,6 @@ struct istruct sun_read;
 gdouble *sun;
 gdouble *sun_norm;
 gdouble *sun_photons;
-gdouble *thick;
 char suns_spectrum_file[200];
 char light_file_generation[300];
 int M;

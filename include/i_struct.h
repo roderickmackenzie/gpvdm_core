@@ -21,19 +21,18 @@
 // 
 
 
-/** @file epitaxy.h
-	@brief Read the epitaxy from the epitaxy.inp file.
+/** @file i_struct.h
+	@brief Header file for i.c
 */
+#ifndef i_struct_h
+#define i_struct_h
+	struct istruct
+	{
+	long double *x;
+	long double *data;
 
-
-#ifndef shape_h
-#define shape_h
-#include "advmath.h"
-#include <sim_struct.h>
-#include <shape_struct.h>
-
-
-void shape_load(struct simulation *sim,struct epitaxy *in);
-int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long double y,long double z);
-void shape_free_materials(struct epitaxy *in);
+	int len;
+	int max_len;
+	char name[200];
+	};
 #endif

@@ -32,14 +32,23 @@
 #include <sim_struct.h>
 #include <shape_struct.h>
 
+struct epi_layer
+{
+	long double y_start;
+	long double y_stop;
+	struct shape shapes[10];
+	int nshape;
+	char name[100];
+	long double width;
+};
+
 struct epitaxy
 {
 	int layers;
 	int electrical_layers;
-	gdouble width[20];
+	struct epi_layer layer[20];
 	long double device_start;
 	long double y_pos[20];
-	char name[20][100];
 	char mat_file[20][100];
 	char dos_file[20][100];
 	char pl_file[20][100];
@@ -48,8 +57,6 @@ struct epitaxy
 	char shape_file[20][100];
 	long double rgb[20][3];
 	char electrical_layer[20];
-	struct shape shapes[20];
-	int nshape;
 
 	struct istruct *mat;
 	struct istruct *mat_n;

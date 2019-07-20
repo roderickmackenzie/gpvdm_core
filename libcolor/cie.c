@@ -32,25 +32,24 @@
 	@brief Turn a wavelegngth to an RGB color.
 */
 
-static	struct istruct cie_x;
-static	struct istruct cie_y;
-static	struct istruct cie_z;
 
 void color_cie_load(struct simulation *sim)
 {
 	char path[PATH_MAX];
 	join_path(2, path,get_cie_color_path(sim),"x.inp");
+	printf("color path2: %s\n",path);
 
-	inter_load(sim,&(cie_x),path);
-	inter_sort(&(cie_x));
+	inter_load(sim,&(sim->cie_x),path);
+	inter_sort(&(sim->cie_x));
 
 	join_path(2, path,get_cie_color_path(sim),"y.inp");
-	inter_load(sim,&(cie_y),path);
-	inter_sort(&(cie_y));
+	inter_load(sim,&(sim->cie_y),path);
+	inter_sort(&(sim->cie_y));
 
 	join_path(2, path,get_cie_color_path(sim),"z.inp");
-	inter_load(sim,&(cie_z),path);
-	inter_sort(&(cie_z));
+	inter_load(sim,&(sim->cie_z),path);
+	inter_sort(&(sim->cie_z));
+
 }
 
 void color_cie_cal_XYZ(struct simulation *sim,long double *X,long double *Y,long double *Z,struct istruct *L_input, int input_in_ev)
@@ -74,18 +73,19 @@ inter_sort(&L);
 inter_save(&L,"e.dat");
 
 long double dl=0.0;
-//inter_dump(sim,&(cie_x));
-for (i=0;i<cie_x.len-1;i++)
+//printf("urhu\n");
+//inter_dump(sim,&(sim->cie_x));
+for (i=0;i<sim->cie_x.len-1;i++)
 {
-	dl=cie_x.x[i+1]-cie_x.x[i];
-	(*X)+=dl*inter_get_hard(&L,cie_x.x[i])*(cie_x.data[i]);
+	dl=sim->cie_x.x[i+1]-sim->cie_x.x[i];
+	(*X)+=dl*inter_get_hard(&L,sim->cie_x.x[i])*(sim->cie_x.data[i]);
 
-	dl=cie_y.x[i+1]-cie_y.x[i];
-	(*Y)+=dl*inter_get_hard(&L,cie_y.x[i])*(cie_y.data[i]);
+	dl=sim->cie_y.x[i+1]-sim->cie_y.x[i];
+	(*Y)+=dl*inter_get_hard(&L,sim->cie_y.x[i])*(sim->cie_y.data[i]);
 
-	dl=cie_z.x[i+1]-cie_z.x[i];
-	(*Z)+=dl*inter_get_hard(&L,cie_z.x[i])*(cie_z.data[i]);
-	//printf("X=%Le %Le %Le\n",inter_get_hard(&L,cie_y.x[i]),cie_x.data[i],dl);
+	dl=sim->cie_z.x[i+1]-sim->cie_z.x[i];
+	(*Z)+=dl*inter_get_hard(&L,sim->cie_z.x[i])*(sim->cie_z.data[i]);
+	//printf("X=%Le %Le %Le\n",inter_get_hard(&L,sim->cie_y.x[i]),sim->cie_x.data[i],dl);
 	//getchar();
 }
 
@@ -127,7 +127,7 @@ if (max!=0)
 	b=0.0;
 
 }
-//printf("%Le %Le %Le\n",r,g,b);
+//printf("rgb  %Le %Le %Le\n",r,g,b);
 *R=(int)(r);
 *G=(int)(g);
 *B=(int)(b);
@@ -135,9 +135,9 @@ if (max!=0)
 
 void color_cie_free(struct simulation *sim)
 {
-	inter_free(&(cie_x));
-	inter_free(&(cie_y));
-	inter_free(&(cie_z));
+	inter_free(&(sim->cie_x));
+	inter_free(&(sim->cie_y));
+	inter_free(&(sim->cie_z));
 
 }
 

@@ -186,7 +186,6 @@ void light_init(struct light *in)
 	in->pulseJ= -1.0;
 	in->pulse_width= -1.0;
 	in->layers=-1;
-	in->thick=NULL;
 	in->G_percent=NULL;
 	in->disable_cal_photon_density=FALSE;
 }

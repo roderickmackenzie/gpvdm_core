@@ -44,7 +44,6 @@ static int unused __attribute__((unused));
 
 void light_free_epitaxy(struct light *in)
 {
-	free(in->thick);
 	free(in->G_percent);
 }
 
@@ -56,7 +55,6 @@ void light_import_epitaxy(struct simulation *sim,struct light *in,struct epitaxy
 	
 
 	in->layers=my_epitaxy->layers;
-	in->thick=(gdouble *)malloc(in->layers*sizeof(gdouble));
 	in->G_percent=(gdouble *)malloc(in->layers*sizeof(gdouble));
 
 	in->ylen=0.0;
@@ -64,10 +62,7 @@ void light_import_epitaxy(struct simulation *sim,struct light *in,struct epitaxy
 
 	for (i=0;i<my_epitaxy->layers;i++)
 	{
-		in->thick[i]=my_epitaxy->width[i];
-		in->thick[i]=fabs(in->thick[i]);
-
-		in->ylen+=in->thick[i];
+		in->ylen+=my_epitaxy->layer[i].width;
 	}
 
 in->device_start=epitaxy_get_device_start(my_epitaxy);

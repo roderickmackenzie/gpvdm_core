@@ -42,7 +42,7 @@ struct triangle
 	struct vec xy0;
 	struct vec xy1;
 	struct vec xy2;
-	int id;
+	int object_uid;
 	int edge;
 };
 
@@ -56,19 +56,30 @@ struct ray
 	double mag;
 };
 
+struct object
+{
+	int epi_layer;
+	int shape_number;
+	char name[100];
+	double n;
+	int uid;
+	double alpha;
+};
+
 struct image
 {
+	int start_of_shapes;
 	struct triangle p[1000];
 	struct ray *rays;
-	int lines;
+	int triangles;
 	int nrays;
 	int nray_max;
-	int obj_mat_number[100];
-	double obj_n[100];
-	double obj_alpha[100];
+	struct object obj[1000];
+
 	int objects;
 	struct vec start_rays[100];
 	int n_start_rays;
+	int top_of_done_rays;
 
 	double y_escape_level;
 	char input_spectrum_file[PATH_MAX];
@@ -76,9 +87,10 @@ struct image
 	long double *angle;
 	long double **ang_escape;
 	int ray_wavelength_points;
-	long double *lam;
+	double *lam;
 	double cur_lam;
-	long double *extract_eff;
+	double *extract_eff;
+	double avg_extract_eff;
 	int ray_auto_run;
 	int escape_bins;
 	long double ray_xsrc;
@@ -93,6 +105,7 @@ struct image
 	int phi_steps;
 	double ray_phi_start;
 	double ray_phi_stop;
+
 };
 
 

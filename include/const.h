@@ -28,7 +28,6 @@
 #define h_const
 
 //Physical constants
-#define PATHLEN	512
 #define STR_MAX	1024
 #define epsilon0 (long double)8.85418782e-12			// m-3 kg-1 s4 A2;
 #define epsilon0f (float)8.85418782e-12			// m-3 kg-1 s4 A2;

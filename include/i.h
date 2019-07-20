@@ -28,16 +28,7 @@
 #define i_h
 #include "advmath.h"
 #include <sim_struct.h>
-
-struct istruct
-{
-gdouble *x;
-gdouble *data;
-
-int len;
-int max_len;
-char name[200];
-};
+#include <i_struct.h>
 
 void inter_alloc(struct istruct* in,int len);
 void inter_realloc(struct istruct* in,int len);

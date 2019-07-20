@@ -49,7 +49,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 {
 	struct stat st = {0};
 
-	char out_dir[PATHLEN];
+	char out_dir[PATH_MAX];
 	join_path(2,out_dir,get_output_path(sim),"equilibrium");
 
 	if (stat(out_dir, &st) == -1)

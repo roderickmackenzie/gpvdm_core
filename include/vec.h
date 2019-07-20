@@ -67,4 +67,6 @@ void rotx_vec(struct vec *out, struct vec *in,double a);
 void roty_vec(struct vec *out, struct vec *in,double a);
 void rotz_vec(struct vec *out, struct vec *in,double a);
 double vec_ang(struct vec *one,struct vec *two);
+double vec_overlap_test(struct vec *a,struct vec *b);
+void vec_flip_y_axis(struct vec *one,double y);
 #endif

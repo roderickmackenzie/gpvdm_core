@@ -52,6 +52,8 @@
 int run_simulation(struct simulation *sim)
 {
 struct device cell;
+int enable_electrical=TRUE;
+
 log_clear(sim);
 struct stat st = {0};
 
@@ -67,7 +69,7 @@ set_dump_status(sim,dump_stop_plot, FALSE);
 set_dump_status(sim,dump_print_text, TRUE);
 dump_load_config(sim,&cell);
 
-char temp[PATHLEN];
+char temp[PATH_MAX];
 
 cell.kl_in_newton=FALSE;
 
@@ -128,8 +130,23 @@ if (strcmp(sim->force_sim_mode,"")!=0)
 }
 
 
+if (strcmp(cell.simmode,"opticalmodel@optics")==0)
+{
+	enable_electrical=FALSE;
+}
 
-if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@fdtd")!=0))
+if (strcmp(cell.simmode,"fdtd@fdtd")==0)
+{
+	enable_electrical=FALSE;
+}
+
+if (strcmp(cell.simmode,"trace@trace")==0)
+{
+	enable_electrical=FALSE;
+}
+
+
+if (enable_electrical==TRUE)
 {
 	solver_init(sim,cell.solver_name);
 	newton_init(sim,cell.newton_name);
@@ -181,7 +198,7 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 			{
 
 				depth=cell.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
-				percent=depth/cell.my_epitaxy.width[cell.imat_epitaxy[z][x][y]];
+				percent=depth/cell.my_epitaxy.layer[cell.imat_epitaxy[z][x][y]].width;
 				cell.Nad[z][x][y]=get_dos_doping_start(&cell,cell.imat[z][x][y])+(get_dos_doping_stop(&cell,cell.imat[z][x][y])-get_dos_doping_start(&cell,cell.imat[z][x][y]))*percent;
 			}
 		}
@@ -234,12 +251,9 @@ if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@
 
 	light_load_dlls(sim,&cell.mylight);
 
-	light_setup_ray(sim,&cell,&(cell.my_image),&cell.my_epitaxy);
-
 	if (cell.my_image.ray_auto_run==TRUE)
 	{
-		ray_solve(sim,&cell, 0);
-		
+		ray_solve_all(sim,&cell);	
 	}
 	///////////////////////
 
@@ -335,7 +349,7 @@ cache_dump(sim);
 cache_free(sim);
 epitaxy_free(&cell.my_epitaxy);
 
-if ((strcmp(cell.simmode,"opticalmodel@optics")!=0)&&(strcmp(cell.simmode,"fdtd@fdtd")!=0))
+if (enable_electrical==TRUE)
 {
 
 	device_free(sim,&cell);
