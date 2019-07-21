@@ -69,9 +69,10 @@ struct object
 struct image
 {
 	int start_of_shapes;
-	struct triangle p[1000];
-	struct ray *rays;
+	int triangles_max;
 	int triangles;
+	struct triangle *tri;
+	struct ray *rays;
 	int nrays;
 	int nray_max;
 	struct object obj[1000];
@@ -93,9 +94,9 @@ struct image
 	double avg_extract_eff;
 	int ray_auto_run;
 	int escape_bins;
-	long double ray_xsrc;
-	long double ray_ysrc;
-	long double ray_zsrc;
+	double ray_xsrc;
+	double ray_ysrc;
+	double ray_zsrc;
 
 	int theta_steps;
 	double ray_theta_start;

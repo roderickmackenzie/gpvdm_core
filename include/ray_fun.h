@@ -57,8 +57,6 @@ int activate_rays(struct image *in);
 int pnpoly(struct image *in, struct vec *xy,int id);
 void get_refractive(struct simulation *sim,struct image *in,double *alpha,double *n0,double *n1,struct ray *my_ray);
 int propergate_next_ray(struct simulation *sim,struct image *in);
-struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int sim_edge);
-struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz);
 double get_eff(struct image *in);
 void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my_image,struct epitaxy *my_epitaxy);
 void ray_free(struct simulation *sim,struct image *my_image);
@@ -80,5 +78,9 @@ double ray_obj_get_min_y(struct simulation *sim,struct image *my_image,struct ob
 void ray_object_flip_y_axis(struct simulation *sim,struct image *in,struct object *obj);
 void ray_object_sub_y(struct simulation *sim,struct image *in,struct object *obj,double y);
 void ray_object_add_y(struct simulation *sim,struct image *in,struct object *obj,double y);
+
+struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int sim_edge);
+struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz);
+struct object *add_dome(struct image *in,double x0,double y0,double z0,double dx0,double dy0,double dz0);
 
 #endif
