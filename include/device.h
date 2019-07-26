@@ -438,7 +438,7 @@ struct device
 	long double pl_intensity;
 	long double pl_intensity_tot;
 	int pl_enabled;
-
+	int pl_use_experimental_emission_spectra;
 	gdouble Rext;
 	gdouble Cext;
 	gdouble VCext_last;

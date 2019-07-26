@@ -56,6 +56,8 @@
 #include <plot.h>
 #include <assert.h>
 #include <rpn.h>
+#include <color.h>
+
 
 	#include <sys/prctl.h>
 	#include <sys/types.h>
@@ -200,7 +202,7 @@ randomprint(&sim,"\n");
 sim.server.on=FALSE;
 sim.server.cpus=1;
 sim.server.readconfig=TRUE;
-
+color_cie_load(&sim);
 if (scanarg( argv,argc,"--outputpath")==TRUE)
 {
 	strcpy(sim.output_path,get_arg_plusone( argv,argc,"--outputpath"));

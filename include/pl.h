@@ -31,5 +31,5 @@
 long double calculate_photon_energy(struct istruct* in);
 void exp_cal_emission(struct simulation *sim,char *out_dir,struct device *in);
 long double pl_get_light_energy();
-
+long double calculate_photon_power_m2(struct simulation *sim,struct device *in);
 #endif

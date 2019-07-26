@@ -88,13 +88,6 @@ long double get_dos_filled_n(struct device *in);
 long double get_dos_filled_p(struct device *in);
 void safe_file(char *name);
 
-long double get_pl_fe_fh(struct device *in,int mat);
-long double get_pl_fe_te(struct device *in,int mat);
-long double get_pl_te_fh(struct device *in,int mat);
-long double get_pl_th_fe(struct device *in,int mat);
-long double get_pl_ft_th(struct device *in,int mat);
-int get_pl_enabled(struct device *in,int mat);
-
 long double get_dos_B(struct device *in,int mat);
 
 long double get_dos_ion_density(struct device *in,int mat);

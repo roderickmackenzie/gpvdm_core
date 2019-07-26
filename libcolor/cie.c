@@ -35,9 +35,9 @@
 
 void color_cie_load(struct simulation *sim)
 {
+
 	char path[PATH_MAX];
 	join_path(2, path,get_cie_color_path(sim),"x.inp");
-	printf("color path2: %s\n",path);
 
 	inter_load(sim,&(sim->cie_x),path);
 	inter_sort(&(sim->cie_x));
@@ -75,8 +75,17 @@ inter_save(&L,"e.dat");
 long double dl=0.0;
 //printf("urhu\n");
 //inter_dump(sim,&(sim->cie_x));
+
+if (sim->cie_x.len==0)
+{
+	printf("sim->cie_x.len==0\n");
+	exit(0);
+}
+
+
 for (i=0;i<sim->cie_x.len-1;i++)
 {
+
 	dl=sim->cie_x.x[i+1]-sim->cie_x.x[i];
 	(*X)+=dl*inter_get_hard(&L,sim->cie_x.x[i])*(sim->cie_x.data[i]);
 

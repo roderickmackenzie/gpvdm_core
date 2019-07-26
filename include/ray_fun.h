@@ -59,20 +59,19 @@ void get_refractive(struct simulation *sim,struct image *in,double *alpha,double
 int propergate_next_ray(struct simulation *sim,struct image *in);
 double get_eff(struct image *in);
 void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my_image,struct epitaxy *my_epitaxy);
-void ray_free(struct simulation *sim,struct image *my_image);
+void ray_free(struct simulation *sim,struct device *in,struct image *my_image);
 void ray_read_config(struct simulation *sim,struct image *my_image);
 void ray_solve(struct simulation *sim,struct device *in, int l);
 void ray_solve_all(struct simulation *sim,struct device *in);
-void dump_extraction_efficiency(struct simulation *sim,struct image *in);
+void dump_extraction_efficiency(struct simulation *sim,struct device *dev,struct image *in);
 void dump_ang_escape(struct simulation *sim,struct image *in);
 double ray_cal_escape_angle(struct image *in,int l);
 void ray_escape_angle_reset(struct image *in,int l);
-void ray_load_emission(struct simulation *sim,struct image *my_image);
 void dump_ang_escape_as_rgb(struct simulation *sim,struct image *in);
 int search_object(struct simulation *sim,struct image *in,struct ray *my_ray);
-void ray_malloc(struct simulation *sim,struct image *my_image);
+void ray_malloc(struct simulation *sim,struct device *in,struct image *my_image);
 void ray_escape_angle_norm(struct image *in);
-double ray_get_avg_extract_eff(struct image *in);
+void ray_calculate_avg_extract_eff(struct simulation *sim,struct epitaxy *epi,struct image *in);
 double ray_tri_get_min_y(struct triangle* tri);
 double ray_obj_get_min_y(struct simulation *sim,struct image *my_image,struct object *obj);
 void ray_object_flip_y_axis(struct simulation *sim,struct image *in,struct object *obj);
@@ -83,4 +82,6 @@ struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,
 struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz);
 struct object *add_dome(struct image *in,double x0,double y0,double z0,double dx0,double dy0,double dz0);
 
+struct object *ray_obj_search(struct simulation *sim,struct image *in,struct ray *in_ray);
+void ray_cpy(struct ray *a,struct ray *b);
 #endif

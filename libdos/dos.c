@@ -314,13 +314,9 @@ if (get_dump_status(sim,dump_print_text)==TRUE) printf_log(sim,"%s %s\n",_("Load
 	mydos->config.Nv=buf[buf_pos++];
 	mydos->config.Eg=buf[buf_pos++];
 	mydos->config.Xi=buf[buf_pos++];
-	mydos->config.pl_fe_fh=buf[buf_pos++];
-	mydos->config.pl_trap=buf[buf_pos++];
-	mydos->config.pl_recom=buf[buf_pos++];
-	mydos->config.pl_enabled=(int)buf[buf_pos++];
 	mydos->config.B=buf[buf_pos++];
 	#else
-	fscanf(file_in,"%d %d %d %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %d %Le\n",&(mydos->xlen),&(mydos->tlen),&(mydos->srh_bands),&(mydos->config.epsilonr),&(mydos->config.doping_start),&(mydos->config.doping_stop),&(mydos->config.mu),&(mydos->config.ion_density),&(mydos->config.ion_mobility),&(mydos->config.srh_vth),&(mydos->config.srh_sigman),&(mydos->config.srh_sigmap),&(mydos->config.Nc),&(mydos->config.Nv),&(mydos->config.Eg),&(mydos->config.Xi),&(mydos->config.pl_fe_fh),&(mydos->config.pl_trap),&(mydos->config.pl_recom),&(mydos->config.pl_enabled),&(mydos->config.B));
+	fscanf(file_in,"%d %d %d %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le\n",&(mydos->xlen),&(mydos->tlen),&(mydos->srh_bands),&(mydos->config.epsilonr),&(mydos->config.doping_start),&(mydos->config.doping_stop),&(mydos->config.mu),&(mydos->config.ion_density),&(mydos->config.ion_mobility),&(mydos->config.srh_vth),&(mydos->config.srh_sigman),&(mydos->config.srh_sigmap),&(mydos->config.Nc),&(mydos->config.Nv),&(mydos->config.Eg),&(mydos->config.Xi),&(mydos->config.B));
 	#endif
 	//fprintf(rt,"%d %d %d %lf %Le %Le %Le %Le %Le %Le\n",(mydos->xlen),(mydos->tlen),(mydos->srh_bands),(mydos->config.sigma),(mydos->config.mu),(mydos->config.srh_vth),(mydos->config.srh_sigman),(mydos->config.srh_sigmap),(mydos->config.Nc),(mydos->config.Nv));
 	long double xsteps=mydos->xlen;
@@ -607,37 +603,6 @@ long double ret=(Q/(T*kb))*in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
 return ret;
 }
 
-long double get_pl_fe_fh(struct device *in,int mat)
-{
-return in->dosn[mat].config.pl_fe_fh;
-}
-
-long double get_pl_fe_te(struct device *in,int mat)
-{
-return in->dosn[mat].config.pl_trap;
-}
-
-long double get_pl_te_fh(struct device *in,int mat)
-{
-
-return in->dosn[mat].config.pl_recom;
-}
-
-long double get_pl_th_fe(struct device *in,int mat)
-{
-
-return in->dosp[mat].config.pl_recom;
-}
-
-long double get_pl_ft_th(struct device *in,int mat)
-{
-return in->dosp[mat].config.pl_trap;
-}
-
-int get_pl_enabled(struct device *in,int mat)
-{
-return in->dosp[mat].config.pl_enabled;
-}
 
 long double get_n_srh(struct simulation *sim,struct device *in,long double top,long double T,int trap,int r,int mat)
 {

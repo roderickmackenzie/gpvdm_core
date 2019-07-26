@@ -426,8 +426,11 @@ FILE* out;
 
 	if (in->pl_enabled==TRUE)
 	{
-		exp_cal_emission(sim,out_dir,in);
-		dumped=TRUE;
+		if (in->pl_use_experimental_emission_spectra==FALSE)
+		{
+			exp_cal_emission(sim,out_dir,in);
+			dumped=TRUE;
+		}
 	}
 
 

@@ -83,15 +83,11 @@ struct image
 	int top_of_done_rays;
 
 	double y_escape_level;
-	char input_spectrum_file[PATH_MAX];
-	struct istruct input_spectrum;
 	long double *angle;
 	long double **ang_escape;
 	int ray_wavelength_points;
 	double *lam;
 	double cur_lam;
-	double *extract_eff;
-	double avg_extract_eff;
 	int ray_auto_run;
 	int escape_bins;
 	double ray_xsrc;

@@ -80,11 +80,6 @@ gdouble doping_stop;
 gdouble Xi;
 gdouble gaus_mull;
 
-gdouble pl_fe_fh;
-gdouble pl_trap;
-gdouble pl_recom;
-int pl_enabled;
-
 int Esteps;
 gdouble B;
 };

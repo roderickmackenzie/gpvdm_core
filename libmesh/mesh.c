@@ -419,6 +419,7 @@ void mesh_build(struct simulation *sim,struct device *in)
 			for (x=0;x<in->xmeshpoints;x++)
 			{
 				in->imat[z][x][y]=in->imat[0][0][y];
+				in->imat_epitaxy[z][x][y]=in->imat_epitaxy[0][0][y];
 				shape=shape_get_index(sim,&(in->my_epitaxy),in->xmesh[x],in->ymesh[y],in->zmesh[z]);
 				if (shape!=-1)
 				{

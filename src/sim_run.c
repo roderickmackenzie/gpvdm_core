@@ -78,7 +78,6 @@ cell.kl_in_newton=FALSE;
 //if (strcmp(inputpath,"")!=0) strcpy(get_input_path(sim),inputpath);
 
 
-
 int i;
 int z;
 int x;
@@ -119,10 +118,26 @@ remove_dir(sim,temp);
 
 join_path(2,temp,get_output_path(sim),"frequency");
 remove_dir(sim,temp);
-
 load_config(sim,&cell);
-color_cie_load(sim);
+
 ray_read_config(sim,&(cell.my_image));
+
+cell.pl_enabled=FALSE;
+cell.pl_use_experimental_emission_spectra=FALSE;
+
+for (i=0;i<cell.my_epitaxy.layers;i++)
+{
+	if (cell.my_epitaxy.layer[i].pl_enabled==TRUE)
+	{
+		cell.pl_enabled=TRUE;
+	}
+
+	if (cell.my_epitaxy.layer[i].pl_use_experimental_emission_spectra==TRUE)
+	{
+		cell.pl_use_experimental_emission_spectra=TRUE;
+	}
+
+}
 
 if (strcmp(sim->force_sim_mode,"")!=0)
 {
@@ -156,7 +171,6 @@ if (enable_electrical==TRUE)
 	char tempp[100];
 	i=0;
 
-	cell.pl_enabled=FALSE;
 	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
 	{
 		dos_init(&cell,i);
@@ -164,10 +178,6 @@ if (enable_electrical==TRUE)
 		sprintf(tempn,"%s_dosn.dat",cell.my_epitaxy.dos_file[i]);
 		sprintf(tempp,"%s_dosp.dat",cell.my_epitaxy.dos_file[i]);
 		load_dos(sim,&cell,tempn,tempp,i);
-		if (cell.dosn[i].config.pl_enabled==TRUE)
-		{
-			cell.pl_enabled=TRUE;
-		}
 	}
 
 
