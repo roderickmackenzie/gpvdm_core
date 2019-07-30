@@ -116,7 +116,6 @@ AC_SUBST(LIBS, " -lumfpack -lm -rdynamic -export-dynamic -ldl -lzip -lz  -L/home
 	AC_SUBST(COMPILE_FLAG, "-D enable_fit -D enable_server -g -fPIC `pkg-config --cflags dbus-1` -D dbus " )
 	AC_SUBST(LIBS, "-lumfpack -lsuperlu -lm -rdynamic -export-dynamic -ldl -lzip -lz -g `pkg-config --libs dbus-1`")
  
-	AC_CHECK_LIB(matheval, [main], [], [AC_MSG_WARN([matheval is needed but not found.])])
 	#-lgsl -lgslcblas
 	
 ]
@@ -178,4 +177,4 @@ m4_include([config_files.m4])
 
 AC_OUTPUT
 
-AC_MSG_NOTICE([gpvdm_core build finished.])
+AC_MSG_NOTICE([gpvdm_core build finished. (gpvdm_build_finished)])

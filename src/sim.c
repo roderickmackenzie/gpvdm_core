@@ -80,6 +80,11 @@ void sim_init(struct simulation *sim)
 	sim->cache_len=-1;
 	sim->cache_max=-1;
 	sim->cache=NULL;
-	sim->connection=NULL;
+
+	#ifdef dbus
+		sim->connection=NULL;
+	#endif
+
+	
 }
 

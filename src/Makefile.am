@@ -16,6 +16,7 @@ all: main.c $(OBJS)
 	cp ../../sim.gpvdm ../base.gpvdm -f
 	rm ../../base.gpvdm -f
 	ln -s ./gpvdm_core/base.gpvdm ../../base.gpvdm
+	@echo "(gpvdm_build_finished)"
 	
 
 .c.o : 

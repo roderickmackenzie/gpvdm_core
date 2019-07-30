@@ -51,6 +51,7 @@ gpvdm_core$(EXEEXT):
 
 install-data-hook:
 	echo "lang"
+	@echo "(gpvdm_build_finished)"
 
 uninstall-hook:
 	-rm $(DESTDIR)$(pkgdatadir) -rf
