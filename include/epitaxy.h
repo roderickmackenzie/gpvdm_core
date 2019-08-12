@@ -53,6 +53,7 @@ struct epi_layer
 	char pl_spectrum_file[PATH_MAX];
 	struct istruct pl_spectrum;
 	double *photon_extract_eff;
+	double *photon_extract_eff_count;
 	long double avg_photon_extract_eff;
 	long double peak_wavelength;
 

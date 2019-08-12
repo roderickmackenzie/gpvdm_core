@@ -77,6 +77,8 @@ double ray_obj_get_min_y(struct simulation *sim,struct image *my_image,struct ob
 void ray_object_flip_y_axis(struct simulation *sim,struct image *in,struct object *obj);
 void ray_object_sub_y(struct simulation *sim,struct image *in,struct object *obj,double y);
 void ray_object_add_y(struct simulation *sim,struct image *in,struct object *obj,double y);
+void photon_extract_eff_reset(struct simulation *sim,struct epitaxy *epi,struct image *in);
+void photon_extract_eff_norm(struct simulation *sim,struct epitaxy *epi,struct image *in);
 
 struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int sim_edge);
 struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz);
