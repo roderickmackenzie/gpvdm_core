@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dump_snapshot_utils.c
 @brief Utils to handle the snapshots dir.
@@ -79,7 +79,7 @@ void dump_make_snapshot_dir_with_name(struct simulation *sim,char *out_dir ,long
 	char snapshots_dir[PATH_MAX];
 	char sub_dir[200];
 	char temp[200];
-	struct buffer buf;
+	struct dat_file buf;
 	buffer_init(&buf);
 
 	sprintf(sub_dir,"%d",number);

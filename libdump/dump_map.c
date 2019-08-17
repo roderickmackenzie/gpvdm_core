@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dump_map.c
 @brief dump a map charge carrier density map of the device, not really used any more due to python back end needs rewritign anyway
@@ -29,7 +29,7 @@
 #include <dos.h>
 #include "sim.h"
 #include "dump.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include <cal_path.h>
 #include <exp.h>
 #include <lang.h>
@@ -48,7 +48,7 @@ if (in->dump_1d_slice_zpos>=in->zmeshpoints) return;
 
 int x=0;
 int y=0;
-struct buffer buf;
+struct dat_file buf;
 char temp[1000];
 int i=0;
 long double Vexternal=get_equiv_V(sim,in);

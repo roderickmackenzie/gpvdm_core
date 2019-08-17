@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file light_materials.c
 	@brief This loads in any physical spectra for the light model, not alpha/n data is stored in the epitaxy.
@@ -41,7 +41,7 @@
 #include <lang.h>
 #include "log.h"
 #include <cal_path.h>
-#include <buffer.h>
+#include <dat_file.h>
 
 static int unused __attribute__((unused));
 
@@ -70,7 +70,7 @@ inp_init(sim,&inp);
 	{
 		ewe(sim,"%s: %s\n",_("File not found"),file_path);
 	}
-	
+
 inter_load(sim,&(in->sun_read),file_path);
 inter_sort(&(in->sun_read));
 

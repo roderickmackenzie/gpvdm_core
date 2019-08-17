@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file gendosfdgause.c
 	@brief Generates the DoS files.
@@ -32,7 +32,7 @@
 #include <sim.h>
 #include <inp.h>
 #include <util.h>
-#include <buffer.h>
+#include <dat_file.h>
 #include <hard_limit.h>
 #include <epitaxy.h>
 #include <lang.h>
@@ -473,7 +473,7 @@ FILE *rod=fopen("gau_test_n.dat","w");
 int first=FALSE;
 #endif
 
-struct buffer dos_out;
+struct dat_file dos_out;
 buffer_init(&dos_out);
 
 if (get_dump_status(sim,dump_write_out_band_structure)==TRUE)
@@ -1256,7 +1256,7 @@ for (mat=0;mat<matnumber;mat++)
 
 	server_run_jobs(sim,&(sim->server));
 	printf_log(sim,_("Finished generating DoS....\n"));
-	
+
 	}
 
 }

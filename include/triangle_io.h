@@ -20,39 +20,16 @@
 // 
 // 
 
-
-/** @file shape_struct.h
-	@brief A structure to hold shapes
+/** @file triangle.h
+@brief triangle structure
 */
+#ifndef triangles_io_h
+#define triangles_io_h
 
-
-#ifndef shape_struct_h
-#define shape_struct_h
-#include "advmath.h"
-#include <sim_struct.h>
+#include <vec.h>
 #include <triangle.h>
-struct shape
-{
-	long double dx;
-	long double dy;
-	long double dz;
-	long double dx_padding;
-	long double dy_padding;
-	long double dz_padding;
-	int nx;
-	int nz;
-	char name[20];
-	char dos_file[20];
-	char shape_type[20];
-	char optical_material[100];
-	long double x0;
-	long double y0;
-	long double z0;
-	int dos_index;
-	int epi_index;
-	struct istruct alpha;
-	struct istruct n;
-	struct triangles tri;
-};
+void triangle_load_from_file(struct simulation *sim,struct triangles *in,char *file_name);
+void triangle_print(struct triangle *in);
+void triangles_print(struct triangles *in);
 
 #endif

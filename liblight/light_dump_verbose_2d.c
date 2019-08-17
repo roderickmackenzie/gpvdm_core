@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file light_dump_vervose_2d.c
 	@brief Dumps the optical fields in 2D.
@@ -30,7 +30,7 @@
 #include "const.h"
 #include "dump_ctrl.h"
 #include "light.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include <cal_path.h>
 #include <lang.h>
 
@@ -39,7 +39,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	FILE *out;
 	int i;
 	int ii;
-	struct buffer buf;
+	struct dat_file buf;
 	char line[1024];
 	char temp[1024];
 
@@ -142,7 +142,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
-	
+
 	for (i=0;i<in->lpoints;i++)
 	{
 		for (ii=0;ii<in->points;ii++)
@@ -156,7 +156,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
-	
+
 	buffer_dump_path(sim,in->dump_dir,"light_lambda_alpha.dat",&buf);
 	buffer_free(&buf);
 
@@ -180,7 +180,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
-	
+
 	for (i=0;i<in->lpoints;i++)
 	{
 		for (ii=0;ii<in->points;ii++)
@@ -194,7 +194,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
-	
+
 	buffer_dump_path(sim,in->dump_dir,"light_lambda_n.dat",&buf);
 	buffer_free(&buf);
 

@@ -70,6 +70,7 @@ static int unused __attribute__((unused));
 
 int main (int argc, char *argv[])
 {
+
 	prctl(PR_SET_PDEATHSIG, SIGKILL);
 //setlocale(LC_ALL,"");
 //bindtextdomain("gpvdm","./lang/");

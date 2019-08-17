@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 
 
@@ -31,7 +31,7 @@
 #include "const.h"
 #include "dump_ctrl.h"
 #include "light.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include <cal_path.h>
 #include <lang.h>
 
@@ -57,7 +57,7 @@ int i;
 		fprintf(out,"%.0Lf\n",in->l[i]*1e9);
 	}
 	fclose(out);
-	
+
 strcpy(in->dump_dir,out_dir);
 }
 
@@ -67,7 +67,7 @@ int i=0;
 int ii=0;
 char temp[200];
 char line[1024];
-struct buffer buf;
+struct dat_file buf;
 buffer_init(&buf);
 //////////
 	buffer_malloc(&buf);
@@ -90,7 +90,7 @@ buffer_init(&buf);
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
-	
+
 	for (i=0;i<in->lpoints;i++)
 	{
 		for (ii=0;ii<in->points;ii++)
@@ -131,7 +131,7 @@ buffer_init(&buf);
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
-	
+
 	for (i=0;i<in->lpoints;i++)
 	{
 		for (ii=0;ii<in->points;ii++)
@@ -145,7 +145,7 @@ buffer_init(&buf);
 
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
-	
+
 	buffer_dump_path(sim,in->dump_dir,"light_2d_photons_asb.dat",&buf);
 	buffer_free(&buf);
 
@@ -181,15 +181,15 @@ char out_name[200];
 char temp_name[400];
 char temp[1024];
 
-struct buffer data_photons_norm;
+struct dat_file data_photons_norm;
 
-struct buffer data_1d_photons_tot;
+struct dat_file data_1d_photons_tot;
 
 buffer_init(&data_photons_norm);
 
 buffer_init(&data_1d_photons_tot);
 
-struct buffer buf;
+struct dat_file buf;
 
 buffer_init(&buf);
 if (get_dump_status(sim,dump_optics)==TRUE)
@@ -381,16 +381,16 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 	buffer_malloc(&buf);
 	buf.y_mul=1.0;
 	buf.x_mul=1e9;
-	strcpy(buf.title,"Wavelength - Normalized photon density");
+	strcpy(buf.title,"Position - Normalized photon density");
 	strcpy(buf.type,"xy");
-	strcpy(buf.x_label,"Wavelength");
+	strcpy(buf.y_label,"Position");
 	strcpy(buf.data_label,"Normalized photon density");
-	strcpy(buf.x_units,"nm");
+	strcpy(buf.y_units,"nm");
 	strcpy(buf.data_units,"a.u.");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buf.x=1;
-	buf.y=in->lpoints;
+	buf.y=in->points;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
@@ -419,9 +419,9 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buf.x_mul=1e9;
 		strcpy(buf.title,"Layer number vs position");
 		strcpy(buf.type,"xy");
-		strcpy(buf.x_label,_("Position"));
+		strcpy(buf.y_label,_("Position"));
 		strcpy(buf.data_label,_("Layer number"));
-		strcpy(buf.x_units,"nm");
+		strcpy(buf.y_units,"nm");
 		strcpy(buf.data_units,"au");
 		buf.logscale_x=0;
 		buf.logscale_y=0;
@@ -432,7 +432,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		sprintf(temp,"#data\n");
 		buffer_add_string(&buf,temp);
-	
+
 		for (ii=0;ii<in->points;ii++)
 		{
 			sprintf(line,"%Le %d\n",in->x[ii]-in->device_start,in->layer[ii]);
@@ -467,7 +467,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		sprintf(temp,"#data\n");
 		buffer_add_string(&buf,temp);
-	
+
 		for (ii=0;ii<in->points;ii++)
 		{
 			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,in->photons_asb[i][ii]);
@@ -505,7 +505,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		sprintf(temp,"#data\n");
 		buffer_add_string(&buf,temp);
-	
+
 		for (ii=0;ii<in->points;ii++)
 		{
 			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,in->n[i][ii]);
@@ -541,7 +541,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		sprintf(temp,"#data\n");
 		buffer_add_string(&buf,temp);
-	
+
 		for (ii=0;ii<in->points;ii++)
 		{
 			sprintf(line,"%Le %Le\n",in->x[ii]-in->device_start,in->alpha[i][ii]);
@@ -557,7 +557,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buffer_free(&buf);
 
 
-		
+
 	}
 
 

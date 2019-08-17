@@ -29,6 +29,7 @@
 #include <vec.h>
 #include <i.h>
 #include <sim_struct.h>
+#include <triangle.h>
 
 #define WAIT 0
 #define READY 1
@@ -37,14 +38,6 @@
 #define TRUE 1
 #define FALSE 0
 
-struct triangle
-{
-	struct vec xy0;
-	struct vec xy1;
-	struct vec xy2;
-	int object_uid;
-	int edge;
-};
 
 struct ray
 {
@@ -102,6 +95,10 @@ struct image
 	int phi_steps;
 	double ray_phi_start;
 	double ray_phi_stop;
+
+	double ray_lambda_start;
+	double ray_lambda_stop;
+	int ray_auto_wavelength_range;
 
 };
 

@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file measure.c
 	@brief Job management for fitting, run multiple fitting instances over multiple CPUs.
@@ -37,7 +37,7 @@
 #include "log.h"
 #include "measure.h"
 #include <probe.h>
-#include <buffer.h>
+#include <dat_file.h>
 #include <sys/stat.h>
 #include <i.h>
 #include <rpn.h>
@@ -121,12 +121,12 @@ void measure_file(struct simulation *sim,char *file_name)
 		}
 
 		strcpy(file_name,inp_get_string(sim,&inp));		//file
-		
+
 		inp_get_string(sim,&inp);	//position token
 		strcpy(input_position,inp_get_string(sim,&inp));
-		
+
 		inp_get_string(sim,&inp);	//output
-		
+
 		strcpy(output_token,inp_get_string(sim,&inp));	//output token
 		//printf("%s %Lf %s\n",file_name,position,output_token);
 
@@ -134,7 +134,7 @@ void measure_file(struct simulation *sim,char *file_name)
 
 		inp_get_string(sim,&inp);
 		strcpy(math,inp_get_string(sim,&inp));	//output token
-		
+
 		if (strcmp_begin(input_position,"#")==0)
 		{
 				inp_init(sim,&inp_data);
@@ -174,12 +174,12 @@ void measure_file(struct simulation *sim,char *file_name)
 				rpn_add_var(sim,&rpn_cal,"x",(double)y);
 
 				y=(long double)rpn_evaluate(sim,&rpn_cal,math);
-				
+
 				inter_free(&data);
 				write=TRUE;
 			}
 		}
-		
+
 		if (write==TRUE)
 		{
 			if (out==NULL)
@@ -211,7 +211,7 @@ void measure_file(struct simulation *sim,char *file_name)
 			fprintf(out,"#end\n");
 		}else
 		{
-			fprintf(out,"%s",vec_str);	
+			fprintf(out,"%s",vec_str);
 		}
 
 		fclose(out);

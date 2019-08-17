@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file buffer.c
 @brief used to save output files to disk with a nice header, so the user knows what was writtne to them
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include "const.h"
 #include "code_ctrl.h"
 #include "cal_path.h"
@@ -36,13 +36,13 @@
 #include <log.h>
 #include <cache.h>
 
-void buffer_zip_set_name(struct buffer *in,char * name)
+void buffer_zip_set_name(struct dat_file *in,char * name)
 {
 	strcpy(in->zip_file_name,name);
 	in->write_to_zip=TRUE;
 }
 
-void buffer_init(struct buffer *in)
+void buffer_init(struct dat_file *in)
 {
 in->write_to_zip=FALSE;
 in->norm_x_axis=FALSE;
@@ -51,7 +51,7 @@ in->data_max=NAN;
 in->data_min=NAN;
 }
 
-void buffer_malloc(struct buffer *in)
+void buffer_malloc(struct dat_file *in)
 {
 in->len=0;
 in->max_len=0;
@@ -90,7 +90,7 @@ in->buf=(char*)malloc(sizeof(char)*in->max_len);
 memset(in->buf, 0, in->max_len);
 }
 
-void buffer_add_xy_data(struct simulation *sim,struct buffer *in,gdouble *x, gdouble *y, int len)
+void buffer_add_xy_data(struct simulation *sim,struct dat_file *in,gdouble *x, gdouble *y, int len)
 {
 int i;
 char string[200];
@@ -145,7 +145,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 }
 
 
-void buffer_add_xy_data_z_label(struct buffer *in,gdouble *x, gdouble *y, gdouble *z, int len)
+void buffer_add_xy_data_z_label(struct dat_file *in,gdouble *x, gdouble *y, gdouble *z, int len)
 {
 int i;
 char string[200];
@@ -192,7 +192,7 @@ buffer_add_string(in,string);
 
 }
 
-void buffer_add_string(struct buffer *in,char * string)
+void buffer_add_string(struct dat_file *in,char * string)
 {
 int str_len=strlen(string);
 int pos=in->len;
@@ -207,7 +207,7 @@ if (in->len+100>in->max_len)
 strcpy((char*)(in->buf+pos),string);
 }
 
-void buffer_add_info(struct simulation *sim,struct buffer *in)
+void buffer_add_info(struct simulation *sim,struct dat_file *in)
 {
 char temp[400];
 
@@ -336,7 +336,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 }
 }
 
-void buffer_dump(struct simulation *sim,char * file,struct buffer *in)
+void buffer_dump(struct simulation *sim,char * file,struct dat_file *in)
 {
 	FILE *out;
 	sim->files_written++;
@@ -361,7 +361,7 @@ void buffer_dump(struct simulation *sim,char * file,struct buffer *in)
 	log_write_file_access(sim,file,'w');
 }
 
-void buffer_dump_cache(struct simulation *sim,char * file_name,struct buffer *in)
+void buffer_dump_cache(struct simulation *sim,char * file_name,struct dat_file *in)
 {
 	if (dumpfiles_should_dump(sim,file_name)==0)
 	{
@@ -391,7 +391,7 @@ struct stat st = {0};
 	}
 }
 
-void buffer_dump_path(struct simulation *sim,char *path,char * file,struct buffer *in)
+void buffer_dump_path(struct simulation *sim,char *path,char * file,struct dat_file *in)
 {
 	char wholename[200];
 	join_path(2, wholename,path,file);
@@ -399,7 +399,7 @@ void buffer_dump_path(struct simulation *sim,char *path,char * file,struct buffe
 }
 
 
-void buffer_free(struct buffer *in)
+void buffer_free(struct dat_file *in)
 {
 free(in->buf);
 in->len=0;

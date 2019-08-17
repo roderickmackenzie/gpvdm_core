@@ -74,6 +74,7 @@ struct simulation
 	char emission_path[PATH_MAX];
 	char spectra_path[PATH_MAX];
 	char home_path[PATH_MAX];
+	char shape_path[PATH_MAX];
 
 	//Matrix solver
 	int last_col;

@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file exp.c
 	@brief Pefrorm experiments on the device, such as count charge density, calculate average position of electrons/holes etc...
@@ -26,7 +26,7 @@
 #include <exp.h>
 #include "sim.h"
 #include "i.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include "contacts.h"
 #include <memory.h>
 
@@ -389,7 +389,7 @@ for (z=0;z<in->zmeshpoints;z++)
 			{
 				Jtot+=in->Jn[z][x][y]+in->Jp[z][x][y];
 
-				
+
 			}
 		}
 	}
@@ -651,7 +651,7 @@ long double ret=0.0;
 			{
 				sum+=in->mun[z][x][y]*in->n[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z]/(in->nt_all[z][x][y]+in->n[z][x][y]);
 			}
-			
+
 		}
 	}
 
@@ -678,7 +678,7 @@ long double ret=0.0;
 			{
 				sum+=in->mup[z][x][y]*in->p[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z]/(in->pt_all[z][x][y]+in->p[z][x][y]);
 			}
-			
+
 		}
 	}
 

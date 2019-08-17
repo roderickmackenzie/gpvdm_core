@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dump.c
 @brief go and dump stuff, what is dumped depends on which options have been set
@@ -105,7 +105,7 @@ dump_number=0;
 set_dump_status(sim,dump_lock, FALSE);
 }
 
-void buffer_add_3d_device_data(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data)
+void buffer_add_3d_device_data(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data)
 {
 int x=0;
 int y=0;
@@ -167,7 +167,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_add_3d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int ***data)
+void buffer_add_3d_device_data_int(struct simulation *sim,struct dat_file *buf,struct device *in,int ***data)
 {
 int x=0;
 int y=0;
@@ -229,7 +229,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_add_2d_device_data_int(struct simulation *sim,struct buffer *buf,struct device *in,int **data)
+void buffer_add_2d_device_data_int(struct simulation *sim,struct dat_file *buf,struct device *in,int **data)
 {
 int x=0;
 int z=0;
@@ -279,7 +279,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct buffer *buf,struct device *in,gdouble ***data,long double **left,long double **right)
+void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data,long double **left,long double **right)
 {
 int x=0;
 int y=0;
@@ -363,7 +363,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_set_graph_type(struct buffer *buf,struct device *in)
+void buffer_set_graph_type(struct dat_file *buf,struct device *in)
 {
 	if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
 	{
@@ -384,7 +384,7 @@ char temp[200];
 char postfix[100];
 char out_dir[PATH_MAX];
 char sim_name[PATH_MAX];
-struct buffer buf;
+struct dat_file buf;
 buffer_init(&buf);
 
 strextract_name(sim_name,in->simmode);

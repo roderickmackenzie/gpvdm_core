@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dump_dynamic.c
 @brief setup the dynamic dump stuff, this enables things like average charge density to be stored for each simulation stip and then wrtten to disk
@@ -33,7 +33,7 @@
 #include <dos.h>
 #include "sim.h"
 #include "dump.h"
-#include "buffer.h"
+#include "dat_file.h"
 #include "dynamic_store.h"
 #include "memory.h"
 #include "contacts.h"
@@ -134,7 +134,7 @@ void dump_dynamic_save(struct simulation *sim,struct device *in,char *outputpath
 int i;
 int sub=TRUE;
 char temp[200];
-struct buffer buf;
+struct dat_file buf;
 buffer_init(&buf);
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
