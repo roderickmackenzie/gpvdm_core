@@ -31,5 +31,12 @@
 void triangle_load_from_file(struct simulation *sim,struct triangles *in,char *file_name);
 void triangle_print(struct triangle *in);
 void triangles_print(struct triangles *in);
-
+void triangles_free(struct triangles *in);
+void triangles_cpy(struct triangles *out,struct triangles *in);
+void triangles_find_min(struct vec *out,struct triangles *in);
+void triangles_find_max(struct vec *out,struct triangles *in);
+void triangles_sub_vec(struct triangles *in,struct vec *v);
+void triangles_add_vec(struct triangles *in,struct vec *v);
+void triangles_div_vec(struct triangles *in,struct vec *v);
+void triangles_mul_vec(struct triangles *in,struct vec *v);
 #endif

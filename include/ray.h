@@ -46,6 +46,9 @@ struct ray
 	struct vec dir;
 	int state;
 	int bounce;
+	int xy_obj_uid;
+	int parent;
+	int uid;
 	double mag;
 };
 
@@ -57,14 +60,16 @@ struct object
 	double n;
 	int uid;
 	double alpha;
+	struct triangles tri;
+	struct vec min;
+	struct vec max;
+
 };
 
 struct image
 {
 	int start_of_shapes;
-	int triangles_max;
 	int triangles;
-	struct triangle *tri;
 	struct ray *rays;
 	int nrays;
 	int nray_max;

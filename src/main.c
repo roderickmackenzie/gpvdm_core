@@ -93,6 +93,7 @@ if (scanarg( argv,argc,"--gui")==TRUE)
 	sim.gui=TRUE;
 }
 
+set_ewe_lock_file("","");
 int log_level=0;
 set_logging_level(&sim,log_level_screen);
 cal_path(&sim);
@@ -160,7 +161,7 @@ timer_init(0);
 timer_init(1);
 dbus_init();
 
-set_ewe_lock_file("","");
+
 
 char pwd[1000];
 if (getcwd(pwd,1000)==NULL)
@@ -184,7 +185,6 @@ set_plot_script_dir(pwd);
 if(geteuid()==0) {
 	ewe(&sim,"Don't run me as root!\n");
 }
-
 
 
 srand(time(0));

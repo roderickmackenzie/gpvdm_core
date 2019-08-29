@@ -128,6 +128,9 @@ long double light_file_generation_shift;
 
 //should remove this
 struct epitaxy *my_epitaxy;
+//
+int print_wavlengths;
+int save_data_to_disk;
 };
 
 void light_norm_photon_density(struct light *in);

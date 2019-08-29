@@ -44,7 +44,7 @@ void image_init(struct image *in);
 int between(double v, double x0, double x1);
 void add_triangle(struct image *in, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int object_uid,int edge);
 void ray_reset(struct image *in);
-int add_ray(struct simulation *sim,struct image *in,struct vec *start,struct vec *dir,double mag);
+int add_ray(struct simulation *sim,struct image *in,struct vec *start,struct vec *dir,double mag,int obj_uid,int parent);
 void ray_populate_with_shapes(struct simulation *sim,struct image *my_image,struct epitaxy *in);
 void dump_plane_to_file(struct simulation *sim,char *file_name,struct image *in);
 void dump_plane(struct simulation *sim,struct image *in);
@@ -52,7 +52,8 @@ double get_rand();
 void obj_norm(struct vec *ret,struct triangle *my_obj);
 int ray_intersect(struct vec *ret,struct triangle *my_obj,struct ray *my_ray);
 int search_obj(struct simulation *sim,struct image *in,struct ray *my_ray);
-int search_triangle(struct simulation *sim,struct image *in,struct ray *my_ray);
+struct triangle * search_triangle(struct simulation *sim,struct image *in,struct ray *my_ray, int do_update);
+void ray_dump_world_to_file(struct simulation *sim,struct image *in);
 int activate_rays(struct image *in);
 int pnpoly(struct image *in, struct vec *xy,int id);
 void get_refractive(struct simulation *sim,struct image *in,double *alpha,double *n0,double *n1,struct ray *my_ray);
@@ -85,5 +86,15 @@ struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double
 struct object *add_dome(struct image *in,double x0,double y0,double z0,double dx0,double dy0,double dz0);
 
 struct object *ray_obj_search(struct simulation *sim,struct image *in,struct ray *in_ray);
+struct object *ray_add_object(struct image *in,struct triangles *tri);
 void ray_cpy(struct ray *a,struct ray *b);
+void ray_dump_triangle(struct simulation *sim,struct image *in,struct triangle *tri);
+void dump_ray_to_file(struct simulation *sim,struct image *in,struct ray *my_ray);
+
+void ray_object_init(struct object *obj);
+void ray_object_free(struct object *obj);
+void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int edge);
+void ray_object_cal_min_max(struct object *obj);
+void triangles_init(struct triangles *tri);
+
 #endif

@@ -139,6 +139,12 @@ for (i=0;i<cell.my_epitaxy.layers;i++)
 
 }
 
+if (lock_is_expired()==TRUE)
+{
+	ewe(sim,"Thank you for using gpvdm.  Gpvdm an only exist if users buy licenses for it.  Your license has expired, please buy a new one.");
+}
+
+
 if (strcmp(sim->force_sim_mode,"")!=0)
 {
 	strcpy(cell.simmode,sim->force_sim_mode);

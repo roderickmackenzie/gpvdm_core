@@ -176,6 +176,10 @@ void light_dump_summary(struct simulation *sim,struct light *in)
 
 void light_dump_1d(struct simulation *sim,struct light *in, int i,char *ext)
 {
+if (in->save_data_to_disk==FALSE)
+{
+	return;
+}
 char line[1024];
 char out_name[200];
 char temp_name[400];

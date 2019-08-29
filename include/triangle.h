@@ -34,12 +34,14 @@ struct triangle
 	struct vec xy1;
 	struct vec xy2;
 	int object_uid;
+	int tri_uid;
 	int edge;
 };
 
 struct triangles
 {
 	struct triangle *data;
+	int max_len;
 	int len;
 };
 

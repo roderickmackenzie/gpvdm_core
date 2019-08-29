@@ -49,6 +49,8 @@ int i;
 		in->points=(int)(in->ylen/in->dx);
 	}
 
+	in->print_wavlengths=TRUE;
+	in->save_data_to_disk=TRUE;
 	in->x=(gdouble *)malloc(in->points*sizeof(gdouble));
 	in->H1d=(gdouble *)malloc(in->points*sizeof(gdouble));
 	in->l=(gdouble *)malloc(in->lpoints*sizeof(gdouble));

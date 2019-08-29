@@ -46,6 +46,8 @@ void vec_sub(struct vec *my_vec1,struct vec *my_vec2);
 void vec_add(struct vec *my_vec1,struct vec *my_vec2);
 void vec_div(struct vec *my_vec1,double n);
 void vec_mul(struct vec *my_vec1,double n);
+void vec_div_vec(struct vec *my_vec1,struct vec *my_vec2);
+void vec_mul_vec(struct vec *my_vec1,struct vec *my_vec2);
 double vec_fabs(struct vec *my_vec);
 void vec_rotate(struct vec *my_vec,double ang);
 double vec_dot(struct vec *a,struct vec *b);
@@ -69,4 +71,5 @@ void rotz_vec(struct vec *out, struct vec *in,double a);
 double vec_ang(struct vec *one,struct vec *two);
 double vec_overlap_test(struct vec *a,struct vec *b);
 void vec_flip_y_axis(struct vec *one,double y);
+int vec_within_box(struct vec *l,struct vec *h,struct vec *v);
 #endif
