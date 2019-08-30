@@ -120,7 +120,6 @@ join_path(2,temp,get_output_path(sim),"frequency");
 remove_dir(sim,temp);
 load_config(sim,&cell);
 
-ray_read_config(sim,&(cell.my_image));
 
 cell.pl_enabled=FALSE;
 cell.pl_use_experimental_emission_spectra=FALSE;
@@ -137,11 +136,6 @@ for (i=0;i<cell.my_epitaxy.layers;i++)
 		cell.pl_use_experimental_emission_spectra=TRUE;
 	}
 
-}
-
-if (lock_is_expired()==TRUE)
-{
-	ewe(sim,"Thank you for using gpvdm.  Gpvdm an only exist if users buy licenses for it.  Your license has expired, please buy a new one.");
 }
 
 
@@ -267,10 +261,6 @@ if (enable_electrical==TRUE)
 
 	light_load_dlls(sim,&cell.mylight);
 
-	if (cell.my_image.ray_auto_run==TRUE)
-	{
-		ray_solve_all(sim,&cell);	
-	}
 	///////////////////////
 
 	//update_arrays(&cell);

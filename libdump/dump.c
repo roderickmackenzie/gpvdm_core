@@ -400,11 +400,6 @@ FILE* out;
 	dump_make_snapshot_dir(sim,out_dir ,in->time, get_equiv_V(sim,in), in->fx, dump_number);
 	//}
 
-	if (get_dump_status(sim,dump_optical_probe_spectrum)==TRUE)
-	{
-		dump_probe_spectrum(sim,in,out_dir,dump_number);
-		dumped=TRUE;
-	}
 
 	if ((in->dump_1d_slice_zpos!=-1)&&(in->dump_1d_slice_xpos!=-1))
 	{
@@ -424,14 +419,6 @@ FILE* out;
 		dumped=TRUE;
 	}
 
-	if (in->pl_enabled==TRUE)
-	{
-		if (in->pl_use_experimental_emission_spectra==FALSE)
-		{
-			exp_cal_emission(sim,out_dir,in);
-			dumped=TRUE;
-		}
-	}
 
 
 	if (dumped==TRUE)

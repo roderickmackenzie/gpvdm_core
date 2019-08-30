@@ -278,8 +278,6 @@ void device_free(struct simulation *sim,struct device *in)
 	complex_solver_free(sim);
 	printf_log(sim,"%s %i %s\n", _("Solved"), in->odes, _("Equations"));
 
-	ray_free(sim,in,&(in->my_image));
-
 }
 
 void device_get_memory(struct simulation *sim,struct device *in)
