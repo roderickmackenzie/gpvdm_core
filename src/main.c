@@ -70,7 +70,7 @@ static int unused __attribute__((unused));
 
 int main (int argc, char *argv[])
 {
-
+set_ewe_lock_file("","");
 	prctl(PR_SET_PDEATHSIG, SIGKILL);
 //setlocale(LC_ALL,"");
 //bindtextdomain("gpvdm","./lang/");
@@ -80,6 +80,7 @@ int main (int argc, char *argv[])
 //exit(0);
 int run=FALSE;
 struct simulation sim;
+strcpy(sim.server.lock_file,"");
 sim_init(&sim);
 /*struct rpn rpn_cal;
 rpn_init(&sim,&rpn_cal);
@@ -93,7 +94,6 @@ if (scanarg( argv,argc,"--gui")==TRUE)
 	sim.gui=TRUE;
 }
 
-set_ewe_lock_file("","");
 int log_level=0;
 set_logging_level(&sim,log_level_screen);
 cal_path(&sim);
@@ -203,6 +203,7 @@ randomprint(&sim,"\n");
 sim.server.on=FALSE;
 sim.server.cpus=1;
 sim.server.readconfig=TRUE;
+
 color_cie_load(&sim);
 if (scanarg( argv,argc,"--outputpath")==TRUE)
 {
