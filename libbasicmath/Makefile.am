@@ -1,5 +1,5 @@
 inc=-I../include/ -I/usr/include/suitesparse/ #last line is for debian compatibility
-OBJS=advmath.o rand.o vec.o triangle_io.o
+OBJS=advmath.o rand.o vec.o triangle_io.o objects.o ray_obj_tools.o
 
 COMPILE_FLAG=@COMPILE_FLAG@
 LINK_FLAG=@LINK_FLAG@

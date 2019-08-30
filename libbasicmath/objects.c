@@ -1,5 +1,5 @@
 // 
-// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
 // 
@@ -18,22 +18,41 @@
 // more details.
 // 
 // 
-// 
 
-/** @file equilibrium.h
-@brief equilibruium solver plugin
+#include <stdio.h>
+#include <ray.h>
+#include <const.h>
+#include <math.h>
+#include <stdlib.h>
+#include <cal_path.h>
+#include <log.h>
+#include <ray_fun.h>
+#include <triangle.h>
+#include <triangle_io.h>
+
+/** @file objects.c
+	@brief Basic object manipulation
 */
 
-
-#ifndef equilibrium_h
-#define equilibrium_h
-#include <sim.h>
-
-struct equilibrium
+void ray_object_cal_min_max(struct object *obj)
 {
-	gdouble space_holder;
-};
+	triangles_find_min(&(obj->min),&(obj->tri));
+	triangles_find_max(&(obj->max),&(obj->tri));
 
-void sim_equilibrium(struct simulation *sim,struct device *in);
-void equilibrium_load_config(struct simulation *sim,struct equilibrium* in,struct device *dev);
-#endif
+	//vec_print(&(obj->min));
+	//vec_print(&(obj->max));
+	//getchar();
+}
+
+void ray_object_init(struct object *obj)
+{
+	//btm
+	triangles_init(&(obj->tri));
+
+}
+
+void ray_object_free(struct object *obj)
+{
+	triangles_free(&(obj->tri));
+}
+
