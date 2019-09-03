@@ -416,6 +416,22 @@ void contact_set_voltage(struct simulation *sim,struct device *in,int contact,gd
 	contacts_update(sim,in);
 }
 
+void contact_set_wanted_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage)
+{
+	int i=0;
+
+	for (i=0;i<in->ncontacts;i++)
+	{
+		if (in->contacts[i].active==TRUE)
+		{
+			in->contacts[i].voltage_want=voltage;
+		}
+	}
+
+	contacts_update(sim,in);
+
+}
+
 void contact_set_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage)
 {
 	int i=0;
@@ -610,6 +626,23 @@ for (x=0;x<in->xmeshpoints;x++)
 				in->contacts[i].area+=in->dxmesh[x]*in->dzmesh[z];
 			}
 
+		}
+}
+
+}
+
+//Average the current over both contacts
+void contacts_detailed_dump(struct device *in)
+{
+int i;
+int x;
+int z;
+
+for (x=0;x<in->xmeshpoints;x++)
+{
+		for (z=0;z<in->zmeshpoints;z++)
+		{
+			printf("%d %Le %Le\n",in->n_contact_l[z][x],in->Jpleft[z][x],in->Jnleft[z][x]);
 		}
 }
 

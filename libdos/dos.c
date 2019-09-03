@@ -34,6 +34,7 @@
 #include "dump.h"
 #include "lang.h"
 #include "log.h"
+#include "cal_path.h"
 
 #define dos_warn
 long double max= -1000;
@@ -512,8 +513,13 @@ return in->dosn[mat].config.B;
 
 void load_dos(struct simulation *sim,struct device *in,char *namen, char *namep,int mat)
 {
-load_dos_file(sim,in,&(in->dosn[mat]),namen);
-load_dos_file(sim,in,&(in->dosp[mat]),namep);
+char path[PATH_MAX];
+
+join_path(3, path,get_input_path(sim),"cache",namen);
+load_dos_file(sim,in,&(in->dosn[mat]),path);
+
+join_path(3, path,get_input_path(sim),"cache",namep);
+load_dos_file(sim,in,&(in->dosp[mat]),path);
 in->srh_bands=in->dosn[mat].srh_bands;
 }
 

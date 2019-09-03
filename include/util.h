@@ -75,5 +75,5 @@ int get_number_in_string(double *out, char* in, int n);
 void remove_file(struct simulation *sim,char* file_name);
 void poll_gui(struct simulation *sim);
 int str_isnumber(char *input) ;
-
+void gpvdm_mkdir(char *file_name);
 #endif

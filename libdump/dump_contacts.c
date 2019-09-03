@@ -133,6 +133,7 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 		}
 
 	}
+
 }
 
 void dump_contacts_free(struct simulation *sim,struct device *in,struct contacts_vti_store *store)

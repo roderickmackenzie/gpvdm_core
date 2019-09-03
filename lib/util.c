@@ -43,6 +43,17 @@
 
 static char* unused_pchar __attribute__((unused));
 
+void gpvdm_mkdir(char *file_name)
+{
+struct stat st = {0};
+
+	if (stat(file_name, &st) == -1)
+	{
+			mkdir(file_name, 0700);
+	}
+
+}
+
 int str_isnumber(char *input) 
 { 
     int start = 0;

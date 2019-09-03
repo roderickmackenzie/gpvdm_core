@@ -885,21 +885,41 @@ void gen_dos_fd_gaus_n(struct simulation *sim,int mat)
 {
 
 char temp[100];
+char path[PATH_MAX];
 
 printf_log(sim,"Electrons.... %s\n",confige[mat].dos_name);
 
+join_path(2, path,get_input_path(sim),"cache");
+gpvdm_mkdir(path);
+
 sprintf(temp,"%s_dosn.dat",confige[mat].dos_name);
-gen_do(sim,&confige[mat],&configh[mat],temp,TRUE,mat);
+join_path(3, path,get_input_path(sim),"cache",temp);
+
+gen_do(sim,&confige[mat],&configh[mat],path,TRUE,mat);
 }
 
 void gen_dos_fd_gaus_p(struct simulation *sim,int mat)
 {
 char temp[100];
+char path[PATH_MAX];
+FILE *out;
 
 printf_log(sim,"Holes.... %s\n",configh[mat].dos_name);
 
+join_path(2, path,get_input_path(sim),"cache");
+gpvdm_mkdir(path);
+
 sprintf(temp,"%s_dosp.dat",configh[mat].dos_name);
-gen_do(sim,&configh[mat],&confige[mat],temp,FALSE,mat);
+join_path(3, path,get_input_path(sim),"cache",temp);
+gen_do(sim,&configh[mat],&confige[mat],path,FALSE,mat);
+
+join_path(3, path,get_input_path(sim),"cache","mat.inp");
+
+out=fopen(path,"w");
+fprintf(out,"#gpvdm_file_type\n");
+fprintf(out,"cache\n");
+fprintf(out,"#end\n");
+fclose(out);
 }
 
 
@@ -1151,13 +1171,15 @@ for (mat=0;mat<matnumber;mat++)
 	}
 
 	sprintf(name,"%s_dosn.dat",my_epitaxy.dos_file[mat]);
-	if (isfile(name)!=0)
+	join_path(3, full_name,get_input_path(sim),"cache",name);
+	if (isfile(full_name)!=0)
 	{
 		problem_with_dos=TRUE;
 	}
 
 	sprintf(name,"%s_dosp.dat",my_epitaxy.dos_file[mat]);
-	if (isfile(name)!=0)
+	join_path(3, full_name,get_input_path(sim),"cache",name);
+	if (isfile(full_name)!=0)
 	{
 		problem_with_dos=TRUE;
 	}

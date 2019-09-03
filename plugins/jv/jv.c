@@ -48,9 +48,22 @@ static int unused __attribute__((unused));
 
 void sim_jv(struct simulation *sim,struct device *in)
 {
+long double Vapplied=0.0;
+int up=TRUE;
+struct jv config;
+int ittr=0;
+gdouble J;
+gdouble Pden;
+int first=TRUE;
+gdouble Vlast;
+gdouble Jlast;
+gdouble Pdenlast;
+gdouble Vexternal;
+gdouble V=0.0;
+
 light_solve_and_update(sim,in,&(in->mylight),0.0);
 
-int up=TRUE;
+
 printf_log(sim,_("Running JV simulation\n"));
 struct dat_file buf;
 buffer_init(&buf);
@@ -62,7 +75,7 @@ struct contacts_vti_store contact_store;
 dump_contacts_init(sim,in,&contact_store);
 
 
-struct jv config;
+
 
 char config_file_name[200];
 
@@ -85,17 +98,9 @@ if (config.jv_Rshunt!=-1.0)
 	in->Rshunt=gfabs(config.jv_Rshunt);
 }
 
-gdouble V=0.0;
+
 gdouble Vstop=config.Vstop;
 gdouble Vstep=config.Vstep;
-int ittr=0;
-gdouble J;
-gdouble Pden;
-int first=TRUE;
-gdouble Vlast;
-gdouble Jlast;
-gdouble Pdenlast;
-gdouble Vexternal;
 
 struct istruct ivexternal;
 inter_init(sim,&ivexternal);
@@ -124,11 +129,13 @@ inter_init(sim,&lv);
 struct istruct lj;
 inter_init(sim,&lj);
 
-gdouble Vapplied=0.0;
-contact_set_active_contact_voltage(sim,in,Vapplied);
+
+//contact_set_active_contact_voltage(sim,in,Vapplied);
 
 if ((in->zmeshpoints>1) || (in->xmeshpoints>1))
 {
+	contact_set_wanted_active_contact_voltage(sim,in,config.Vstart);
+	//contact_set_active_contact_voltage(sim,in,config.Vstart);
 	ntricks_auto_ramp_contacts(sim,in);
 }else
 {
@@ -177,6 +184,8 @@ gdouble r_pmax=0.0;
 gdouble n_pmax=0.0;
 gdouble mue_pmax=0.0;
 gdouble muh_pmax=0.0;
+long double cal_step=0;
+
 in->stop=FALSE;
 
 up=TRUE;
@@ -297,7 +306,18 @@ if (config.Vstop<config.Vstart)
 		inter_append(&lj,J,optical_power_m2);
 		//printf("%Le %le\n",get_avg_recom(in),in->my_image.avg_extract_eff);
 		V+=Vstep;
-		Vstep*=config.jv_step_mul;
+		if (config.jv_step_mul>1.0)
+		{
+			cal_step=roundl(log(1.0+(fabs(V)/config.Vstep)*log(config.jv_step_mul))/log(config.jv_step_mul));
+			if (cal_step<0)
+			{
+				cal_step=1.0;
+			}
+			Vstep=config.Vstep*powl(config.jv_step_mul,cal_step);
+			//printf("%Lf %Lf %Lf %Lf\n",Vstep,cal_step,config.Vstep,config.jv_step_mul);
+			//getchar();
+		}
+		//Vstep=fabs(V)(pow(config.jv_step_mul;
 		//dialog_set_progress ((in->Vstart+V)/(in->Vstop-in->Vstart));
 		if ((up==TRUE)&&(V>Vstop))
 		{
@@ -325,6 +345,8 @@ if (config.Vstop<config.Vstart)
 
 
 		poll_gui(sim);
+
+		contacts_detailed_dump(in);
 
 	}while(1);
 

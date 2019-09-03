@@ -377,14 +377,9 @@ void buffer_dump_cache(struct simulation *sim,char * file_name,struct dat_file *
 
 void buffer_add_dir(struct simulation *sim,char * file_name)
 {
-struct stat st = {0};
-
 	if (get_dump_status(sim,dump_use_cache)==FALSE)
 	{
-		if (stat(file_name, &st) == -1)
-		{
-				mkdir(file_name, 0700);
-		}
+		gpvdm_mkdir(file_name);
 	}else
 	{
 		cache_add_dir(sim,file_name);
