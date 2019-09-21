@@ -19,239 +19,208 @@
 // 
 // 
 
-/** @file ntricks.c
-	@brief A collection of helper functions for the newton solver.
+/** @file newton_externalv.c
+	@brief Run the newton solver for an external voltage.
 */
 
 
-#include <stdio.h>
-#include "sim.h"
+#include <exp.h>
 #include "dump.h"
-#include "newton_tricks.h"
-#include <cal_path.h>
+#include "sim.h"
+#include <newton_tricks.h>
 #include <contacts.h>
-#include <dump.h>
-#include <log.h>
-#include <string.h>
-#include <stdlib.h>
-#include <inp.h>
-#include <list.h>
-#include <advmath.h>
 
-static int unused __attribute__((unused));
+static int glob_use_cap=0;
 
-void state_gen_vector(struct simulation *sim,struct device *in)
+
+static gdouble glob_wanted_externalv=0.0;
+
+
+
+
+//    ----=----
+//    |       |-----
+//    |       |    |
+//    |       |   ---
+//    |       SC
+//    |       |   ---
+//    |       |    |
+//  Vtot      |-----
+//    |       R
+//    |	      |
+//    ----=----
+
+
+void newton_externv_aux(struct simulation *sim,struct device *in,gdouble V,gdouble* i,gdouble* didv,gdouble* didphi,gdouble* didxil,gdouble* didxipl,gdouble* didphir,gdouble* didxir,gdouble* didxipr)
 {
-	int i;
-	long double *buf;
-	int len=0;
-	int buf_pos=0;
-
-	char cache_vector[PATH_MAX];
-	join_path(3, cache_vector,get_cache_path(sim),in->cache.hash,"vector.dat");
-
-	len+=5;
-	len+=17*in->my_epitaxy.electrical_layers;
-	len+=2*in->ncontacts;
-
-	buf=malloc(sizeof(long double)*len);
-
-	buf[buf_pos++]=in->zmeshpoints;					//1
-	buf[buf_pos++]=in->xmeshpoints;					//2
-	buf[buf_pos++]=in->ymeshpoints;					//3
-	buf[buf_pos++]=in->srh_bands;					//4
-	buf[buf_pos++]=in->my_epitaxy.electrical_layers;	//5
-
-	for (i=0;i<in->my_epitaxy.electrical_layers;i++)
-	{
-		buf[buf_pos++]=in->dosn[i].config.mu;			//1
-		buf[buf_pos++]=in->dosp[i].config.mu;			//2
-
-		buf[buf_pos++]=in->dosn[i].config.doping_start;	//3
-		buf[buf_pos++]=in->dosn[i].config.doping_stop;	//4
-
-		buf[buf_pos++]=in->dosn[i].config.srh_sigman;	//5
-		buf[buf_pos++]=in->dosn[i].config.srh_sigmap;	//6
-		buf[buf_pos++]=in->dosp[i].config.srh_sigman;	//7
-		buf[buf_pos++]=in->dosp[i].config.srh_sigmap;	//8
-
-		buf[buf_pos++]=in->dosn[i].config.Nc;			//9
-		buf[buf_pos++]=in->dosn[i].config.Nv;			//10
-
-		buf[buf_pos++]=in->dosn[i].config.Eg;			//11
-		buf[buf_pos++]=in->dosn[i].config.Xi;			//12
-		buf[buf_pos++]=in->dosn[i].config.B;			//13
-
-		buf[buf_pos++]=in->dosn[i].config.Et;			//14
-		buf[buf_pos++]=in->dosp[i].config.Et;			//15
-
-		buf[buf_pos++]=in->dosn[i].config.Nt;			//16
-		buf[buf_pos++]=in->dosp[i].config.Nt;			//17
-	}
-
-
-	for (i=0;i<in->ncontacts;i++)
-	{
-		buf[buf_pos++]=in->contacts[i].np;			//1
-		buf[buf_pos++]=in->contacts[i].charge_type;	//2
-	}
-
-
-	write_zip_buffer(sim,cache_vector,buf,len);
-
-	free(buf);
+gdouble C=in->C;
+gdouble Vapplied_last=0.0;
+if (glob_use_cap==FALSE) C=0.0;
+gdouble i0=*i;
+gdouble didv0=*didv;
+gdouble didphi0=*didphi;
+gdouble didxil0=*didxil;
+gdouble didxipl0=*didxipl;
+gdouble didphir0=*didphir;
+gdouble didxir0=*didxir;
+gdouble didxipr0=*didxipr;
+Vapplied_last=contact_get_active_contact_voltage_last(sim,in);
+*i=glob_wanted_externalv-(V+((in->Rcontact+in->Rload)*(i0+V/in->Rshunt+C*(V-Vapplied_last)/in->dt)));
+*didv= -(1.0+((in->Rcontact+in->Rload)*(didv0+1.0/in->Rshunt+C*(1.0)/in->dt)));
+*didphi= -((in->Rcontact+in->Rload)*didphi0);
+*didxil= -((in->Rcontact+in->Rload)*didxil0);
+*didxipl= -((in->Rcontact+in->Rload)*didxipl0);
+*didphir= -((in->Rcontact+in->Rload)*didphir0);
+*didxir= -((in->Rcontact+in->Rload)*didxir0);
+*didxipr= -((in->Rcontact+in->Rload)*didxipr0);
+return;
 }
 
-long double state_load_vector(struct simulation *sim,struct device *in,char *file_name)
+
+gdouble newton_externv(struct simulation *sim,struct device *in,gdouble Vtot,int usecap)
 {
-
-	int i;
-	long double *buf;
-	int buf_pos=0;
-	long double ret=0.0;
-
-	int len=read_zip_buffer(sim,file_name,&buf);
-	if (len==-1)
-	{
-		return -1;
-	}
-
-	
-	if (buf[buf_pos++]!=in->zmeshpoints)
-	{
-		return -1;
-	}
-
-	if (buf[buf_pos++]!=in->xmeshpoints)
-	{
-		return -1;
-	}
-
-	if (buf[buf_pos++]!=in->ymeshpoints)
-	{
-		return -1;
-	}
-
-	if (buf[buf_pos++]!=in->srh_bands)
-	{
-		return -1;
-	}
-
-	if (buf[buf_pos++]!=in->my_epitaxy.electrical_layers)
-	{
-		return -1;
-	}
-
-	for (i=0;i<in->my_epitaxy.electrical_layers;i++)
-	{
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.mu);	//1
-		ret+=log_delta(buf[buf_pos++],in->dosp[i].config.mu);	//2
+gdouble Vapplied_last=0.0;
+gdouble Vapplied=0.0;
 
 
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.doping_start);	//3
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.doping_stop);	//4
+gdouble C=in->C;
 
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.srh_sigman);	//5
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.srh_sigmap);	//6
-		ret+=log_delta(buf[buf_pos++],in->dosp[i].config.srh_sigman);	//7
-		ret+=log_delta(buf[buf_pos++],in->dosp[i].config.srh_sigmap);	//8
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.Nc);			//9
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.Nv);			//10
-		ret+=fabsl(buf[buf_pos++]-in->dosn[i].config.Eg);				//11
-		ret+=fabsl(buf[buf_pos++]-in->dosn[i].config.Xi);				//12
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.B);			//13
-		ret+=fabsl(buf[buf_pos++]-in->dosn[i].config.Et)*1e3;			//14
-		ret+=fabsl(buf[buf_pos++]-in->dosp[i].config.Et)*1e3;			//15
-
-		ret+=log_delta(buf[buf_pos++],in->dosn[i].config.Nt);			//16
-//		printf("%Le %Le %Le\n",buf[buf_pos-1],in->dosn[i].config.Nt,log_delta(buf[buf_pos-1],in->dosn[i].config.Nt));
-		ret+=log_delta(buf[buf_pos++],in->dosp[i].config.Nt);			//17
-
-	}
-
-	for (i=0;i<in->ncontacts;i++)
-	{
-		ret+=log_delta(buf[buf_pos++],in->contacts[i].np);			//1
-		ret+=log_delta(buf[buf_pos++],in->contacts[i].charge_type);	//2
-	}
+in->kl_in_newton=TRUE;
+solver_realloc(sim,in);
+glob_wanted_externalv=Vtot;
+glob_use_cap=usecap;
+in->newton_aux=&newton_externv_aux;
+solve_all(sim,in);
+if (glob_use_cap==FALSE) C=0.0;
 
 
-	free(buf);
-
-	return ret;
+Vapplied_last=contact_get_active_contact_voltage_last(sim,in);
+Vapplied=contact_get_active_contact_voltage(sim,in);
+return get_I(in)+Vapplied/in->Rshunt+C*(Vapplied-Vapplied_last)/in->dt;
 }
 
-int state_find_vector(struct simulation *sim,struct device *in,char *out)
+long double newton_externalv_simple(struct simulation *sim,struct device *in,gdouble V)
 {
-
-	int i=0;
-	char *buffer;
-	unsigned int len;
-	long l;
-	long double min_dv=1e6;
-	long double ddevice=0.0;
-	long double min_ddevice=1e6;
+contact_set_active_contact_voltage(sim,in,V);
+in->kl_in_newton=FALSE;
+solver_realloc(sim,in);
+solve_all(sim,in);
+return get_I(in);
+}
 
 
-	struct list files;
-	struct inp_file inp;
-	char cache_vector[PATH_MAX];
-	long double dv;
-	char min_file[PATH_MAX];
-	char temp_file_name[PATH_MAX];
-	int found=FALSE;
-	long double error=1e6;
-	long double min_error=1e6;
-
-	inp_listdir(sim, get_cache_path(sim),&files);
 
 
-	for (i=0;i<files.len;i++)
+
+//////////////////////From misc file//////////////////////////////////////////
+
+void newton_aux_externalv(struct simulation *sim,struct device *in,gdouble V,gdouble* i,gdouble* didv,gdouble* didphi,gdouble* didxil,gdouble* didxipl,gdouble* didphir,gdouble* didxir,gdouble* didxipr)
+{
+gdouble i0=*i;
+gdouble didv0=*didv;
+gdouble didphi0=*didphi;
+gdouble didxil0=*didxil;
+gdouble didxipl0=*didxipl;
+gdouble didphir0=*didphir;
+gdouble didxir0=*didxir;
+gdouble didxipr0=*didxipr;
+
+*i=glob_wanted_externalv-(V+in->Rcontact*(i0+V/in->Rshunt));
+*didv= -(1.0+in->Rcontact*(didv0+1.0/in->Rshunt));
+*didphi= -(in->Rcontact*(didphi0));
+*didxil= -(in->Rcontact*(didxil0));
+*didxipl= -(in->Rcontact*(didxipl0));
+*didphir= -(in->Rcontact*(didphir0));
+*didxir= -(in->Rcontact*(didxir0));
+*didxipr= -(in->Rcontact*(didxipr0));
+return;
+}
+
+
+gdouble sim_externalv_ittr(struct simulation *sim,struct device *in,gdouble wantedv)
+{
+	//printf("Enter %Le\n",wantedv);
+	gdouble Vapplied=0.0;
+	gdouble clamp=0.1;
+	gdouble step=0.001;
+	gdouble e0;
+	gdouble e1;
+	gdouble i0;
+	gdouble i1;
+	gdouble deriv;
+	gdouble Rs=in->Rcontact;
+
+	in->kl_in_newton=FALSE;
+	solver_realloc(sim,in);
+
+	Vapplied=contact_get_active_contact_voltage(sim,in);
+	//printf("ok %Le %Le\n",wantedv,Vapplied);
+
+	solve_all(sim,in);
+	i0=get_I(in);
+
+	//printf("done %Le %Le\n",wantedv,Vapplied);
+
+
+	gdouble itot=i0+Vapplied/in->Rshunt;
+
+	e0=fabs(itot*Rs+Vapplied-wantedv);
+	Vapplied+=step;
+	contact_set_active_contact_voltage(sim,in,Vapplied);
+
+	solve_all(sim,in);
+
+	i1=get_I(in);
+	itot=i1+Vapplied/in->Rshunt;
+
+	e1=fabs(itot*Rs+Vapplied-wantedv);
+
+	deriv=(e1-e0)/step;
+	step= -e1/deriv;
+	//step=step/(1.0+fabs(step/clamp));
+	Vapplied+=step;
+	contact_set_active_contact_voltage(sim,in,Vapplied);
+	int count=0;
+	int max=1000;
+	do
 	{
-		if ((strcmp(files.names[i],".")!=0)&&(strcmp(files.names[i],"..")!=0))
-		{
+		e0=e1;
+		solve_all(sim,in);
+		itot=i1+Vapplied/in->Rshunt;
+		e1=fabs(itot*Rs+Vapplied-wantedv);
 
-			join_path(3, cache_vector,get_cache_path(sim),files.names[i],"vector.dat");
-			
-			ddevice=state_load_vector(sim,in,cache_vector);
-			printf("%s %.2Lf\n",files.names[i],ddevice);
-			//getchar();
-			if (ddevice<1.5)
-			{
-				if (state_search(sim,in,&dv,files.names[i],temp_file_name,FALSE)==TRUE)
-				{
-					error=dv+ddevice;
-					if (error<min_error)
-					{
-						min_error=error;
-						min_ddevice=ddevice;
-						min_dv=dv;
-						strcpy(min_file,temp_file_name);
-						found=TRUE;
-						printf("closest file%s dv=%Lf ddevice=%Lf error=%Lf\n",min_file,dv,ddevice,error);
-						//getchar();
-					}
-				}
-			}
-		}
-	}
+		deriv=(e1-e0)/step;
+		step= -e1/deriv;
+		//gdouble clamp=0.01;
+		//if (e1<clamp) clamp=e1/100.0;
+		//step=step/(1.0+fabs(step/clamp));
+		step=step/(1.0+fabs(step/clamp));
+		Vapplied+=step;
+		//printf("%Le %Le\n",Vapplied,e1);
+		contact_set_active_contact_voltage(sim,in,Vapplied);
+		if (count>max) break;
+		count++;
+	}while(e1>1e-8);
 
-	list_free(&files);
-	//printf("do load %Lf\n",min_dv);
+	gdouble ret=get_I(in)+Vapplied/in->Rshunt;
 	//getchar();
-	//exit(0);
-	if (found==TRUE)
-	{
+return ret;
+}
 
-		printf(">>min_file%s dv=%Le ddevice=%Le error=%Le\n",min_file,min_dv,min_ddevice,min_error);
-		//getchar();
-		if (load_state(sim,in,min_file)==FALSE)
-		{
-			ewe(sim,"Probem with load\n");
-		}
-		return TRUE;
+gdouble sim_externalv(struct simulation *sim,struct device *in,gdouble wantedv)
+{
 
-	}
 
-	return FALSE;
+in->kl_in_newton=TRUE;
+
+solver_realloc(sim,in);
+
+glob_wanted_externalv=wantedv;
+
+in->newton_aux=&newton_aux_externalv;
+
+solve_all(sim,in);
+
+
+return 0.0;
 }

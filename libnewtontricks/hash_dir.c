@@ -1,5 +1,5 @@
 // 
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
 // 
@@ -18,66 +18,29 @@
 // more details.
 // 
 // 
+// 
 
-/** @file hash.c
-	@brief Hashing function for fast lookup in tables, but the arrays are now linear so you don't need to hash.
+/** @file newton.h
+@brief newton solver plugin which uses slotboom vars.
 */
 
+
+
+#ifndef h_newton
+#define h_newton
+
 #include <stdio.h>
-#include "sim.h"
-#include "inp.h"
-#include "cal_path.h"
-#include "list.h"
-#include "md5.h"
+#include <stdlib.h>
+#include <math.h>
+#include <device.h>
 
-void hash_dir(struct simulation *sim,char *out)
-{
-	struct md5 sum;
-	md5_init(&sum);
-
-	int i=0;
-	char *buffer;
-	unsigned int len;
-	long l;
-	char newcheck[100];
-	struct list files;
-	struct inp_file inp;
-	inp_listdir(sim, get_input_path(sim),&files);
-
-
-	for (i=0;i<files.len;i++)
-	{
-		if (is_numbered_file(files.names[i],"dos")==0)
-		{
-			//printf("%s\n",files.names[i]);
-			inp_read_buffer(sim,&buffer, &l,files.names[i]);
-			len=(unsigned int)l;
-			
-			md5_update(&sum,buffer,len);
-
-			free(buffer);
-		}
-
-		if (strcmp(files.names[i],"contacts.inp")==0)
-		{
-			inp_init(sim,&inp);
-			inp_load(sim,&inp,files.names[i]);
-			inp_replace(sim,&inp,"#contact_voltage0", "");
-			inp_replace(sim,&inp,"#contact_voltage1", "");
-			inp_replace(sim,&inp,"#contact_voltage2", "");
-			inp_replace(sim,&inp,"#contact_voltage3", "");
-			inp_replace(sim,&inp,"#contact_voltage4", "");
-			inp_replace(sim,&inp,"#contact_voltage5", "");
-			inp_replace(sim,&inp,"#contact_voltage6", "");
-			inp_replace(sim,&inp,"#contact_voltage7", "");
-			md5_update(&sum,inp.data,inp.fsize);
-			inp_free_no_save(sim,&inp);
-		}
-	}
-
-
-	list_free(&files);
-
-	md5_to_str(out,&sum);
-}
-
+void dllinternal_newton_set_min_ittr(int ittr);
+void update_solver_vars(struct simulation *sim,struct device *in,int clamp, int z, int x);
+void fill_matrix(struct simulation *sim,struct device *in, int z, int x);
+gdouble get_cur_error(struct simulation *sim, struct device *in);
+gdouble get_abs_error(struct device *in);
+void solver_cal_memory(struct device *in,int *ret_N,int *ret_M,int dim);
+void dllinternal_solver_free_memory(struct device *in);
+int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x);
+void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int dim);
+#endif
