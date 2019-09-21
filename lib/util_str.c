@@ -42,6 +42,20 @@
 
 	#include <fnmatch.h>
 
+int is_numbered_file(char *in,char *root)
+{
+	if (strcmp_end(in,".inp")!=0)
+	{
+		return -1;
+	}
+
+	if (strcmp_begin(in,root)!=0)
+	{
+		return -1;
+	}
+
+return 0;
+}
 
 int is_number(char a)
 {
@@ -288,4 +302,121 @@ for (i=0;i<strlen(in);i++)
 temp[count]=0;
 sscanf(temp,"%d",&ret);
 return ret;
+}
+
+int str_isnumber(char *input) 
+{ 
+    int start = 0;
+	int len=strlen(input);
+	int stop= len-1; 
+	if (len==0)
+	{
+		return FALSE;
+	}
+
+	//sort spaces
+	while(input[start] == ' ')
+	{
+		start++;
+		if (start>=len)
+		{
+			return FALSE;
+		}
+	}
+ 
+	while(input[stop] == ' ') 
+	{
+        stop--;
+		if (stop<=0)
+		{
+			printf("b\n");
+			return FALSE;
+		}
+	}
+
+          
+    // len==1 and first character not digit
+    if(len == 1 && !(input[start] >= '0' && input[stop] <= '9')) 
+	{
+		return FALSE; 
+	}
+  
+    // 1st char must be +, -, . or number  
+    if( input[start] != '+' && input[start] != '-' && !(input[start] >= '0' && input[start] <= '9'))
+	{ 
+		return FALSE; 
+	}
+
+    int dot_or_e = FALSE; 
+	int i=start;
+
+    for(i ; i <= stop ; i++) 
+    { 
+        // Only allow numbers, +, - and e  
+        if(input[i] != 'e' && input[i] != '.' &&   input[i] != '+' && input[i] != '-' &&  !(input[i] >= '0' && input[i] <= '9'))
+		{
+			return FALSE;
+		} 
+             
+        if(input[i] == '.') 
+        { 
+            // a . as a last character is not allowed
+            if(i == len-1)
+			{
+				return FALSE; 
+			}
+
+            // have we seen a dot or e before
+            if(dot_or_e == TRUE)
+			{
+                return FALSE;
+			}
+   
+            // If we have a . we need a number after it			 
+            if(!(input[i+1] >= '0' && input[i+1] <= '9'))
+			{
+				return FALSE; 
+			}
+
+		}else
+		if(input[i] == 'e') 
+        {  
+            dot_or_e = TRUE; 
+
+            // e as the last character is also not allowed  
+            if(i == len-1)
+			{
+				return FALSE; 
+			}
+
+            // an e first is not allowed we need a number before it
+            if(!(input[i-1] >= '0' && input[i-1] <= '9'))
+			{
+				return FALSE; 
+			}
+
+            // e must be followed by a + - or a number   
+            if (input[i+1] != '+' && input[i+1] != '-' && (input[i+1] >= '0' && input[i] <= '9'))
+			{
+				return FALSE; 
+			}
+        }
+    } 
+      
+
+	return TRUE; 
+}
+
+void split_dot(char *out, char *in)
+{
+	int i=0;	
+	strcpy(out,in);
+	for (i=0;i<strlen(out);i++)
+	{
+		if (out[i]=='.')
+		{
+			out[i]=0;
+			break;
+		}
+	}
 }

@@ -292,9 +292,9 @@ xpos=in->nstart;
 tpos=tstart;
 t=0;
 x=0;
-#ifdef dos_bin
+
 int buf_len=0;
-buf_len+=17;
+buf_len+=18;
 buf_len+=in->npoints;		//mesh
 buf_len+=tsteps;		//mesh
 buf_len+=in->srh_bands;	//mesh
@@ -318,14 +318,10 @@ buf[buf_pos++]=(gdouble)in->srh_sigman;
 buf[buf_pos++]=(gdouble)in->srh_sigmap;
 buf[buf_pos++]=(gdouble)in->Nc;
 buf[buf_pos++]=(gdouble)in->Nv;
+buf[buf_pos++]=(gdouble)in->Nt;
 buf[buf_pos++]=(gdouble)in->Eg;
 buf[buf_pos++]=(gdouble)in->Xi;
 buf[buf_pos++]=(gdouble)in->B;
-#else
-FILE *out;
-out=fopen(outfile,"w");
-fprintf(out,"%d %d %d %lf %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le %Le\n",(int)in->npoints,(int)tsteps,in->srh_bands,in->epsilonr,in->doping_start,in->doping_stop,in->mu,in->srh_vth,in->srh_sigman,in->srh_sigmap,in->Nc,in->Nv,in->Eg,in->Xi,in->B);
-#endif
 
 gdouble srh_pos=in->srh_start;
 gdouble srh_delta=fabs(in->srh_start)/(gdouble)(in->srh_bands);
@@ -333,22 +329,14 @@ xmesh=(gdouble *)malloc(sizeof(gdouble)*in->npoints);
 
 for (x=0;x<in->npoints;x++)
 {
-	#ifdef dos_bin
 	buf[buf_pos++]=xpos;
-	#else
-	fprintf(out,"%Le\n",xpos);
-	#endif
 	xmesh[x]=xpos;
 	xpos+=dxr;
 }
 
 for (t=0;t<tsteps;t++)
 {
-	#ifdef dos_bin
 	buf[buf_pos++]=tpos;
-	#else
-	fprintf(out,"%Le\n",tpos);
-	#endif
 	tpos+=dt;
 }
 
@@ -356,11 +344,7 @@ for (band=0;band<in->srh_bands;band++)
 {
 	srh_pos+=srh_delta/2.0;
 	srh_mid[band]=srh_pos;
-	#ifdef dos_bin
 	buf[buf_pos++]=srh_pos;
-	#else
-	fprintf(out,"%Le\n",srh_pos);
-	#endif
 
 	srh_pos+=srh_delta/2.0;
 	srh_x[band]=srh_pos;
@@ -704,11 +688,7 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 		{
 			for (band=0;band<in->srh_bands;band++)
 			{
-				#ifdef dos_bin
 				buf[buf_pos++]=srh_den[band];
-				#else
-				fprintf(out,"%Le\n",srh_den[band]);
-				#endif
 			}
 
 			if (get_dump_status(sim,dump_band_structure)==TRUE)
@@ -750,12 +730,10 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 
 		gdouble w0=sum/((sum-last_n0)/(dxr));
 		if (x==0) w0=kb*tpos/Q;
-		#ifdef dos_bin
+
 			buf[buf_pos++]=sum;
 			buf[buf_pos++]=w0;
-		#else
-			fprintf(out,"%.20le %.20le ",sum,w0);
-		#endif
+
 		last_n0=sum;
 
 
@@ -777,20 +755,14 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 
 		for (srh_band=0;srh_band<in->srh_bands;srh_band++)
 		{
-			#ifdef dos_bin
 				buf[buf_pos++]=srh_r1[srh_band];
 				buf[buf_pos++]=srh_r2[srh_band];
 				buf[buf_pos++]=srh_r3[srh_band];
 				buf[buf_pos++]=srh_r4[srh_band];
 				buf[buf_pos++]=srh_n[srh_band];
-			#else
-			fprintf(out,"%.20le %.20le %.20le %.20le %.20le ",srh_r1[srh_band],srh_r2[srh_band],srh_r3[srh_band],srh_r4[srh_band],srh_n[srh_band]);
-			#endif
+
 		}
 
-		#ifndef dos_bin
-		fprintf(out,"\n");
-		#endif
 
 		#ifdef test_dist
 		fprintf(rod,"\n");
@@ -827,28 +799,14 @@ if (get_dump_status(sim,dump_write_out_band_structure)==TRUE)
 
 }
 
-#ifdef dos_bin
-if (buf_len!=buf_pos)
-{
-ewe(sim,_("Expected dos size is different from generated\n"));
-}
-	gzFile file;
-	file = gzopen (outfile, "w9b");
-	gzwrite (file, (char*)buf, buf_len*sizeof(gdouble));
-	gzclose (file);
-FILE * yes;
-yes = fopen (outfile, "ab");
-int temp1=buf_len*sizeof(gdouble);
-fwrite ((char*)&temp1, sizeof(int),1,yes);
-fclose (yes);
+	if (buf_len!=buf_pos)
+	{
+	ewe(sim,_("Expected dos size is different from generated\n"));
+	}
 
-//out = fopen(outfile, "wb");
-//fwrite((char*)buf, buf_len*sizeof(gdouble), 1, out);
-//fclose(out);
-free(buf);
-#else
-fclose(out);
-#endif
+	write_zip_buffer(sim,outfile,buf,buf_len);
+	free(buf);
+
 free(xmesh);
 free(srh_r1);
 free(srh_r2);

@@ -27,7 +27,7 @@
 #include "sim.h"
 #include "dump.h"
 #include "remesh.h"
-#include "ntricks.h"
+#include "newton_tricks.h"
 
 
 struct remesh my_mesh;

@@ -30,78 +30,67 @@
 
 struct dosconfig
 {
-char dos_name[20];
-char analytical_dos_file_name[20];
-int dos_number;
-gdouble edge;
-gdouble m;
-int dostype;
-gdouble Nt;
-gdouble Et;
-gdouble Nt2;
-gdouble Et2;
-gdouble Eshift;
-gdouble nstart;
-gdouble nstop;
-gdouble base1;
-gdouble base2;
-int npoints;
-int expan_len;
-gdouble expan_N[20];
-gdouble expan_E[20];
-gdouble mu;
-gdouble ion_density;
-gdouble ion_mobility;
-gdouble tau0;
-gdouble tau1;
-gdouble Tstart;
-gdouble Tstop;
-gdouble Ngaus;
-int Tsteps;
-int traps;
-gdouble dband;
-gdouble detrap;
-int srh_bands;
-gdouble srh_start;
+	char dos_name[20];
+	char analytical_dos_file_name[20];
+	int dos_number;
+	long double m;
+	int dostype;
+	long double Nt;
+	long double Et;
+	long double nstart;
+	long double nstop;
+	int npoints;
+	long double mu;
+	long double ion_density;
+	long double ion_mobility;
+	long double Tstart;
+	long double Tstop;
+	int Tsteps;
+	int traps;
+	long double dband;
+	long double detrap;
+	int srh_bands;
+	long double srh_start;
 
-gdouble srh_sigman;
-gdouble srh_sigmap;
-gdouble srh_vth;
-gdouble Nc;
-gdouble Nv;
-gdouble srh_cut;
+	long double srh_sigman;
+	long double srh_sigmap; 
+	long double srh_vth;
+	long double Nc;
+	long double Nv;
+	long double srh_cut;
 
-gdouble del_start;
-gdouble del_stop;
-gdouble Eg;
-gdouble epsilonr;
-gdouble doping_start;
-gdouble doping_stop;
-gdouble Xi;
-gdouble gaus_mull;
+	long double del_start;
+	long double del_stop;
+	long double Eg;
+	long double Xi;
+	long double epsilonr;
+	long double doping_start;
+	long double doping_stop;
 
-int Esteps;
-gdouble B;
+	long double gaus_mull;
+
+	int Esteps;
+	long double B;
 };
 
 struct dos
 {
-int used;
-gdouble *x;
-int xlen;
-int tlen;
-int srh_bands;
-gdouble *t;
-gdouble *srh_E;
-gdouble *srh_den;
-gdouble **c;
-gdouble **w;
-gdouble ***srh_r1;
-gdouble ***srh_r2;
-gdouble ***srh_r3;
-gdouble ***srh_r4;
-gdouble ***srh_c;
-struct dosconfig config;
+	int used;
+	long double *x;
+	int xlen;
+	int tlen;
+	int srh_bands;
+	long double *t;
+	long double *srh_E;
+	long double *srh_den;
+	long double **c;
+	long double **w;
+	long double ***srh_r1;
+	long double ***srh_r2;
+	long double ***srh_r3;
+	long double ***srh_r4;
+	long double ***srh_c;
+	struct dosconfig config;
 };
 
 

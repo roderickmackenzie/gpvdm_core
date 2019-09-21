@@ -125,9 +125,13 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 	{
 		int i=0;
 		gdouble x_value=0.0;
+		long double J=0.0;
+		long double V_loss=0.0;
 		for (i=0;i<in->ncontacts;i++)
 		{
+			J=contacts_get_J(in,i);
 			x_value=contact_get_active_contact_voltage(sim,in);
+			V_loss=in->contacts[i].area*J*10.0;//in->Rcontact;
 	//		inter_append(&(store->v),x_value,contact_get_voltage(sim,in,i));
 			inter_append(&(store->J[i]),x_value,contacts_get_J(in,i));
 		}

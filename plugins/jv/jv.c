@@ -29,7 +29,7 @@
 #include "jv.h"
 #include <dump.h>
 #include <dynamic_store.h>
-#include "ntricks.h"
+#include "newton_tricks.h"
 #include <inp.h>
 #include <dat_file.h>
 #include <gui_hooks.h>
@@ -45,6 +45,20 @@
 
 static int unused __attribute__((unused));
 
+int get_step_n(long double step0,long double step_mul,long double V)
+{
+int n=0;
+long double pos=0;
+long double dv=fabs(step0);
+
+while(pos<fabs(V))
+{
+	pos+=dv;
+	dv*=step_mul;
+	n++;
+}
+return n;//roundl(log(1.0+(fabs(V)/fabs(step0))*log(step_mul))/log(step_mul));
+}
 
 void sim_jv(struct simulation *sim,struct device *in)
 {
@@ -129,8 +143,10 @@ inter_init(sim,&lv);
 struct istruct lj;
 inter_init(sim,&lj);
 
-
 //contact_set_active_contact_voltage(sim,in,Vapplied);
+
+state_cache_enable(sim,in);
+
 
 if ((in->zmeshpoints>1) || (in->xmeshpoints>1))
 {
@@ -186,6 +202,12 @@ gdouble mue_pmax=0.0;
 gdouble muh_pmax=0.0;
 long double cal_step=0;
 
+long double n_steps=0.0;
+char send_data[200];
+
+n_steps=get_step_n(config.Vstep,config.jv_step_mul,config.Vstart);
+n_steps+=get_step_n(config.Vstep,config.jv_step_mul,config.Vstop);
+
 in->stop=FALSE;
 
 up=TRUE;
@@ -204,7 +226,11 @@ if (config.Vstop<config.Vstart)
 
 		Vexternal=get_equiv_V(sim,in);
 
-		gui_send_data(sim,"pulse");
+		sprintf(send_data,"percent:%Lf",(long double)ittr/n_steps);
+		gui_send_data(sim,send_data);
+
+		sprintf(send_data,"text:Voltage %.2Lf V/%.2Lf V",V,config.Vstop);
+		gui_send_data(sim,send_data);
 		if (ittr>0)
 		{
 
@@ -216,7 +242,6 @@ if (config.Vstop<config.Vstart)
 		}
 
 		ittr++;
-
 		inter_append(&charge,Vexternal,get_extracted_np(in));
 		inter_append(&charge_tot,Vexternal,get_np_tot(in));
 
@@ -308,7 +333,7 @@ if (config.Vstop<config.Vstart)
 		V+=Vstep;
 		if (config.jv_step_mul>1.0)
 		{
-			cal_step=roundl(log(1.0+(fabs(V)/config.Vstep)*log(config.jv_step_mul))/log(config.jv_step_mul));
+			cal_step=get_step_n(config.Vstep,config.jv_step_mul,V);//roundl(log(1.0+(fabs(V)/config.Vstep)*log(config.jv_step_mul))/log(config.jv_step_mul));
 			if (cal_step<0)
 			{
 				cal_step=1.0;
@@ -346,7 +371,8 @@ if (config.Vstop<config.Vstart)
 
 		poll_gui(sim);
 
-		contacts_detailed_dump(in);
+		//contacts_detailed_dump(in);
+		//contacts_dump(sim,in);
 
 	}while(1);
 

@@ -1,5 +1,5 @@
 // 
-// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
 // 
@@ -18,27 +18,23 @@
 // more details.
 // 
 // 
-// 
 
-/** @file inp_struct.h
-@brief structure to hold input files.
+/** @file hash.c
+	@brief Hashing function for fast lookup in tables, but the arrays are now linear so you don't need to hash.
 */
 
-
-#ifndef inpstruct_h
-#define inpstruct_h
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "advmath.h"
+#include "sim.h"
+#include "inp.h"
+#include "cal_path.h"
+#include "newton_tricks.h"
 
-struct inp_file
+void hash_dir(struct simulation *sim)
 {
-char *data;
-long fsize;
-char full_name[1000];
-int pos;
-int edited;
-};
+	printf("here\n");
+	struct list files;
+	inp_listdir(sim, get_input_path(sim),&files);
+	list_dump(&files);
+	inp_list_free(&files);
+}
 
-#endif

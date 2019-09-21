@@ -38,5 +38,6 @@ void cache_free(struct simulation *sim);
 void cache_add_item(struct simulation *sim,char * file_name,char *data,int len);
 int cache_search(struct simulation *sim,char * file_name);
 void cache_add_dir(struct simulation *sim,char * file_name);
+void state_cache_enable(struct simulation *sim,struct device *in);
 
 #endif

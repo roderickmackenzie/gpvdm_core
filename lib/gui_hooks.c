@@ -116,6 +116,13 @@ int gui_send_data (struct simulation *sim,char *tx_data_in)
 
 if (sim->gui==TRUE)
 {
+	if (sim->mindbustx==TRUE)
+	{
+		if ((strcmp_begin(tx_data_in,"pulse")==0)||(strcmp_begin(tx_data_in,"text")==0)||(strcmp_begin(tx_data_in,"percent")==0))
+		{
+			return 0;
+		}
+	}
 	//printf("thinking about sending data\n");
 	if ((strcmp_begin(tx_data_in,"pulse")==0)||(strcmp_begin(tx_data_in,"percent")==0))
 	{

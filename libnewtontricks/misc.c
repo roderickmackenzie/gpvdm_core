@@ -19,7 +19,7 @@
 // 
 // 
 
-/** @file ntricks.c
+/** @file newton_tricks.c
 	@brief A collection of helper functions for the newton solver.
 */
 
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <exp.h>
 #include "sim.h"
-#include "ntricks.h"
+#include "newton_tricks.h"
 #include "gui_hooks.h"
 #include <plot.h>
 #include <cal_path.h>
@@ -42,6 +42,17 @@ static int unused __attribute__((unused));
 static gdouble glob_wanted=0.0;
 
 struct newton_math_state math_save_state;
+
+int solve_cur(struct simulation *sim,struct device *in,int z,int x)
+{
+	int ret=(*sim->dll_solve_cur)(sim,in,z,x);
+	if (is_errors(sim)==0)
+	{
+		errors_dump(sim);
+		ewe(sim,"error");
+	}
+return ret;
+}
 
 void newton_push_state(struct device *in)
 {
@@ -75,6 +86,8 @@ do
 {
 	V+=dV;
 	if (get_dump_status(sim,dump_print_text)==TRUE) printf_log(sim,"ramp: %Lf %Lf %d\n",V,to,in->kl_in_newton);
+
+
 	sim_externalv(sim,in,V);
 
 	//plot_now(sim,in,"jv.plot");
@@ -101,11 +114,17 @@ void ntricks_auto_ramp_contacts(struct simulation *sim,struct device *in)
 printf_log(sim,"Multidimentional autoramp\n");
 int i;
 int changed=TRUE;
-
+char send_data[200];
+char temp[200];
 
 gdouble Vapplied=0.0;
 in->kl_in_newton=FALSE;
 solver_realloc(sim,in);
+
+if (state_find_vector(sim,in,NULL)==TRUE)
+{
+	solve_all(sim,in);
+}
 
 newton_push_state(in);
 
@@ -115,16 +134,23 @@ in->newton_min_itt=3;
 in->electrical_clamp=1.0;
 in->newton_clever_exit=FALSE;
 
+
 while (changed==TRUE)
 {
 
-	changed=contacts_itterate_to_desired_voltage(sim,in);
+	changed=contacts_itterate_to_desired_voltage(sim,in,temp);
 
 	solve_all(sim,in);
+	//save_state(sim,in);
+	sprintf(send_data,"text:%s",temp);
+	gui_send_data(sim,send_data);
 
+	gui_send_data(sim,"pulse");
+	poll_gui(sim);
 }
 
 newton_pop_state(in);
+
 
 
 printf_log(sim,"Finished with multidimentional auto ramp\n");
@@ -181,6 +207,15 @@ int x=0;
 int ittr=0;
 int cont=TRUE;
 
+if (state_search_and_load(sim,in)==TRUE)
+{
+	in->newton_only_fill_matrix=TRUE;
+	solve_cur(sim,in,z,x);
+	in->newton_only_fill_matrix=FALSE;
+	return;
+}
+
+
 for (z=0;z<in->zmeshpoints;z++)
 {
 //	for (x=0;x<in->xmeshpoints;x++)
@@ -188,6 +223,7 @@ for (z=0;z<in->zmeshpoints;z++)
 
 		if (in->newton_enable_external_thermal==FALSE)
 		{
+
 			solve_cur(sim,in,z,x);
 		}else
 		{
@@ -210,6 +246,8 @@ for (z=0;z<in->zmeshpoints;z++)
 		}
 //	}
 }
+
+save_state(sim,in);
 
 }
 

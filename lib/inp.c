@@ -39,6 +39,7 @@
 #include <log.h>
 #include <cal_path.h>
 #include "lock.h"
+#include <list.h>
 
 int inp_test_end_of_data(char *line)
 {
@@ -56,7 +57,7 @@ int found=FALSE;
 int is_sim_file=FALSE;
 char found_value[256];
 struct inp_file inp;
-struct inp_list a;
+struct list a;
 inp_listdir(sim,dir_name,&a);
 
 
@@ -86,7 +87,7 @@ inp_listdir(sim,dir_name,&a);
 		}
 	}
 
-inp_list_free(&a);
+list_free(&a);
 
 if (found==TRUE)
 {
@@ -108,7 +109,7 @@ int is_sim_file=FALSE;
 char sim_name[256];
 char name[200];
 struct inp_file inp;
-struct inp_list a;
+struct list a;
 inp_listdir(sim,dir_name,&a);
 
 
@@ -146,7 +147,7 @@ inp_listdir(sim,dir_name,&a);
 		}
 	}
 
-inp_list_free(&a);
+list_free(&a);
 
 if (found==TRUE)
 {
@@ -166,7 +167,7 @@ int i=0;
 int found=FALSE;
 char sim_name[256];
 struct inp_file inp;
-struct inp_list a;
+struct list a;
 inp_listdir(sim,dir_name,&a);
 
 
@@ -191,7 +192,7 @@ inp_listdir(sim,dir_name,&a);
 		}
 	}
 
-inp_list_free(&a);
+list_free(&a);
 
 if (found==TRUE)
 {
@@ -206,7 +207,7 @@ return -1;
 }
 
 
-void inp_listdir(struct simulation *sim, char *dir_name,struct inp_list *out)
+void inp_listdir(struct simulation *sim, char *dir_name,struct list *out)
 {
 char sim_file[PATH_MAX];
 int mylen=0;
@@ -227,7 +228,7 @@ if (z!=NULL)
 	for (i=0;i<files;i++)
 	{
 		strcpy(temp,zip_get_name(z, i, ZIP_FL_UNCHANGED));
-		if (inp_listcmp(out,temp)!=0)
+		if (list_cmp(out,temp)!=0)
 		{
 			mylen=strlen(temp);
 			out->names[out->len]=(char*)malloc(sizeof(char)*(mylen+1));
@@ -260,32 +261,6 @@ closedir (theFolder);
 
 }
 
-void inp_list_free(struct inp_list *in)
-{
-	int i=0;
-
-	for (i=0;i<in->len;i++)
-	{
-		free(in->names[i]);
-	}
-
-	free(in->names);
-}
-
-int inp_listcmp(struct inp_list *in,char *name)
-{
-	int i=0;
-
-	for (i=0;i<in->len;i++)
-	{
-		if (strcmp(name,in->names[i])==0)
-		{
-			return 0;
-		}
-	}
-
-return -1;
-}
 
 int zip_is_in_archive(char *full_file_name)
 {
@@ -803,6 +778,13 @@ void inp_free(struct simulation *sim,struct inp_file *in)
 {
 
 	inp_save(sim,in);
+
+	free(in->data);
+	inp_init(sim,in);
+}
+
+void inp_free_no_save(struct simulation *sim,struct inp_file *in)
+{
 
 	free(in->data);
 	inp_init(sim,in);

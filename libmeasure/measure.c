@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <i.h>
 #include <rpn.h>
+#include <list.h>
 
 static int unused __attribute__((unused));
 
@@ -223,7 +224,7 @@ void measure_file(struct simulation *sim,char *file_name)
 void measure(struct simulation *sim)
 {
 int i=0;
-struct inp_list a;
+struct list a;
 inp_listdir(sim,get_input_path(sim),&a);
 
 
@@ -238,5 +239,5 @@ inp_listdir(sim,get_input_path(sim),&a);
 		}
 	}
 
-inp_list_free(&a);
+list_free(&a);
 }

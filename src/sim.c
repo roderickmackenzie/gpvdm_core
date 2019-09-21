@@ -81,9 +81,17 @@ void sim_init(struct simulation *sim)
 	sim->cache_max=-1;
 	sim->cache=NULL;
 
+	sim->mindbustx=FALSE;
+
 	#ifdef dbus
 		sim->connection=NULL;
 	#endif
+
+
+	sim->error_log=NULL;
+	sim->error_log_size=0;
+	sim->error_log_size_max=0;
+	sim->errors_logged=0;
 
 	
 }

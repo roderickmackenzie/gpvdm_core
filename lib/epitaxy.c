@@ -36,12 +36,45 @@
  *
  */
 
-/*
-	inp_search_string(sim,&inp,temp,"#ray_input_spectrum");
+void epitaxy_load_electrical_file(struct simulation *sim,char *file_name, struct epi_layer *layer)
+{
+	struct inp_file inp;
+	char full_path[PATH_MAX];
+	char temp[100];
 
-	join_path(3, my_image->input_spectrum_file, sim->emission_path, temp,"spectra.inp");
 
-*/
+	join_path(2, full_path, get_input_path(sim), file_name);
+
+	if (inp_isfile(sim,full_path)==0)
+	{
+
+		inp_init(sim,&inp);
+
+		inp_load(sim,&inp,full_path);
+		inp_check(sim,&inp,1.0);
+
+		inp_search_gdouble(sim,&inp,&(layer->shunt),"#electrical_shunt");
+
+		inp_search_gdouble(sim,&inp,&(layer->series),"#electrical_series");
+
+		inp_search_gdouble(sim,&inp,&(layer->C),"#electrical_C");
+
+		inp_search_gdouble(sim,&inp,&(layer->n),"#electrical_n");
+
+		inp_search_gdouble(sim,&inp,&(layer->J0),"#electrical_J0");
+
+		inp_free(sim,&inp);
+
+	}else
+	{
+		layer->shunt=0.0;
+		layer->series=0.0;
+		layer->C=0.0;
+		layer->n=0.0;
+		layer->J0=0.0;
+	}
+}
+
 void epitaxy_load_pl_file(struct simulation *sim,char *pl_file, struct epi_layer *layer)
 {
 	struct inp_file inp;
@@ -170,6 +203,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 {
 	int i;
 	char dos_file[20];
+	char electrical_file[20];
 	char pl_file[20];
 	char lumo_file[20];
 	char homo_file[20];
@@ -244,11 +278,13 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 				in->device_start=y_pos;
 			}
 
-			in->electrical_layer[i]=TRUE;
+			in->layer[i].electrical_layer=TRUE;
 			epitaxy_load_dos_files(sim,in,dos_file,lumo_file,homo_file);
+			sprintf(electrical_file,"electrical%s.inp",(dos_file+3));
+			epitaxy_load_electrical_file(sim,electrical_file,&(in->layer[i]));
 		}else
 		{
-			in->electrical_layer[i]=FALSE;
+			in->layer[i].electrical_layer=FALSE;
 		}
 
 		in->layer[i].y_start=y_pos;
@@ -287,7 +323,7 @@ gdouble tot=0.0;
 
 for (i=0;i<in->layers;i++)
 {
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		tot+=in->layer[i].width;
 	}
@@ -349,7 +385,7 @@ gdouble layer_end=0.0;
 int electrical_layer=0;
 for (i=0;i<in->layers;i++)
 {
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		layer_end+=in->layer[i].width;
 
@@ -376,7 +412,7 @@ gdouble layer_end=0.0;
 int electrical_layer=0;
 for (i=0;i<in->layers;i++)
 {
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		layer_end+=in->layer[i].width;
 
@@ -403,7 +439,7 @@ gdouble pos=0.0;
 for (i=0;i<in->layers;i++)
 {
 
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		return pos;
 	}
@@ -426,12 +462,12 @@ int found=FALSE;
 for (i=0;i<in->layers;i++)
 {
 
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		found=TRUE;
 	}
 
-	if ((in->electrical_layer[i]==FALSE)&&(found==TRUE))
+	if ((in->layer[i].electrical_layer==FALSE)&&(found==TRUE))
 	{
 		return pos;
 	}
@@ -458,7 +494,7 @@ int i=0;
 for (i=0;i<in->layers;i++)
 {
 
-	if (in->electrical_layer[i]==TRUE)
+	if (in->layer[i].electrical_layer==TRUE)
 	{
 		return i;
 	}

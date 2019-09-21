@@ -72,6 +72,8 @@ int main (int argc, char *argv[])
 {
 set_ewe_lock_file("","");
 	prctl(PR_SET_PDEATHSIG, SIGKILL);
+
+
 //setlocale(LC_ALL,"");
 //bindtextdomain("gpvdm","./lang/");
 //textdomain("gpvdm");
@@ -174,6 +176,7 @@ remove_file(&sim,"snapshots.zip");
 remove_file(&sim,"light_dump.zip");
 
 hard_limit_init(&sim);
+errors_init(&sim);
 
 dumpfiles_load(&sim);
 set_plot_script_dir(pwd);
@@ -204,7 +207,9 @@ sim.server.on=FALSE;
 sim.server.cpus=1;
 sim.server.readconfig=TRUE;
 
+
 color_cie_load(&sim);
+
 if (scanarg( argv,argc,"--outputpath")==TRUE)
 {
 	strcpy(sim.output_path,get_arg_plusone( argv,argc,"--outputpath"));
@@ -252,6 +257,12 @@ if (scanarg( argv,argc,"--lock")==TRUE)
 	server_set_dbus_finish_signal(&(sim.server), get_arg_plusone( argv,argc,"--lock"));
 }
 
+if (scanarg( argv,argc,"--mindbustx")==TRUE)
+{
+	sim.mindbustx=TRUE;
+}
+
+
 if (scanarg( argv,argc,"--lockfile")==TRUE)
 {
 	server_set_lock_file(&(sim.server), get_arg_plusone( argv,argc,"--lockfile"));
@@ -283,8 +294,11 @@ if (run==FALSE)
 
 server_shut_down(&sim,&(sim.server));
 
+
+
 hard_limit_free(&sim);
 dumpfiles_free(&sim);
+errors_free(&sim);
 
 if (ret!=0)
 {

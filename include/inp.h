@@ -29,6 +29,7 @@
 #include "advmath.h"
 #include "inp_struct.h"
 #include <sim_struct.h>
+#include "list_struct.h"
 
 void inp_replace_double(struct simulation *sim,struct inp_file *in,char *token, double value);
 int inp_get_array_len(struct simulation *sim,struct inp_file *in,char *token);
@@ -57,9 +58,7 @@ int inp_isfile(struct simulation *sim,char *full_file_name);
 int zip_is_in_archive(char *full_file_name);
 int zip_write_buffer(struct simulation *sim,char *full_file_name,char *buffer, int len);
 
-void inp_listdir(struct simulation *sim, char *dir_name,struct inp_list *out);
-void inp_list_free(struct inp_list *in);
-int inp_listcmp(struct inp_list *in,char *name);
+void inp_listdir(struct simulation *sim, char *dir_name,struct list *out);
 int guess_whole_sim_name(struct simulation *sim,char *ret,char *dir_name,char* search_name);
 int search_for_token(struct simulation *sim,char *ret,char *dir_name,char* token,char *search_value);
 
@@ -74,4 +73,5 @@ void inp_load_from_buffer(struct simulation *sim,struct inp_file *in,char *file,
 void inp_search_long_long(struct simulation *sim,struct inp_file *in,long long* out,char* token);
 
 int get_line(char *out,char *data,int len,int *pos);
+void inp_free_no_save(struct simulation *sim,struct inp_file *in);
 #endif

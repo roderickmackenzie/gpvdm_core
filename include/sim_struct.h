@@ -75,6 +75,8 @@ struct simulation
 	char spectra_path[PATH_MAX];
 	char home_path[PATH_MAX];
 	char shape_path[PATH_MAX];
+	char cache_path[PATH_MAX];
+	char gpvdm_local_path[PATH_MAX];
 
 	//Matrix solver
 	int last_col;
@@ -132,6 +134,7 @@ struct simulation
 	struct cache_item *cache;
 
 	//gui
+	int mindbustx;
 	#ifdef dbus
 		DBusConnection *connection;
 	#endif
@@ -140,6 +143,11 @@ struct simulation
 	struct istruct cie_x;
 	struct istruct cie_y;
 	struct istruct cie_z;
+
+	char *error_log;
+	int error_log_size;
+	int error_log_size_max;
+	int errors_logged;
 };
 
 #endif

@@ -20,25 +20,27 @@
 // 
 // 
 
-/** @file inp_struct.h
-@brief structure to hold input files.
+/** @file checksum.h
+	@brief MD5 type checksums.
 */
 
 
-#ifndef inpstruct_h
-#define inpstruct_h
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "advmath.h"
+#ifndef md5_h
+#define md5_h
+#include <stdint.h>
+#include <sim_struct.h>
 
-struct inp_file
+struct md5
 {
-char *data;
-long fsize;
-char full_name[1000];
-int pos;
-int edited;
+	uint32_t a0;
+	uint32_t b0;
+	uint32_t c0;
+	uint32_t d0;
 };
+
+uint32_t leftrotate (uint32_t x, uint32_t c);
+void md5_init(struct md5* in);
+void md5_update(struct md5* in,char *data,int len);
+void md5_to_str(char *out,struct md5 *in);
 
 #endif

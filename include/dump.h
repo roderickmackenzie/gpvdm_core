@@ -27,7 +27,6 @@
 
 #ifndef h_dump
 #define h_dump
-#include "frame.h"
 #include "device.h"
 #include "dump_ctrl.h"
 #include "dynamic_store.h"
@@ -41,13 +40,8 @@ void dump_dynamic_init(struct simulation *sim,struct dynamic_store *store,struct
 void dump_dynamic_save(struct simulation *sim,struct device *in,char *outputpath,struct dynamic_store *store);
 void dump_dynamic_add_data(struct simulation *sim,struct dynamic_store *store,struct device *in, gdouble x_value);
 void dump_dynamic_free(struct simulation *sim,struct device *in,struct dynamic_store *store);
-void dump_build_2d_charge_frame(struct map *mapin_e,struct map *mapin_h,struct device *in);
-void dump_write_2d_charge_map(struct map *in_e,struct map *in_h,struct device *dev);
-void frame_add_data(struct map *in,gdouble x,gdouble y,gdouble data);
 void dump_slice(struct device *in,char *prefix);
 void dump_energy_slice(struct simulation *sim,char *out_dir,struct device *in);
-void dump_write_2d_charge_single_map(struct map *in,struct device *dev);
-void dump_build_2d_charge_single_frame(struct map *mapin,struct device *in);
 void dump_device_map(struct simulation *sim,char* out_dir,struct device *in);
 void dump_1d_slice(struct simulation *sim,struct device *in,char *out_dir);
 void dump_write_to_disk(struct simulation *sim,struct device* in);

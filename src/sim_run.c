@@ -28,7 +28,7 @@
 #include "dos.h"
 #include "dump.h"
 #include "complex_solver.h"
-#include "ntricks.h"
+#include "newton_tricks.h"
 #include "log.h"
 #include "inp.h"
 #include "solver_interface.h"
@@ -267,6 +267,8 @@ if (enable_electrical==TRUE)
 
 	contacts_force_to_zero(sim,&cell);
 
+	state_cache_init(sim,&cell);
+
 	get_initial(sim,&cell);
 
 
@@ -310,7 +312,6 @@ if (enable_electrical==TRUE)
 	cell.map_stop=cell.Ec[0][0][0]+1.0;
 
 	//set_solver_dump_every_matrix(0);
-	draw_gaus(&cell);
 
 
 	if (cell.onlypos==TRUE)

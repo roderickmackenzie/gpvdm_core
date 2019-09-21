@@ -1,5 +1,5 @@
 // 
-// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
 // 
@@ -18,27 +18,45 @@
 // more details.
 // 
 // 
-// 
 
-/** @file inp_struct.h
-@brief structure to hold input files.
+/** @file basic_math.c
+	@brief Math functions
 */
 
+#include <math.h>
 
-#ifndef inpstruct_h
-#define inpstruct_h
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "advmath.h"
 
-struct inp_file
+long double log_delta(long double a_in,long double b_in)
 {
-char *data;
-long fsize;
-char full_name[1000];
-int pos;
-int edited;
-};
+	long double a=fabsl(a_in);
+	long double b=fabsl(b_in);
 
-#endif
+	long double ratio=0.0;
+
+	if (a<b)
+	{
+		b=a;
+		a=fabsl(b_in);
+	}
+
+
+	if (b==a)
+	{
+		return 0.0;
+	}
+
+	if ((b==0)&&(a==0))
+	{
+		return 0;
+	}
+
+	if (b==0)
+	{
+		return fabsl(log10l(a));
+	}
+	//printf("one %Le %Le %Le\n",a,b,fabsl(log10l(a/b)));
+	ratio=fabsl(log10l(a/b));
+	
+	return ratio;
+}
+

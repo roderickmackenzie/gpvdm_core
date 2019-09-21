@@ -379,7 +379,7 @@ void device_init(struct device *in)
 	in->tm_mesh_pos=-1;
 	in->ncontacts=-1;
 	in->active_contact=-1;
-
+	in->newton_only_fill_matrix=FALSE;
 }
 
 

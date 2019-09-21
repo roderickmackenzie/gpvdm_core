@@ -86,11 +86,6 @@ char *error;
 }
 
 
-int solve_cur(struct simulation *sim,struct device *in,int z,int x)
-{
-return (*sim->dll_solve_cur)(sim,in,z,x);
-}
-
 void newton_set_min_ittr(struct device *in,int ittr)
 {
 in->newton_min_itt=ittr;

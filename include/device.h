@@ -46,6 +46,12 @@ int n_points;
 int left_right;
 };
 
+struct solver_cache
+{
+	char hash[100];
+	int length;
+	int enabled;
+};
 
 struct device
 {
@@ -490,6 +496,10 @@ struct device
 	//Ray tracing
 
 	struct image my_image;
+
+	//solver cache
+	struct solver_cache cache;
+	int newton_only_fill_matrix;
 };
 
 void device_init(struct device *in);

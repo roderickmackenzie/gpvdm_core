@@ -46,27 +46,14 @@ void dump_clean_cache_files(struct simulation* sim)
 {
 struct inp_file inp;
 char temp[200];
-DIR *d;
-struct dirent *dir;
+char cach_dir[PATH_MAX];
+
 
 	if (get_dump_status(sim,dump_remove_dos_cache)==TRUE)
 	{
-		d = opendir(".");
-		if (d)
-		{
-			while ((dir = readdir(d)) != NULL)
-			{
-				//printf("%s\n",dir->d_name);
-				if ((strcmp_end(dir->d_name,".inp.chk")==0)||(strcmp_end(dir->d_name,"_dosn.dat")==0)||(strcmp_end(dir->d_name,"_dosp.dat")==0))
-				{
-					remove(dir->d_name);
-				}
-			}
-
-			closedir(d);
-		}
+		join_path(2, cach_dir,get_input_path(sim),"cache");
+		remove_dir(sim,cach_dir);
 	}
-
 
 	inp_init(sim,&inp);
 	if (inp_load(sim, &inp , "delete_files.inp")==0)

@@ -34,6 +34,7 @@ char *get_plugins_path(struct simulation *sim);
 char *get_lang_path(struct simulation *sim);
 char *get_input_path(struct simulation *sim);
 char *get_output_path(struct simulation *sim);
+char *get_cache_path(struct simulation *sim);
 char *get_materials_path(struct simulation *sim);
 char *get_cie_color_path(struct simulation *sim);
 char *get_shape_path(struct simulation *sim);
@@ -47,6 +48,7 @@ void get_file_name_from_path(char *out,char *in);
 void get_nth_dir_name_from_path(char *out,char *in,int n);
 int is_dir_in_path(char *long_path, char* search_dir);
 int get_delta_path(struct simulation *sim,char *out, char *root,char *file_name);
+char *get_gpvdm_local_path(struct simulation *sim);
 
 
 #endif

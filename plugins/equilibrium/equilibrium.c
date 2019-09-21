@@ -27,7 +27,7 @@
 #include <exp.h>
 #include "equilibrium.h"
 #include <dump.h>
-#include "ntricks.h"
+#include "newton_tricks.h"
 #include <inp.h>
 #include <dat_file.h>
 #include <gui_hooks.h>

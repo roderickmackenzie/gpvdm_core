@@ -57,4 +57,3 @@ if (fabsl(x)>1e-40)
 return ret;
 }
 
-

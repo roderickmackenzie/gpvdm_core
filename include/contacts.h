@@ -55,7 +55,7 @@ int contacts_get_lcharge_type(struct simulation *sim,struct device *in);
 int contacts_get_rcharge_type(struct simulation *sim,struct device *in);
 int contact_get_active_contact_index(struct simulation *sim,struct device *in);
 void contact_set_flip_current(struct simulation *sim,struct device *in);
-int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in);
+int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in,char *text);
 void contacts_cal_area(struct simulation *sim,struct device *in);
 void contacts_detailed_dump(struct device *in);
 void contact_set_wanted_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage);

@@ -203,6 +203,10 @@ return tot;
 int solve_pos(struct simulation *sim,struct device *in, int z, int x)
 {
 
+if (strcmp(in->newton_name,"newton_simple")==0)
+{
+	return 0;
+}
 printf_log(sim,"%s\n",_("Solving the initial electrostatic field."));
 
 int i;

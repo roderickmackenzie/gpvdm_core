@@ -212,6 +212,7 @@ gdouble sim_externalv(struct simulation *sim,struct device *in,gdouble wantedv)
 
 
 in->kl_in_newton=TRUE;
+
 solver_realloc(sim,in);
 
 glob_wanted_externalv=wantedv;

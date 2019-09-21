@@ -89,5 +89,12 @@ void gen_dos_fd_gaus_fd(struct simulation *sim);
 void sim_init(struct simulation *sim);
 void fit_log_init(struct simulation *sim);
 
+//errors
+void errors_init(struct simulation *sim);
+void errors_free(struct simulation *sim);
+void errors_dump(struct simulation *sim);
+void errors_add(struct simulation *sim, const char *format, ...);
+int is_errors(struct simulation *sim);
+
 #endif
 

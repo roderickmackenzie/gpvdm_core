@@ -43,6 +43,30 @@
 
 static char* unused_pchar __attribute__((unused));
 
+void get_meter_dim(char *unit,long double *mul,long double max_val)
+{
+
+if (max_val<1e-6)
+{
+	strcpy(unit,"nm");
+	*mul=1e9;
+}else
+if (max_val<1e-3)
+{
+	strcpy(unit,"um");
+	*mul=1e6;
+}else
+if (max_val<1e-1)
+{
+	strcpy(unit,"mm");
+	*mul=1e3;
+}else
+{
+	strcpy(unit,"m");
+	*mul=1.0;
+}
+
+}
 void gpvdm_mkdir(char *file_name)
 {
 struct stat st = {0};
@@ -54,108 +78,7 @@ struct stat st = {0};
 
 }
 
-int str_isnumber(char *input) 
-{ 
-    int start = 0;
-	int len=strlen(input);
-	int stop= len-1; 
-	if (len==0)
-	{
-		return FALSE;
-	}
 
-	//sort spaces
-	while(input[start] == ' ')
-	{
-		start++;
-		if (start>=len)
-		{
-			return FALSE;
-		}
-	}
- 
-	while(input[stop] == ' ') 
-	{
-        stop--;
-		if (stop<=0)
-		{
-			printf("b\n");
-			return FALSE;
-		}
-	}
-
-          
-    // len==1 and first character not digit
-    if(len == 1 && !(input[start] >= '0' && input[stop] <= '9')) 
-	{
-		return FALSE; 
-	}
-  
-    // 1st char must be +, -, . or number  
-    if( input[start] != '+' && input[start] != '-' && !(input[start] >= '0' && input[start] <= '9'))
-	{ 
-		return FALSE; 
-	}
-
-    int dot_or_e = FALSE; 
-	int i=start;
-
-    for(i ; i <= stop ; i++) 
-    { 
-        // Only allow numbers, +, - and e  
-        if(input[i] != 'e' && input[i] != '.' &&   input[i] != '+' && input[i] != '-' &&  !(input[i] >= '0' && input[i] <= '9'))
-		{
-			return FALSE;
-		} 
-             
-        if(input[i] == '.') 
-        { 
-            // a . as a last character is not allowed
-            if(i == len-1)
-			{
-				return FALSE; 
-			}
-
-            // have we seen a dot or e before
-            if(dot_or_e == TRUE)
-			{
-                return FALSE;
-			}
-   
-            // If we have a . we need a number after it			 
-            if(!(input[i+1] >= '0' && input[i+1] <= '9'))
-			{
-				return FALSE; 
-			}
-
-		}else
-		if(input[i] == 'e') 
-        {  
-            dot_or_e = TRUE; 
-
-            // e as the last character is also not allowed  
-            if(i == len-1)
-			{
-				return FALSE; 
-			}
-
-            // an e first is not allowed we need a number before it
-            if(!(input[i-1] >= '0' && input[i-1] <= '9'))
-			{
-				return FALSE; 
-			}
-
-            // e must be followed by a + - or a number   
-            if (input[i+1] != '+' && input[i+1] != '-' && (input[i+1] >= '0' && input[i] <= '9'))
-			{
-				return FALSE; 
-			}
-        }
-    } 
-      
-
-	return TRUE; 
-} 
 
 
 /**Get length of a file in lines
@@ -195,19 +118,6 @@ fclose(file);
 return i;
 }
 
-void split_dot(char *out, char *in)
-{
-	int i=0;	
-	strcpy(out,in);
-	for (i=0;i<strlen(out);i++)
-	{
-		if (out[i]=='.')
-		{
-			out[i]=0;
-			break;
-		}
-	}
-}
 
 
 void fx_with_units(char *out,double number)
@@ -636,123 +546,6 @@ return no;
 }
 
 
-void edit_file_int(struct simulation *sim,char *in_name,char *front,int line_to_edit,int value)
-{
-
-FILE *in;
-FILE *out;
-char *line;
-int file_size =0;
-in=fopen(in_name,"r");
-int pos=0;
-char temp[200];
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s\n",_("File not found"),in_name);
-}
-fseek(in, 0, SEEK_END);
-file_size = ftell(in);
-fseek(in, 0, SEEK_SET);
-
-char *in_buf = malloc(file_size + 1);
-memset(in_buf, 0, (file_size + 1)*sizeof(char));
-
-fread(in_buf, file_size, 1, in);
-in_buf[file_size] = 0;
-fclose(in);
-
-char *out_buf= out_buf=malloc((file_size+100)*sizeof(char));
-memset(out_buf, 0, (file_size+100)*sizeof(char));
-
-
-line = strtok(in_buf, "\n");
-while(line)
-{
-pos++;
-	if (pos!=line_to_edit)
-	{
-		strcat(out_buf,line);
-		strcat(out_buf,"\n");
-	}else
-	{
-		sprintf(temp,"%s%d\n",front,value);
-		strcat(out_buf,temp);
-	}
-	line  = strtok(NULL, "\n");
-}
-
-free(in_buf);
-
-out=fopen(in_name,"w");
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s \n",_("Can not write file"),in_name);
-}
-fwrite(out_buf, strlen(out_buf), 1, out);
-free(out_buf);
-fclose(out);
-
-}
-
-
-
-void edit_file(struct simulation *sim,char *in_name,char *front,int line_to_edit,double value)
-{
-
-FILE *in;
-FILE *out;
-char *line;
-int file_size =0;
-in=fopen(in_name,"r");
-int pos=0;
-char temp[200];
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s \n",_("File not found"),in_name);
-}
-fseek(in, 0, SEEK_END);
-file_size = ftell(in);
-fseek(in, 0, SEEK_SET);
-
-char *in_buf = malloc(file_size + 1);
-memset(in_buf, 0, (file_size + 1)*sizeof(char));
-
-fread(in_buf, file_size, 1, in);
-in_buf[file_size] = 0;
-fclose(in);
-
-char *out_buf= out_buf=malloc((file_size+100)*sizeof(char));
-memset(out_buf, 0, (file_size+100)*sizeof(char));
-
-
-line = strtok(in_buf, "\n");
-while(line)
-{
-pos++;
-	if (pos!=line_to_edit)
-	{
-		strcat(out_buf,line);
-		strcat(out_buf,"\n");
-	}else
-	{
-		sprintf(temp,"%s%le\n",front,value);
-		strcat(out_buf,temp);
-	}
-	line  = strtok(NULL, "\n");
-}
-
-free(in_buf);
-
-out=fopen(in_name,"w");
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s \n",_("Can not write file"),in_name);
-}
-fwrite(out_buf, strlen(out_buf), 1, out);
-free(out_buf);
-fclose(out);
-
-}
 
 void copy_file(struct simulation *sim,char *output,char *input)
 {
@@ -788,69 +581,7 @@ close(in_fd);
 close(out_fd);
 }
 
-void edit_file_by_var(struct simulation *sim,char *in_name,char *token,char *newtext)
-{
-FILE *in;
-FILE *out;
-char *line;
-int found=FALSE;
-int file_size =0;
-in=fopen(in_name,"r");
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s\n",_("File not found"),in_name);
-}
-fseek(in, 0, SEEK_END);
-file_size = ftell(in);
-fseek(in, 0, SEEK_SET);
 
-char *in_buf = malloc(file_size + 1);
-memset(in_buf, 0, (file_size + 1)*sizeof(char));
-
-fread(in_buf, file_size, 1, in);
-in_buf[file_size] = 0;
-fclose(in);
-
-char *out_buf= out_buf=malloc((file_size+strlen(newtext)+10)*sizeof(char));
-memset(out_buf, 0, (file_size+strlen(newtext)+10)*sizeof(char));
-
-
-line = strtok(in_buf, "\n");
-while(line)
-{
-	if (strcmp(line,token)!=0)
-	{
-		strcat(out_buf,line);
-		strcat(out_buf,"\n");
-	}else
-	{
-		strcat(out_buf,line);
-		strcat(out_buf,"\n");
-		strcat(out_buf,newtext);
-		strcat(out_buf,"\n");
-		line  = strtok(NULL, "\n");
-		found=TRUE;
-	}
-	line  = strtok(NULL, "\n");
-}
-
-if (found==FALSE)
-{
-	ewe(sim,"edit_file_by_var: %s %s\n",_("Token not found in file"),token);
-}
-
-free(in_buf);
-
-out=fopen(in_name,"w");
-if (in==NULL)
-{
-	ewe(sim,"edit_file_by_var: %s %s \n",_("Can not write file"),in_name);
-}
-fwrite(out_buf, strlen(out_buf), 1, out);
-free(out_buf);
-fclose(out);
-
-}
 
 int path_up_level(char *out, char *in)
 {

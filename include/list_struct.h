@@ -25,20 +25,17 @@
 */
 
 
-#ifndef inpstruct_h
-#define inpstruct_h
+#ifndef list_struct_h
+#define list_struct_h
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "advmath.h"
 
-struct inp_file
+
+struct list
 {
-char *data;
-long fsize;
-char full_name[1000];
-int pos;
-int edited;
+	char **names;
+	int len;
 };
 
 #endif

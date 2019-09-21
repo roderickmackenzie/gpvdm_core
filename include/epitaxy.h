@@ -57,6 +57,14 @@ struct epi_layer
 	long double avg_photon_extract_eff;
 	long double peak_wavelength;
 
+	long double shunt;
+	long double series;
+	long double C;
+	long double n;
+	long double J0;
+
+	int electrical_layer;
+
 };
 
 struct epitaxy
@@ -73,7 +81,6 @@ struct epitaxy
 	char homo_file[20][100];
 	char shape_file[20][100];
 	long double rgb[20][3];
-	char electrical_layer[20];
 
 	struct istruct *mat;
 	struct istruct *mat_n;
@@ -93,4 +100,5 @@ void epitaxy_free(struct epitaxy *in);
 void epitaxy_free_materials(struct epitaxy *in);
 void epitaxy_load_dos_files(struct simulation *sim,struct epitaxy *in, char *dos_file,char *lumo_file,char *homo_file);
 void epitaxy_load_emission(struct simulation *sim,struct epi_layer *layer);
+void epitaxy_load_electrical_file(struct simulation *sim,char *file_name, struct epi_layer *layer);
 #endif

@@ -184,8 +184,90 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 }
 
 
+void initial_zero(struct simulation *sim,struct device *in)
+{
+int i;
+int z;
+int x;
+int y;
+int band;
+in->electron_affinity_right=0.0;
+in->electron_affinity_left=0.0;
+
+for (z=0;z<in->zmeshpoints;z++)
+{
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		in->Fi0_top[z][x]=0.0;
+		in->Vl[z][x]=0.0;
+
+		in->l_electrons[z][x]=0.0;
+		in->l_holes[z][x]=0.0;
+
+		in->r_electrons[z][x]=0.0;
+		in->r_holes[z][x]=0.0;
+
+		in->Vr[z][x]=0.0;
+	}
+}
+
+
+
+for (z=0;z<in->zmeshpoints;z++)
+{
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		for (y=0;y<in->ymeshpoints;y++)
+		{
+			in->Fi[z][x][y]=0.0;
+
+			in->Fn[z][x][y]=0.0;
+			in->Fp[z][x][y]=0.0;
+
+			in->phi[z][x][y]=0.0;
+
+			in->x[z][x][y]=0.0;
+			in->xp[z][x][y]=0.0;
+
+			in->Ec[z][x][y]=0.0;
+			in->Ev[z][x][y]=0.0;
+
+			in->n[z][x][y]=0.0;
+			in->p[z][x][y]=0.0;
+
+			in->mun[z][x][y]=0.0;
+			in->mup[z][x][y]=0.0;
+
+			for (band=0;band<in->srh_bands;band++)
+			{
+				in->Fnt[z][x][y][band]= 0.0;
+				in->Fpt[z][x][y][band]= 0.0;
+				in->xt[z][x][y][band]=0.0;
+
+				in->nt[z][x][y][band]=0.0;
+				in->dnt[z][x][y][band]=0.0;
+
+				in->xpt[z][x][y][band]=0.0;
+				in->pt[z][x][y][band]=0.0;
+				in->dpt[z][x][y][band]=0.0;
+			}
+
+		}
+	}
+}
+
+in->Vbi=0.0;
+
+}
+
 void get_initial(struct simulation *sim,struct device *in)
 {
+if (strcmp(in->newton_name,"newton_simple")==0)
+{
+	initial_zero(sim,in);
+	return;
+}
+
 int i;
 int z;
 int x;

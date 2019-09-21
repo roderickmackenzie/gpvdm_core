@@ -19,225 +19,60 @@
 // 
 // 
 
-
-/** @file list.c
-	@brief Algorithms to make and deal with lists.
+/** @file inp.c
+	@brief Input file interface, files can be in .gpvdm files or stand alone files.
 */
 
-#define _FILE_OFFSET_BITS 64
-#define _LARGEFILE_SOURCE
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include "vec.h"
-#include "list.h"
-#include <util.h>
+#include <string.h>
+#include <zip.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
 
+#include "list_struct.h"
+#include "util.h"
+#include "code_ctrl.h"
+#include "const.h"
+#include <log.h>
+#include <cal_path.h>
 
-static int unused __attribute__((unused));
-
-void list_init(struct simulation *sim,struct list* in)
+void list_free(struct list *in)
 {
-in->length=0;
-in->max=10;
-in->list = (struct vec *) malloc(in->max*sizeof(struct vec ));
-}
+	int i=0;
 
-void list_add_no_rep(struct simulation *sim,struct list* in,struct vec *test)
-{
-int i;
-for (i=0;i<in->length;i++)
-{
-	if (vec_cmp(&(in->list[i]),test)==0)
+	for (i=0;i<in->len;i++)
 	{
-		return;
+		free(in->names[i]);
 	}
-}
-list_add(sim,in, test->x, test->y);
+
+	free(in->names);
 }
 
-void list_add(struct simulation *sim,struct list* in,double one, double two)
+int list_cmp(struct list *in,char *name)
 {
-in->list[in->length].x=one;
-in->list[in->length].y=two;
-in->list[in->length].z=0.0;
-in->length++;
-if (in->length==in->max)
-{
-in->max+=10;
-in->list = (struct vec *) realloc(in->list,in->max*sizeof(struct vec ));
-}
-}
+	int i=0;
 
-int list_get_length(struct simulation *sim,struct list* in)
-{
-return in->length;
-}
-
-void list_free(struct simulation *sim,struct list* in)
-{
-free(in->list);
-}
-
-int list_check(struct simulation *sim,struct list* in,struct vec *test)
-{
-int i;
-for (i=0;i<in->length;i++)
-{
-	if (vec_cmp(&(in->list[i]),test)==0)
+	for (i=0;i<in->len;i++)
 	{
-		return 0;
+		if (strcmp(name,in->names[i])==0)
+		{
+			return 0;
+		}
 	}
-}
+
 return -1;
 }
 
-void list_minmax_cal(struct simulation *sim,struct list* in)
+void list_dump(struct list *in)
 {
-int i;
-double min=in->list[0].y;
-double max=in->list[0].y;
-for (i=0;i<in->length;i++)
-{
-if (in->list[i].y<min) min=in->list[i].y;
-if (in->list[i].y>max) max=in->list[i].y;
-}
+	int i=0;
 
-in->min_y=min;
-in->max_y=max;
-}
+	for (i=0;i<in->len;i++)
+	{
+		printf("%s\n",in->names[i]);
+	}
 
-void list_remove_bump_down(struct simulation *sim,struct list* in,int start)
-{
-int i;
-double ly=0.0;
-double cy=0.0;
-double ry=0.0;
-
-for (i=start;i<in->length;i++)
-{
-
-if (i==start)
-{
-	ly=in->list[i].y;
-}else
-{
-	ly=in->list[i-1].y;
-}
-
-if (i==in->length-1)
-{
-	ry=in->list[i].y;
-}else
-{
-	ry=in->list[i+1].y;
-}
-cy=in->list[i].y;
-if ((ly>cy)&&(ry>cy))
-{
-in->list[i].y=(ly+cy+ry)/3.0;
-}
-
-}
-
-}
-
-void list_remove_bump_up(struct simulation *sim,struct list* in,int start)
-{
-int i;
-double ly=0.0;
-double cy=0.0;
-double ry=0.0;
-
-for (i=start;i<in->length;i++)
-{
-
-if (i==start)
-{
-	ly=in->list[i].y;
-}else
-{
-	ly=in->list[i-1].y;
-}
-
-if (i==in->length-1)
-{
-	ry=in->list[i].y;
-}else
-{
-	ry=in->list[i+1].y;
-}
-cy=in->list[i].y;
-if ((ly<cy)&&(ry<cy))
-{
-in->list[i].y=(ly+cy+ry)/3.0;
-}
-
-}
-
-}
-
-void list_dump(struct simulation *sim,char *file_name,struct list* in)
-{
-int i;
-FILE *file;
-file=fopen(file_name,"w");
-fprintf(file,"#%d\n",in->length);
-for (i=0;i<in->length;i++)
-{
-	fprintf(file,"%lf %lf %lf\n",in->list[i].x,in->list[i].y,in->list[i].z);
-}
-fclose(file);
-}
-
-void list_cog_cal(struct simulation *sim,struct list* in)
-{
-int i;
-double cog_x=0.0;
-double cog_y=0.0;
-for (i=0;i<in->length;i++)
-{
-	cog_x+=in->list[i].x;
-	cog_y+=in->list[i].y;
-}
-in->cog_x=cog_x/((double)in->length);
-in->cog_y=cog_y/((double)in->length);
-}
-
-
-void list_dump_2d(struct simulation *sim,char *file_name,struct list* in)
-{
-int i;
-FILE *file;
-file=fopen(file_name,"w");
-fprintf(file,"#%d\n",in->length);
-for (i=0;i<in->length;i++)
-{
-	fprintf(file,"%lf %lf\n",in->list[i].x,in->list[i].y);
-}
-fclose(file);
-}
-
-void list_load(struct simulation *sim,struct list* in,char *file_name)
-{
-int i;
-double a,b,c;
-int length;
-char temp[100];
-FILE *file;
-if ((file=fopen(file_name,"r"))==NULL)
-{
-	ewe(sim,"List file not found %s\n",file_name);
-}
-
-unused=fscanf(file,"%s",temp);
-sscanf((temp+1),"%d",&(length));
-for (i=0;i<length;i++)
-{
-	unused=fscanf(file,"%lf %lf %lf",&(a),&(b),&(c));
-	list_add(sim,in, a, b);
-}
-
-fclose(file);
 }

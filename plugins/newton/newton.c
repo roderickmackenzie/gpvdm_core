@@ -1644,23 +1644,28 @@ int cpos=0;
 	{
 		fill_matrix(sim,in,z,x);
 
+		if (in->newton_only_fill_matrix==TRUE)
+		{
+			return 0;
+		}
 
-//dump_for_plot(in);
-//plot_now(in,"plot");
-	//solver_dump_matrix(in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
-//getchar();
 
-			if (in->stop==TRUE)
-			{
-				break;
-			}
-
-			solver(sim,in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
-
-			update_solver_vars(sim,in,z,x,TRUE);
-
+		//dump_for_plot(in);
+		//plot_now(in,"plot");
 			//solver_dump_matrix(in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
-			//getchar();
+		//getchar();
+
+		if (in->stop==TRUE)
+		{
+			break;
+		}
+
+		solver(sim,in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
+
+		update_solver_vars(sim,in,z,x,TRUE);
+
+		//solver_dump_matrix(in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
+		//getchar();
 
 
 		error=get_cur_error(sim,in);

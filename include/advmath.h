@@ -38,4 +38,5 @@
 
 long double B(long double x);
 long double dB(long double x);
+long double log_delta(long double a_in,long double b_in);
 #endif

@@ -102,12 +102,15 @@ void contacts_time_step(struct simulation *sim,struct device *in)
 	}
 }
 
-int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in)
+int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *in,char *text)
 {
 int i;
+char temp[400];
 static long double dV=0.12;
 int up=TRUE;
 int changed=FALSE;
+
+	strcpy(text,"Ramping voltage: ");
 
 	for (i=0;i<in->ncontacts;i++)
 	{
@@ -166,6 +169,9 @@ int changed=FALSE;
 			}
 
 			printf_log(sim,"Ramping: %s %.2Lf %.2Lf dV=%Lf ittr=%d\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want,dV,in->last_ittr);
+
+			sprintf(temp,"%s %.2Lf V/%.2Lf V",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want);
+			strcat(text,temp);
 		}
 
 		
@@ -343,7 +349,7 @@ if (in->xmeshpoints==1)
 	return;
 }
 
-//Contacts on top
+//Reset contacts
 for (z=0;z<in->zmeshpoints;z++)
 {
 	for (x=0;x<in->xmeshpoints;x++)
@@ -631,7 +637,6 @@ for (x=0;x<in->xmeshpoints;x++)
 
 }
 
-//Average the current over both contacts
 void contacts_detailed_dump(struct device *in)
 {
 int i;

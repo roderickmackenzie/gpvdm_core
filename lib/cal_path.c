@@ -374,8 +374,22 @@ set_path(sim,sim->shape_path, "shape");
 set_path(sim,sim->emission_path, "emission");
 
 set_path(sim,sim->spectra_path, "spectra");
+join_path(3,sim->cache_path,sim->home_path,"gpvdm_local","cache");
+join_path(2,sim->gpvdm_local_path,sim->home_path,"gpvdm_local");
+
 }
 
+
+
+char *get_cache_path(struct simulation *sim)
+{
+return sim->cache_path;
+}
+
+char *get_gpvdm_local_path(struct simulation *sim)
+{
+return sim->gpvdm_local_path;
+}
 
 char *get_spectra_path(struct simulation *sim)
 {
