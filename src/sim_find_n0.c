@@ -34,6 +34,7 @@
 #include <cal_path.h>
 #include <contacts.h>
 #include <lang.h>
+#include <light_fun.h>
 
 void find_n0(struct simulation *sim,struct device *in)
 {

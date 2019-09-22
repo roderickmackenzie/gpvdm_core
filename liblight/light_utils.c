@@ -36,6 +36,7 @@
 #include "lang.h"
 #include "log.h"
 #include "memory.h"
+#include <light_fun.h>
 
 static int unused __attribute__((unused));
 
@@ -54,28 +55,14 @@ void light_set_model(struct light *in,char *model)
 strcpy(in->mode,model);
 }
 
-void light_solve_optical_problem(struct simulation *sim,struct light *in)
+void light_solve_optical_problem(struct simulation *sim,struct device *cell,struct light *in)
 {
 int i;
 
 	gdouble Psun=in->Psun*gpow(10.0,-in->ND);
 	light_set_sun_power(in,Psun,in->laser_eff);
-	//if ((in->laser_eff==0)&&(in->Psun==0))
-	//{
 
-	//	for (i=0;i<in->lpoints;i++)
-	//	{
-	//		memset(in->En[i], 0.0, in->points*sizeof(gdouble));
-	//		memset(in->Ep[i], 0.0, in->points*sizeof(gdouble));
-	//		memset(in->Enz[i], 0.0, in->points*sizeof(gdouble));
-	//		memset(in->Epz[i], 0.0, in->points*sizeof(gdouble));
-	//	}
-		
-	//}else
-	//{
-//
-	light_solve_all(sim,in);
-	//}
+	light_solve_all(sim,cell,in);
 
 	light_cal_photon_density(in);
 
@@ -296,16 +283,24 @@ for  (i=0;i<in->lpoints;i++)
 
 }
 
-void light_solve_all(struct simulation *sim,struct light *in)
+void light_solve_all(struct simulation *sim,struct device *cell,struct light *in)
 {
-int i;
-int slices_solved=0;
+	int i;
+	int slices_solved=0;
+	in->finished_solveing=FALSE;
+
 	for (i=0;i<in->lpoints;i++)
 	{
 
 		if (in->sun_E[i]!=0.0)
 		{
-			light_solve_lam_slice(sim,in,i);
+			light_solve_lam_slice(sim,cell,in,i);
+
+			if (in->finished_solveing==TRUE)
+			{
+				break;
+			}
+
 			slices_solved++;
 		}else
 		{

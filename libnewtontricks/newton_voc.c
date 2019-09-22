@@ -29,6 +29,8 @@
 #include <log.h>
 #include <contacts.h>
 #include <newton_voc.h>
+#include <light_fun.h>
+
 
 void newton_aux_voc_simple(struct simulation *sim,struct device *in,gdouble V,gdouble* i,gdouble* didv,gdouble* didphi,gdouble* didxil,gdouble* didxipl,gdouble* didphir,gdouble* didxir,gdouble* didxipr)
 {

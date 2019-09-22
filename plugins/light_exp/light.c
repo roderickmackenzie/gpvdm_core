@@ -41,7 +41,7 @@ EXPORT void light_dll_ver(struct simulation *sim)
         printf_log(sim,"Exponential light model\n");
 }
 
-EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct light *in,int lam)
+EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,struct light *in,int lam)
 {
 if (in->sun_E[lam]==0.0)
 {

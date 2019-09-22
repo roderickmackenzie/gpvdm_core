@@ -42,6 +42,8 @@
 #include <contacts.h>
 #include <contacts_vti_store.h>
 #include "measure.h"
+#include <light_fun.h>
+#include <cache.h>
 
 static int unused __attribute__((unused));
 

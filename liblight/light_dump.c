@@ -34,6 +34,8 @@
 #include "dat_file.h"
 #include <cal_path.h>
 #include <lang.h>
+#include <light_fun.h>
+
 
 void light_setup_dump_dir(struct simulation *sim,struct light *in)
 {

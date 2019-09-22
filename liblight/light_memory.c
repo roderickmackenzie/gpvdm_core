@@ -33,6 +33,7 @@
 #include "util.h"
 #include "lang.h"
 #include "log.h"
+#include <light_fun.h>
 
 static int unused __attribute__((unused));
 

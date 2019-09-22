@@ -36,6 +36,7 @@
 #include "lang.h"
 #include "log.h"
 #include "memory.h"
+#include <light_fun.h>
 
 
 static int unused __attribute__((unused));
@@ -65,7 +66,7 @@ printf_log(sim,"init: mesh\n");
 
 			//do
 			//{
-			if (layer<(in->layers-1))
+			if (layer<(my_epitaxy->layers-1))
 			{
 				layer++;
 			//}while(in->thick[layer]==0.0);

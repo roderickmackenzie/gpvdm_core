@@ -54,8 +54,7 @@ void light_import_epitaxy(struct simulation *sim,struct light *in,struct epitaxy
 	in->force_update=FALSE;
 	
 
-	in->layers=my_epitaxy->layers;
-	in->G_percent=(gdouble *)malloc(in->layers*sizeof(gdouble));
+	in->G_percent=(gdouble *)malloc(my_epitaxy->layers*sizeof(gdouble));
 
 	in->ylen=0.0;
 	in->device_ylen=0.0;

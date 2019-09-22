@@ -45,7 +45,7 @@ EXPORT void dll_matrix_solver_free(struct simulation *sim);
 
 //Light
 EXPORT void light_dll_init(struct simulation *sim);
-EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct light *in,int lam);
+EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,struct light *in,int lam);
 EXPORT void light_dll_ver(struct simulation *sim);
 EXPORT void light_fixup(char *name,void (*in));
 

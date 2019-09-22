@@ -46,7 +46,7 @@
 #include "measure.h"
 #include <color.h>
 #include <ray_fun.h>
-
+#include <light_fun.h>
 
 
 int run_simulation(struct simulation *sim)

@@ -37,6 +37,7 @@
 #include "log.h"
 #include "sim.h"
 #include "memory.h"
+#include <light_fun.h>
 
 static int unused __attribute__((unused));
 
@@ -106,7 +107,7 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 	in->laser_eff=laser_eff_in;
 	if ((last_laser_eff!=in->laser_eff)||(last_Psun!=in->Psun)||(last_wavelength_laser!=in->laser_wavelength)||(in->force_update==TRUE))
 	{
-		light_solve_optical_problem(sim,in);
+		light_solve_optical_problem(sim,cell,in);
 		last_laser_eff=in->laser_eff;
 		last_Psun=in->Psun;
 		last_wavelength_laser=in->laser_wavelength;
@@ -185,9 +186,9 @@ void light_init(struct light *in)
 	in->spoty= -1.0;
 	in->pulseJ= -1.0;
 	in->pulse_width= -1.0;
-	in->layers=-1;
 	in->G_percent=NULL;
 	in->disable_cal_photon_density=FALSE;
+	in->finished_solveing=FALSE;
 }
 
 
@@ -200,10 +201,10 @@ void light_load_config(struct simulation *sim,struct light *in,struct epitaxy *m
 	light_init_mesh(sim,in,my_epitaxy);
 }
 
-int light_solve_lam_slice(struct simulation *sim, struct light *in,int lam)
+int light_solve_lam_slice(struct simulation *sim, struct device *cell, struct light *in,int lam)
 {
 in->disable_cal_photon_density=FALSE;
-return (*in->fn_solve_lam_slice)(sim,in,lam);
+return (*in->fn_solve_lam_slice)(sim,cell,in,lam);
 }
 
 
