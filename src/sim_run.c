@@ -215,7 +215,6 @@ if (enable_electrical==TRUE)
 
 	}
 
-
 	init_mat_arrays(&cell);
 
 
