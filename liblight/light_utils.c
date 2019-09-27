@@ -256,6 +256,7 @@ int i;
 
 gdouble E=0.0;
 //gdouble tot0=0.0;
+
 for (i=0;i<in->lpoints;i++)
 {
 	in->sun[i]=in->sun_norm[i]*power;

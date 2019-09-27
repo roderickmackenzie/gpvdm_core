@@ -550,7 +550,6 @@ for (x=0;x<in->xmeshpoints;x++)
 }
 
 tot=tot/count;
-
 tot*=in->flip_current;
 
 return tot*Q;

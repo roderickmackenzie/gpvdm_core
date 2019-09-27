@@ -124,9 +124,6 @@ inter_init(sim,&ivexternal);
 struct istruct jvexternal;
 inter_init(sim,&jvexternal);
 
-struct istruct jv;
-inter_init(sim,&jv);
-
 struct istruct jvavg;
 inter_init(sim,&jvavg);
 
@@ -238,7 +235,6 @@ if (config.Vstop<config.Vstart)
 
 			inter_append(&jvexternal,Vexternal,get_equiv_J(sim,in));
 			inter_append(&jvavg,V,get_avg_J(in));
-			inter_append(&jv,V,get_J(in));
 			inter_append(&ivexternal,Vexternal,get_equiv_I(sim,in));
 
 		}
@@ -605,7 +601,6 @@ buffer_dump_path(sim,get_output_path(sim),"lj.dat",&buf);
 buffer_free(&buf);
 
 inter_free(&jvexternal);
-inter_free(&jv);
 inter_free(&jvavg);
 inter_free(&charge);
 inter_free(&ivexternal);

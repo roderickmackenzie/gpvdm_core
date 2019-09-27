@@ -94,6 +94,8 @@ do
 		J_light+=(in->Gn[z][x][i]+in->Gp[z][x][i])*in->dymesh[i]/2.0;
 	}
 
+	//printf(">>not light>>%Le\n",in->Gn[z][x][0]);
+	//getchar();
 	V=in->Vapplied_l[z][x]-in->Vapplied_r[z][x];
 	J=(J0/Q)*(expl(((Q*V)/(n0*kb*in->Tl[z][x][0])))-1.0)-J_light;
 
@@ -107,20 +109,20 @@ do
 		if (i==0)
 		{
 			in->Jnleft[z][x]=J;
-			in->Jpleft[z][x]=J;
+			in->Jpleft[z][x]=0.0;
 		}
 
 		if (i==in->ymeshpoints-1)
 		{
-			in->Jnright[z][x]=J;
+			in->Jnright[z][x]=0.0;
 			in->Jpright[z][x]=J;
 		}
 
-		in->Jn[z][x][i]=J;
-		in->Jp[z][x][i]=J;
+		in->Jn[z][x][i]=0.0;
+		in->Jp[z][x][i]=0.0;
 
-		in->Jn_x[z][x][i]=J;
-		in->Jp_x[z][x][i]=J;
+		in->Jn_x[z][x][i]=0.0;
+		in->Jp_x[z][x][i]=0.0;
 
 
 		in->nrelax[z][x][i]=0.0;

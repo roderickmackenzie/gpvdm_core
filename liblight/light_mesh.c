@@ -112,7 +112,6 @@ printf_log(sim,"init: mesh\n");
 	}
 
 
-
 	light_calculate_complex_n(in);
 
 
@@ -120,17 +119,6 @@ printf_log(sim,"init: mesh\n");
 	{
 		in->sun_norm[i]=inter_get_hard(&(in->sun_read),in->l[i]);
 	}
-
-	gdouble tot=0.0;
-	for  (i=0;i<in->lpoints;i++)
-	{
-		tot+=in->dl*in->sun_norm[i];
-	}
-
-	//for  (i=0;i<in->lpoints;i++)
-	//{
-	//	in->sun_norm[i]/=tot;
-	//}
 
 
 }
