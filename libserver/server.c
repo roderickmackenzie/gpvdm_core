@@ -45,6 +45,7 @@
 #include "lang.h"
 #include "log.h"
 #include <gui_hooks.h>
+#include <cal_path.h>
 
 static int unused __attribute__((unused));
 
@@ -120,6 +121,7 @@ strcpy(sim->server.lock_file,"");
 int server_decode(struct simulation *sim,char *command)
 {
 int odes=0;
+
 return odes;
 }
 
@@ -127,7 +129,7 @@ void server_add_job(struct simulation *sim,char *command,char *output)
 {
 char old_output_path[PATH_MAX];
 char old_input_path[PATH_MAX];
-
+char send_data[PATH_MAX];
 poll_gui(sim);
 
 	int odes=0;
@@ -150,6 +152,9 @@ poll_gui(sim);
 
 		strcpy(sim->input_path,command);
 		strcpy(sim->output_path,output);
+		gui_send_data(sim,gui_main,"pulse");
+		sprintf(send_data,"text:%s",output);
+		gui_send_data(sim,gui_main,send_data);
 
 		odes=run_simulation(sim);
 

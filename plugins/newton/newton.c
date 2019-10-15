@@ -622,6 +622,7 @@ if (in->interfaceright==TRUE)
 //	R=in->R[z][x][i];
 	Gn=in->Gn[z][x][i];
 	Gp=in->Gp[z][x][i];
+	//printf("%d %Le %Le\n",i,in->Gn[z][x][i],in->Gp[z][x][i]);
 	e0=(epl+epc)/2.0;
 	e1=(epc+epr)/2.0;
 
@@ -1624,10 +1625,10 @@ int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x
 gdouble error=0.0;
 int ittr=0;
 char temp[PATH_MAX];
-if (get_dump_status(sim,dump_print_newtonerror)==TRUE)
-{
-	printf_log(sim,"Solve cur\n");
-}
+//if (get_dump_status(sim,dump_print_newtonerror)==TRUE)
+//{
+//	printf_log(sim,"Solve cur\n");
+//}
 
 
 

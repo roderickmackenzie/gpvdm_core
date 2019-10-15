@@ -144,6 +144,7 @@ inter_init(sim,&lj);
 
 //contact_set_active_contact_voltage(sim,in,Vapplied);
 
+//printf("%d\n",in->cache.enabled);
 state_cache_enable(sim,in);
 
 
@@ -226,10 +227,10 @@ if (config.Vstop<config.Vstart)
 		Vexternal=get_equiv_V(sim,in);
 
 		sprintf(send_data,"percent:%Lf",(long double)ittr/n_steps);
-		gui_send_data(sim,send_data);
+		gui_send_data(sim,gui_sub,send_data);
 
 		sprintf(send_data,"text:Voltage %.2Lf V/%.2Lf V",V,config.Vstop);
-		gui_send_data(sim,send_data);
+		gui_send_data(sim,gui_sub,send_data);
 		if (ittr>0)
 		{
 

@@ -409,10 +409,11 @@ void load_dos(struct simulation *sim,struct device *in,char *namen, char *namep,
 {
 char path[PATH_MAX];
 
-join_path(3, path,get_input_path(sim),"cache",namen);
+
+join_path(3, path,sim->root_simulation_path,"cache",namen);
 load_dos_file(sim,in,&(in->dosn[mat]),path);
 
-join_path(3, path,get_input_path(sim),"cache",namep);
+join_path(3, path,sim->root_simulation_path,"cache",namep);
 load_dos_file(sim,in,&(in->dosp[mat]),path);
 in->srh_bands=in->dosn[mat].srh_bands;
 }

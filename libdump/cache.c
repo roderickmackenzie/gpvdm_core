@@ -58,9 +58,9 @@ char send_data[200];
 FILE *out;
 struct stat st = {0};
 
-gui_send_data(sim,"enable_pulse:false");
+gui_send_data(sim,gui_sub,"enable_pulse:false");
 sprintf(send_data,"text:%s",_("Writing files to disk"));
-gui_send_data(sim,send_data);
+gui_send_data(sim,gui_sub,send_data);
 
 for (i=0;i<sim->cache_len;i++)
 {
@@ -80,7 +80,7 @@ for (i=0;i<sim->cache_len;i++)
 		}
 	}
 	sprintf(send_data,"percent:%Lf",(gdouble)(i)/(gdouble)(sim->cache_len));
-	gui_send_data(sim,send_data);
+	gui_send_data(sim,gui_sub,send_data);
 	//printf("write: %s\n",sim->cache[i].file_name);
 }
 

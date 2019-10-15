@@ -797,7 +797,8 @@ if (inp_search(sim,temp,in,token)==0)
 {
 	if (str_isnumber(temp)==FALSE)
 	{
-		printf_log(sim,"warning:  '%s' is not a number.\n",temp);
+		printf_log(sim,"warning:  '%s' %s %s is not a number.\n",temp,token,in->full_name);
+		getchar();
 	}
 
 	sscanf(temp,"%Le",out);

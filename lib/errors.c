@@ -123,8 +123,6 @@ int ewe( struct simulation *sim, const char *format, ...)
 
 	printf_log(sim, "%s\n",temp2);
 
-	//gui_send_data(temp2);
-
 	va_end(args);
 
 

@@ -351,9 +351,9 @@ int str_isnumber(char *input)
 	int i=start;
 
     for(i ; i <= stop ; i++) 
-    { 
+    {
         // Only allow numbers, +, - and e  
-        if(input[i] != 'e' && input[i] != '.' &&   input[i] != '+' && input[i] != '-' &&  !(input[i] >= '0' && input[i] <= '9'))
+        if(input[i] != 'e' && input[i] != 'E' && input[i] != '.' &&   input[i] != '+' && input[i] != '-' &&  !(input[i] >= '0' && input[i] <= '9'))
 		{
 			return FALSE;
 		} 
@@ -379,7 +379,7 @@ int str_isnumber(char *input)
 			}
 
 		}else
-		if(input[i] == 'e') 
+		if ((input[i] == 'e') || (input[i] == 'E'))
         {  
             dot_or_e = TRUE; 
 

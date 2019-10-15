@@ -49,7 +49,7 @@ void gui_send_finished_to_gui(struct simulation *sim)
 printf_log(sim,"finished signal=%s\n",sim->server.dbus_finish_signal);
 if (strcmp(sim->server.dbus_finish_signal,"")!=0)
 {
-	gui_send_data(sim,sim->server.dbus_finish_signal);
+	gui_send_data(sim,gui_main,sim->server.dbus_finish_signal);
 }
 
 if (strcmp(sim->server.lock_file,"")!=0)
@@ -111,11 +111,18 @@ if (isfile(temp)==0)
 
 }
 
-int gui_send_data (struct simulation *sim,char *tx_data_in)
+int gui_send_data (struct simulation *sim,int from,char *tx_data_in)
 {
 
 if (sim->gui==TRUE)
 {
+	if (sim->fitting==TRUE)
+	{
+		if (from==gui_sub)
+		{
+			return 0;
+		}
+	}
 	if (sim->mindbustx==TRUE)
 	{
 		if ((strcmp_begin(tx_data_in,"pulse")==0)||(strcmp_begin(tx_data_in,"text")==0)||(strcmp_begin(tx_data_in,"percent")==0))
@@ -123,7 +130,7 @@ if (sim->gui==TRUE)
 			return 0;
 		}
 	}
-	//printf("thinking about sending data\n");
+
 	if ((strcmp_begin(tx_data_in,"pulse")==0)||(strcmp_begin(tx_data_in,"percent")==0))
 	{
 		struct timeval mytime;
@@ -196,5 +203,5 @@ void gui_start(struct simulation *sim)
 	#endif
 
 
-	gui_send_data(sim,"start");
+	gui_send_data(sim,gui_main,"start");
 }

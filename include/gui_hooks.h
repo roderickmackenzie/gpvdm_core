@@ -28,7 +28,10 @@
 #ifndef hgui_hooks
 #include <sim_struct.h>
 
-int gui_send_data (struct simulation *sim, char *tx_data_in);
+#define gui_main 0
+#define gui_sub	1
+
+int gui_send_data (struct simulation *sim, int from,char *tx_data_in);
 int dbus_init();
 void gui_start(struct simulation *sim);
 void gui_send_finished_to_gui(struct simulation *sim);

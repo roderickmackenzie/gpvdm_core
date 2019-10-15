@@ -91,7 +91,7 @@ do
 	sim_externalv(sim,in,V);
 
 	//plot_now(sim,in,"jv.plot");
-	gui_send_data(sim,"pulse");
+	gui_send_data(sim,gui_sub,"pulse");
 
 	if (fabs(V-to)<fabs(dV))
 	{
@@ -143,9 +143,9 @@ while (changed==TRUE)
 	solve_all(sim,in);
 	//save_state(sim,in);
 	sprintf(send_data,"text:%s",temp);
-	gui_send_data(sim,send_data);
+	gui_send_data(sim,gui_sub,send_data);
 
-	gui_send_data(sim,"pulse");
+	gui_send_data(sim,gui_sub,"pulse");
 	poll_gui(sim);
 }
 

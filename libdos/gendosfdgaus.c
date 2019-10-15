@@ -845,9 +845,11 @@ void gen_dos_fd_gaus_n(struct simulation *sim,int mat)
 char temp[100];
 char path[PATH_MAX];
 
+
 printf_log(sim,"Electrons.... %s\n",confige[mat].dos_name);
 
 join_path(2, path,get_input_path(sim),"cache");
+
 gpvdm_mkdir(path);
 
 sprintf(temp,"%s_dosn.dat",confige[mat].dos_name);
@@ -1092,6 +1094,7 @@ int matnumber=0;
 struct epitaxy my_epitaxy;
 join_path(2, full_name,get_input_path(sim),"epitaxy.inp");
 epitaxy_load(sim,&my_epitaxy,full_name);
+
 
 matnumber=my_epitaxy.electrical_layers;
 int file_bandn=FALSE;
