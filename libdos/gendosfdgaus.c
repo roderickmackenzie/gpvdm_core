@@ -1028,9 +1028,6 @@ hard_limit(sim,"#Eg",&(confige[mat].Eg));
 //if (confige[mat].Eg>1.8) configh[mat].Eg=1.8;
 
 
-inp_search_gdouble(sim,&inp,&(confige[mat].gaus_mull),"#gaus_mull");
-configh[mat].gaus_mull=confige[mat].gaus_mull;
-
 inp_search_gdouble(sim,&inp,&(confige[mat].B),"#free_to_free_recombination");
 confige[mat].B=fabs(confige[mat].B);
 configh[mat].B=fabs(confige[mat].B);

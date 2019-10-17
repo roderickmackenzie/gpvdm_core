@@ -67,8 +67,6 @@ struct dosconfig
 	long double doping_start;
 	long double doping_stop;
 
-	long double gaus_mull;
-
 	int Esteps;
 	long double B;
 };
