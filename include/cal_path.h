@@ -49,6 +49,7 @@ void get_nth_dir_name_from_path(char *out,char *in,int n);
 int is_dir_in_path(char *long_path, char* search_dir);
 int get_delta_path(struct simulation *sim,char *out, char *root,char *file_name);
 char *get_gpvdm_local_path(struct simulation *sim);
+char *get_tmp_path(struct simulation *sim);
 
 
 #endif

@@ -114,7 +114,7 @@ AC_SUBST(LIBS, " -lumfpack -lm -rdynamic -export-dynamic -ldl -lzip -lz  -L/home
 
 ],[
 	AC_SUBST(COMPILE_FLAG, "-D enable_fit -D enable_server -g -fPIC `pkg-config --cflags dbus-1` -D dbus " )
-	AC_SUBST(LIBS, "-lumfpack -lsuperlu -lm -rdynamic -export-dynamic -ldl -lzip -lz -g `pkg-config --libs dbus-1`")
+	AC_SUBST(LIBS, "-lumfpack -lsuperlu -lm -rdynamic -export-dynamic -ldl -lzip -lz -lcurl -g `pkg-config --libs dbus-1`")
  
 	#-lgsl -lgslcblas
 	

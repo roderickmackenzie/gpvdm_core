@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <simplex.h>
-#include <lock.h>
 #include <const.h>
 
 void multimin_init(struct multimin *data)
@@ -47,10 +46,6 @@ void multimin_init(struct multimin *data)
 	data->error=0.0;
 	data->error_delta=1.0;
 	data->error_last=1.0;
-	if (lock_is_trial()==TRUE)
-	{
-		exit(0);
-	}
 
 }
 

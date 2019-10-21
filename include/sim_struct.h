@@ -77,6 +77,8 @@ struct simulation
 	char shape_path[PATH_MAX];
 	char cache_path[PATH_MAX];
 	char gpvdm_local_path[PATH_MAX];
+	char tmp_path[PATH_MAX];
+
 
 	//Matrix solver
 	int last_col;
@@ -148,6 +150,8 @@ struct simulation
 	int error_log_size;
 	int error_log_size_max;
 	int errors_logged;
+
+	struct lock lock_data;
 };
 
 #endif

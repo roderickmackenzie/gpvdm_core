@@ -84,6 +84,7 @@ int run=FALSE;
 struct simulation sim;
 strcpy(sim.server.lock_file,"");
 sim_init(&sim);
+
 /*struct rpn rpn_cal;
 rpn_init(&sim,&rpn_cal);
 rpn_add_var(&sim,&rpn_cal,"a",1e-10);
@@ -99,6 +100,7 @@ if (scanarg( argv,argc,"--gui")==TRUE)
 int log_level=0;
 set_logging_level(&sim,log_level_screen);
 cal_path(&sim);
+
 
 
 char *b=NULL;

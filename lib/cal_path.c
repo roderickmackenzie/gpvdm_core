@@ -377,6 +377,7 @@ set_path(sim,sim->spectra_path, "spectra");
 join_path(3,sim->cache_path,sim->home_path,"gpvdm_local","cache");
 join_path(2,sim->gpvdm_local_path,sim->home_path,"gpvdm_local");
 
+join_path(2,sim->tmp_path,sim->gpvdm_local_path,"tmp");
 }
 
 
@@ -442,6 +443,10 @@ void set_input_path(struct simulation *sim,char *in)
 strcpy(sim->input_path,in);
 }
 
+char *get_tmp_path(struct simulation *sim)
+{
+return sim->tmp_path;
+}
 
 void join_path(int max, ...)
 {
