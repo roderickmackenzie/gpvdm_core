@@ -157,6 +157,7 @@ if (scanarg( argv,argc,"--version")==TRUE)
 	printf_log(&sim,_("There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or\n"));
 	printf_log(&sim,_("FITNESS FOR A PARTICULAR PURPOSE.\n"));
 	printf_log(&sim,"\n");
+	lock_check(&sim,&(sim.lock_data));
 	exit(0);
 }
 

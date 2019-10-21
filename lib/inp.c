@@ -597,7 +597,7 @@ memset(temp, 0, in->fsize + 100);
 int len=0;
 int pos=0;
 int ret=0;
-char line[1000];
+char line[in->fsize + 100];
 
 ret=get_line(line,in->data,in->fsize,&pos);
 
