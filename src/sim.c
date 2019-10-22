@@ -92,7 +92,7 @@ void sim_init(struct simulation *sim)
 	sim->error_log_size=0;
 	sim->error_log_size_max=0;
 	sim->errors_logged=0;
-
+	strcpy(sim->server.dbus_finish_signal,"");
 	
 }
 

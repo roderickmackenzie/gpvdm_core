@@ -157,15 +157,27 @@ if (scanarg( argv,argc,"--version")==TRUE)
 	printf_log(&sim,_("There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or\n"));
 	printf_log(&sim,_("FITNESS FOR A PARTICULAR PURPOSE.\n"));
 	printf_log(&sim,"\n");
-	lock_check(&sim,&(sim.lock_data));
 	exit(0);
 }
 
+if (scanarg( argv,argc,"--version2")==TRUE)
+{
+	printf_log(&sim,_("gpvdm_core, Version %s\n"),gpvdm_ver);
+	printf_log(&sim,"%s\n",_("gpvdm (General-purpose Photovoltaic Device Model) core."));
+	printf_log(&sim,"%s\n",_("Copyright Roderick MacKenzie, released under the BSD 3-Clause License 2012-2019"));
+	printf_log(&sim,_("There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or\n"));
+	printf_log(&sim,_("FITNESS FOR A PARTICULAR PURPOSE.\n"));
+	printf_log(&sim,"\n");
+	lock_update_license(&sim,&(sim.lock_data));
+	exit(0);
+}
 
 timer_init(0);
 timer_init(1);
 dbus_init();
 
+
+lock_check(&sim,&(sim.lock_data));
 
 
 char pwd[1000];
@@ -209,6 +221,7 @@ randomprint(&sim,"\n");
 sim.server.on=FALSE;
 sim.server.cpus=1;
 sim.server.readconfig=TRUE;
+
 
 
 color_cie_load(&sim);

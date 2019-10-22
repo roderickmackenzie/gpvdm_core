@@ -220,7 +220,7 @@ char temp[PATH_MAX];
 		return;
 	}
 	
-	if (strcmp(name,"settings.inp")!=0)
+	if ((strcmp(name,"settings.inp")!=0)&&(strcmp(name,"info.inp")!=0))
 	{
 		ewe(sim,"I can't find the %s\n",name);
 	}
