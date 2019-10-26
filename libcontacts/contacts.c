@@ -106,7 +106,7 @@ int contacts_itterate_to_desired_voltage(struct simulation *sim,struct device *i
 {
 int i;
 char temp[400];
-static long double dV=0.12;
+static long double dV=0.1;
 int up=TRUE;
 int changed=FALSE;
 

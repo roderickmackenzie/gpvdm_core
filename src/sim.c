@@ -93,6 +93,12 @@ void sim_init(struct simulation *sim)
 	sim->error_log_size_max=0;
 	sim->errors_logged=0;
 	strcpy(sim->server.dbus_finish_signal,"");
-	
+
+	sim->fd_ext_mem=-1;
+	sim->fd_ext_memptr=NULL;
+	sim->sem_data_for_slave=NULL;
+	sim->sem_data_for_master=NULL;
+	strcpy(sim->backing_file,"");
+	sim->fd_ext_block_size=-1;
 }
 

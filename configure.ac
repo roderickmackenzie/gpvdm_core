@@ -113,9 +113,10 @@ AC_SUBST(LIBS, " -lumfpack -lm -rdynamic -export-dynamic -ldl -lzip -lz  -L/home
 #-lmatheval -g -L/home/steve/rm/build/libmatheval-1.1.11/lib/.libs/
 
 ],[
+
 	AC_SUBST(COMPILE_FLAG, "-D enable_fit -D enable_server -g -fPIC `pkg-config --cflags dbus-1` -D dbus " )
-	AC_SUBST(LIBS, "-lumfpack -lsuperlu -lm -rdynamic -export-dynamic -ldl -lzip -lz -lcurl -g `pkg-config --libs dbus-1`")
- 
+	AC_SUBST(LIBS, "-lumfpack -lm -rdynamic -export-dynamic -ldl -lzip -lz -lcurl -lrt -lpthread  -g `pkg-config --libs dbus-1` ")
+ 	#-I/usr/lib/x86_64-linux-gnu/openmpi/include/ -lmpi -ldmumps for mumps
 	#-lgsl -lgslcblas
 	
 ]

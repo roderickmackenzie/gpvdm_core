@@ -135,7 +135,7 @@ int simplex_iterate(struct simulation *sim,struct multimin *data)
 		multimin_dump(sim,data);
 		#endif
 		//printf("not yet\n");
-		sync(data,data->i_hi0);
+		multimin_sync(data,data->i_hi0);
 
 		multimin_cal_center(data);
 
@@ -153,7 +153,7 @@ int simplex_iterate(struct simulation *sim,struct multimin *data)
 		#ifdef simplex_verbose
 		multimin_dump(sim,data);
 		#endif
-		sync(data,data->i_hi0);
+		multimin_sync(data,data->i_hi0);
 
 		#ifdef simplex_verbose
 		multimin_dump(sim,data);
@@ -168,7 +168,7 @@ int simplex_iterate(struct simulation *sim,struct multimin *data)
 		//printf("ytry_expand<ytry_reflect %f %f\n",ytry_expand,ytry_reflect);
 		if (ytry_expand<ytry_reflect)
 		{
-			sync(data,data->i_hi0);
+			multimin_sync(data,data->i_hi0);
 			multimin_cal_center(data);
 			//printf("was much better\n");
 			#ifdef simplex_verbose
@@ -187,7 +187,7 @@ int simplex_iterate(struct simulation *sim,struct multimin *data)
 		double ytry_contract=contract(data,0.25);	//contract 0.5
 		if (ytry_contract<data->y[data->i_hi0])
 		{
-			sync(data,data->i_hi0);
+			multimin_sync(data,data->i_hi0);
 			multimin_cal_center(data);
 		}
 		//printf(">>>>>>>>>>>>>>>>contracted %f %f", ytry_contract, ysave);

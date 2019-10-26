@@ -372,7 +372,12 @@ if (config.Vstop<config.Vstart)
 
 		//contacts_detailed_dump(in);
 		//contacts_dump(sim,in);
+		//dump_contacts_save(sim,in,&contact_store);
 
+		if (config.jv_single_point==TRUE)
+		{
+			break;
+		}
 	}while(1);
 
 in->FF=gfabs(in->Pmax/(in->Jsc*in->Voc));
@@ -624,29 +629,30 @@ light_set_sun(&(in->mylight),sun_orig);
 
 void jv_load_config(struct simulation *sim,struct jv* in,struct device *dev, char* config_file_name)
 {
-struct inp_file inp;
-inp_init(sim,&inp);
-inp_load_from_path(sim,&inp,get_input_path(sim),config_file_name);
-inp_check(sim,&inp,1.22);
-inp_search_gdouble(sim,&inp,&(in->Vstart),"#Vstart");
-inp_search_gdouble(sim,&inp,&(in->Vstop),"#Vstop");
-inp_search_gdouble(sim,&inp,&(in->Vstep),"#Vstep");
-in->Vstep=fabs(in->Vstep);
+	struct inp_file inp;
+	inp_init(sim,&inp);
+	inp_load_from_path(sim,&inp,get_input_path(sim),config_file_name);
+	inp_check(sim,&inp,1.22);
+	inp_search_gdouble(sim,&inp,&(in->Vstart),"#Vstart");
+	inp_search_gdouble(sim,&inp,&(in->Vstop),"#Vstop");
+	inp_search_gdouble(sim,&inp,&(in->Vstep),"#Vstep");
+	in->Vstep=fabs(in->Vstep);
 
-if (in->Vstop<in->Vstart)
-{
-	in->Vstep*=-1.0;
-}
+	if (in->Vstop<in->Vstart)
+	{
+		in->Vstep*=-1.0;
+	}
 
-inp_search_gdouble(sim,&inp,&(in->jv_step_mul),"#jv_step_mul");
-inp_search_gdouble(sim,&inp,&(in->jv_light_efficiency),"#jv_light_efficiency");
-inp_search_gdouble(sim,&inp,&(in->jv_max_j),"#jv_max_j");
+	inp_search_gdouble(sim,&inp,&(in->jv_step_mul),"#jv_step_mul");
+	inp_search_gdouble(sim,&inp,&(in->jv_light_efficiency),"#jv_light_efficiency");
+	inp_search_gdouble(sim,&inp,&(in->jv_max_j),"#jv_max_j");
 
 
-inp_search_gdouble(sim,&inp,&(in->jv_Rshunt),"#jv_Rshunt");
-inp_search_gdouble(sim,&inp,&(in->jv_Rcontact),"#jv_Rcontact");
-
-in->jv_light_efficiency=gfabs(in->jv_light_efficiency);
-inp_free(sim,&inp);
+	inp_search_gdouble(sim,&inp,&(in->jv_Rshunt),"#jv_Rshunt");
+	inp_search_gdouble(sim,&inp,&(in->jv_Rcontact),"#jv_Rcontact");
+	inp_search_gdouble(sim,&inp,&(in->jv_Rcontact),"#jv_Rcontact");
+	in->jv_single_point=inp_search_english(sim,&inp,"#jv_single_point");
+	in->jv_light_efficiency=gfabs(in->jv_light_efficiency);
+	inp_free(sim,&inp);
 
 }

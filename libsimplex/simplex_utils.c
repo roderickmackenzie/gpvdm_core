@@ -98,7 +98,7 @@ void multimin_find_best(struct multimin *data)
 	
 }
 
-void sync(struct multimin *data,int s)
+void multimin_sync(struct multimin *data,int s)
 {
 	int d=0;
 

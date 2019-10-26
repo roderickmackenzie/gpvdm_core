@@ -36,6 +36,11 @@
 	#include <dbus/dbus.h>
 #endif
 
+	#include <sys/mman.h>
+	#include <sys/stat.h>
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <semaphore.h>
 
 #include <dirent.h>
 #include <i_struct.h>
@@ -102,6 +107,7 @@ struct simulation
 	double *complex_Az;
 
 	//Matrix solver dlls
+	void (*dll_matrix_init)();
 	void (*dll_matrix_solve)();
 	void (*dll_matrix_dump)();
 	void (*dll_set_interface)();
@@ -152,6 +158,17 @@ struct simulation
 	int errors_logged;
 
 	struct lock lock_data;
+
+	int fd_ext_mem;
+	caddr_t fd_ext_memptr;
+	caddr_t fd_ext_memptr_size;
+
+	sem_t* sem_data_for_slave;
+	sem_t* sem_data_for_master;
+	char backing_file[100];
+	char backing_file_size[100];
+	int fd_ext_block_size;
+	int fd_ext_mem_size;
 };
 
 #endif

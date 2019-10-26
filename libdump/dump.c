@@ -92,6 +92,76 @@ dump_number=0;
 set_dump_status(sim,dump_lock, FALSE);
 }
 
+void buffer_add_3d_to_2d_projection(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data)
+{
+int x=0;
+int y=0;
+int z=0;
+
+gdouble xpos=0.0;
+gdouble ypos=0.0;
+gdouble zpos=0.0;
+long double tot=0.0;
+
+char string[200];
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#data\n");
+	buffer_add_string(buf,string);
+}
+
+if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+{
+	for (z=0;z<in->zmeshpoints;z++)
+	{
+		for (x=0;x<in->xmeshpoints;x++)
+		{
+			tot=0.0;
+			for (y=0;y<in->ymeshpoints;y++)
+			{
+				tot+=data[z][x][y];
+			}
+
+			sprintf(string,"%Le %Le %Le\n",in->xmesh[x],in->zmesh[z],tot/((long double)in->ymeshpoints));
+			buffer_add_string(buf,string);
+		}
+	}
+}else
+if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+{
+	z=0;
+	for (x=0;x<in->xmeshpoints;x++)
+	{
+		tot=0.0;
+		for (y=0;y<in->ymeshpoints;y++)
+		{
+			tot+=data[z][x][y];
+		}
+		sprintf(string,"%Le %Le\n",in->xmesh[x],tot/((long double)in->ymeshpoints));
+		buffer_add_string(buf,string);
+	}
+}else
+{
+	x=0;
+	z=0;
+	tot=0.0;
+	for (y=0;y<in->ymeshpoints;y++)
+	{
+		tot+=data[z][x][y];
+	}
+
+	sprintf(string,"%Le %Le\n",in->xmesh[x],tot/((long double)in->ymeshpoints));
+	buffer_add_string(buf,string);
+}
+
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#end\n");
+	buffer_add_string(buf,string);
+}
+
+}
+
 void buffer_add_3d_device_data(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data)
 {
 int x=0;

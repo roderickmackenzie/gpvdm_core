@@ -33,6 +33,11 @@
 
 struct dll_interface *fun;
 
+EXPORT void dll_matrix_init(struct simulation *sim)
+{
+printf("init\n");
+}
+
 EXPORT void set_interface(struct dll_interface *in)
 {
 fun=in;

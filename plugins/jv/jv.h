@@ -39,6 +39,7 @@ struct jv
 	gdouble jv_max_j;
 	long double jv_Rshunt;
 	long double jv_Rcontact;
+	int jv_single_point;
 };
 
 void sim_jv(struct simulation *sim,struct device *in);

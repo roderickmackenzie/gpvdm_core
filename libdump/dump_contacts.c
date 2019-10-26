@@ -97,7 +97,7 @@ void dump_contacts_save(struct simulation *sim,struct device *in,struct contacts
 			strcpy(buf.y_label,_("Voltage"));
 			strcpy(buf.y_units,"V");
 			strcpy(buf.data_label,_("Current"));
-			strcpy(buf.data_units,"A m^{-2}");
+			strcpy(buf.data_units,"A");
 			buf.logscale_y=0;
 			buf.logscale_data=0;
 			buf.x=1;

@@ -121,14 +121,15 @@ gdouble Vapplied=0.0;
 in->kl_in_newton=FALSE;
 solver_realloc(sim,in);
 
-if (state_find_vector(sim,in,NULL)==TRUE)
+/*if (state_find_vector(sim,in,NULL)==TRUE)
 {
+	//printf("bing!\n<");
 	solve_all(sim,in);
-}
-
+}*/
+//getchar();
 newton_push_state(in);
 
-in->min_cur_error=1e-5;
+in->min_cur_error=1e-8;
 in->max_electrical_itt=100;
 in->newton_min_itt=3;
 in->electrical_clamp=1.0;
@@ -153,7 +154,7 @@ newton_pop_state(in);
 
 
 
-printf_log(sim,"Finished with multidimentional auto ramp\n");
+printf_log(sim,"Finished with multidimentional autoramp\n");
 return;
 
 }

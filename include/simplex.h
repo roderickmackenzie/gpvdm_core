@@ -63,7 +63,7 @@ void multimin_init_simplex(struct multimin *data);
 void multimin_free(struct multimin *data);
 void multimin_cal_center(struct multimin *data);
 void multimin_find_best(struct multimin *data);
-void sync(struct multimin *data,int s);
+void multimin_sync(struct multimin *data,int s);
 void multimin_shrink(struct multimin *data);
 double contract(struct multimin *data,double mul);
 double expand(struct multimin *data,double mul);

@@ -50,7 +50,7 @@ find_dll(sim, lib_path,solver_name);
 
 char *error;
 
-	sim->dll_matrix_handle = dlopen(lib_path, RTLD_LAZY);
+	sim->dll_matrix_handle = dlopen(lib_path, RTLD_LAZY |RTLD_GLOBAL);
 
 	if (!sim->dll_matrix_handle)
 	{
@@ -81,8 +81,14 @@ char *error;
 		ewe(sim, "%s\n", error);
 	}
 
+	sim->dll_matrix_init = dlsym(sim->dll_matrix_handle, "dll_matrix_init");
+	if ((error = dlerror()) != NULL)
+	{
+		ewe(sim, "%s\n", error);
+	}
 
 
+	(*sim->dll_matrix_init)(sim);
 }
 
 
