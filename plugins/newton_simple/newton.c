@@ -175,8 +175,10 @@ int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x
 
 	fill_matrix(sim,in,z,x);
 
-	in->last_error=0.0;//error;
-	in->last_ittr=0.0;
+	struct newton_save_state *ns=&(in->ns);
+
+	ns->last_error=0.0;//error;
+	ns->last_ittr=0.0;
 
 	in->newton_last_ittr=0;
 

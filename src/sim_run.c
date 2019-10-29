@@ -207,7 +207,7 @@ if (enable_electrical==TRUE)
 			for (y=0;y<cell.ymeshpoints;y++)
 			{
 
-				depth=cell.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
+				depth=cell.ns.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
 				percent=depth/cell.my_epitaxy.layer[cell.imat_epitaxy[z][x][y]].width;
 				cell.Nad[z][x][y]=get_dos_doping_start(&cell,cell.imat[z][x][y])+(get_dos_doping_stop(&cell,cell.imat[z][x][y])-get_dos_doping_start(&cell,cell.imat[z][x][y]))*percent;
 			}
@@ -226,7 +226,7 @@ if (enable_electrical==TRUE)
 		{
 			for (y=0;y<cell.ymeshpoints;y++)
 			{
-				cell.phi[z][x][y]=0.0;
+				cell.ns.phi[z][x][y]=0.0;
 				cell.R[z][x][y]=0.0;
 				cell.n[z][x][y]=0.0;
 			}
@@ -248,7 +248,7 @@ if (enable_electrical==TRUE)
 	gdouble old_Psun=0.0;
 	old_Psun=light_get_sun(&cell.mylight);
 	light_init(&cell.mylight);
-	light_set_dx(&cell.mylight,cell.ymesh[1]-cell.ymesh[0]);
+	light_set_dx(&cell.mylight,cell.ns.ymesh[1]-cell.ns.ymesh[0]);
 	light_load_config(sim,&cell.mylight,&cell.my_epitaxy);
 
 	//printf("%d %d\n",get_dump_status(sim,dump_optics_verbose), get_dump_status(sim,dump_optics_summary));

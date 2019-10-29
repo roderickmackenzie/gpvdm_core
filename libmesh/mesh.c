@@ -256,12 +256,14 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 	long double *dmesh=NULL;
 	int meshpoints=0;
 
+	struct newton_save_state *ns=&(in->ns);
+
 	if (direction=='x')
 	{
 		meshlayers=in->xmeshlayers;
 		meshdata=in->meshdata_x;
 		ret_len=&(in->xlen);
-		mesh=in->xmesh;
+		mesh=ns->xmesh;
 		dmesh=in->dxmesh;
 		meshpoints=in->xmeshpoints;
 	}else
@@ -270,7 +272,7 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 		meshlayers=in->ymeshlayers;
 		meshdata=in->meshdata_y;
 		ret_len=&(in->ylen);
-		mesh=in->ymesh;
+		mesh=ns->ymesh;
 		dmesh=in->dymesh;
 		meshpoints=in->ymeshpoints;
 	}else
@@ -279,7 +281,7 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 		meshlayers=in->zmeshlayers;
 		meshdata=in->meshdata_z;
 		ret_len=&(in->zlen);
-		mesh=in->zmesh;
+		mesh=ns->zmesh;
 		dmesh=in->dzmesh;
 		meshpoints=in->zmeshpoints;
 	}else
@@ -288,7 +290,7 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 	}
 
 	//Don't continue if there are no points on the y mesh.
-	if (in->ymesh==0)
+	if (in->ymeshpoints==0)
 	{
 		return;
 	}
@@ -357,20 +359,21 @@ void mesh_build_from_submesh(struct simulation *sim,struct device *in,char direc
 void mesh_dump_x(struct simulation *sim,struct device *in)
 {
 	int x=0;
-
+	struct newton_save_state *ns=&(in->ns);
 	for (x=0;x<in->xmeshpoints;x++)
 	{
-		printf("%Le\n",in->xmesh[x]);
+		printf("%Le\n",ns->xmesh[x]);
 	}
 }
 
 void mesh_dump_y(struct simulation *sim,struct device *in)
 {
 	int y=0;
+	struct newton_save_state *ns=&(in->ns);
 
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		printf("%Le\n",in->ymesh[y]);
+		printf("%Le\n",ns->ymesh[y]);
 	}
 }
 
@@ -391,6 +394,7 @@ void mesh_build(struct simulation *sim,struct device *in)
 	int x=0;
 	int y=0;
 
+	struct newton_save_state *ns=&(in->ns);
 	gdouble dpos=0.0;
 	//long double dx=0.0;
 	//long double len=0.0;
@@ -410,7 +414,7 @@ void mesh_build(struct simulation *sim,struct device *in)
 	//len=0.0;
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		dpos=in->ymesh[y];
+		dpos=ns->ymesh[y];
 		in->imat[0][0][y]=epitaxy_get_electrical_material_layer(&(in->my_epitaxy),dpos);
 		in->imat_epitaxy[0][0][y]=epitaxy_get_epitaxy_layer_using_electrical_pos(&(in->my_epitaxy),dpos);
 
@@ -420,7 +424,7 @@ void mesh_build(struct simulation *sim,struct device *in)
 			{
 				in->imat[z][x][y]=in->imat[0][0][y];
 				in->imat_epitaxy[z][x][y]=in->imat_epitaxy[0][0][y];
-				shape=shape_get_index(sim,&(in->my_epitaxy),in->xmesh[x],in->ymesh[y],in->zmesh[z]);
+				shape=shape_get_index(sim,&(in->my_epitaxy),ns->xmesh[x],ns->ymesh[y],ns->zmesh[z]);
 				if (shape!=-1)
 				{
 					in->imat[z][x][y]=shape;
@@ -437,20 +441,20 @@ void mesh_cal_layer_widths(struct device *in)
 {
 int i;
 int cur_i=in->imat[0][0][0];
-
+struct newton_save_state *ns=&(in->ns);
 in->layer_start[cur_i]=0.0;
 
 for (i=0;i<in->ymeshpoints;i++)
 {
 	if ((in->imat[0][0][i]!=cur_i)||(i==(in->ymeshpoints-1)))
 	{
-		in->layer_stop[cur_i]=in->ymesh[i-1];//+(in->ymesh[i]-in->ymesh[i-1])/2;
+		in->layer_stop[cur_i]=ns->ymesh[i-1];//+(ns->ymesh[i]-ns->ymesh[i-1])/2;
 		if (i==(in->ymeshpoints-1))
 		{
 			break;
 		}
 		cur_i=in->imat[0][0][i];
-		in->layer_start[cur_i]=in->ymesh[i];//-(in->ymesh[i]-in->ymesh[i-1])/2;
+		in->layer_start[cur_i]=ns->ymesh[i];//-(ns->ymesh[i]-ns->ymesh[i-1])/2;
 	}
 //printf_log("%d\n",in->imat[i]);
 }

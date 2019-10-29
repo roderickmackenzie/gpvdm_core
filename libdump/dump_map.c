@@ -61,6 +61,7 @@ Epoints=(int)abs(stop-start)/delta_E;
 int band=0;
 long double E=0;
 int vpos=0;
+struct newton_save_state *ns=&(in->ns);
 
 data2d_init(&map,in->ymeshpoints,Epoints);
 data2d_init_y_mesh(&map,start, stop);
@@ -114,7 +115,7 @@ for (y=0;y<Epoints;y++)
 
 	for (x=0;x<in->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],in->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 
@@ -176,7 +177,7 @@ for (y=0;y<Epoints;y++)
 
 	for (x=0;x<in->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],in->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 
@@ -240,7 +241,7 @@ for (y=0;y<Epoints;y++)
 
 	for (x=0;x<in->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],in->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 

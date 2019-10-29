@@ -48,6 +48,7 @@ gdouble navg=0.0;
 gdouble pavg=0.0;
 gdouble nsum=0.0;
 gdouble psum=0.0;
+struct newton_save_state *ns=&in->ns;
 
 for (z=0;z<in->zmeshpoints;z++)
 {
@@ -55,8 +56,8 @@ for (z=0;z<in->zmeshpoints;z++)
 	{
 		for (z=0;z<in->zmeshpoints;z++)
 		{
-			navg+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y])*in->ymesh[y];
-			pavg+=(in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y])*in->ymesh[y];
+			navg+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y])*ns->ymesh[y];
+			pavg+=(in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y])*ns->ymesh[y];
 			nsum+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y]);
 			psum+=in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y];
 		}
@@ -303,7 +304,9 @@ int z=0;
 
 gdouble Rtot=0.0;
 gdouble add=0.0;
-gdouble dx=in->ymesh[1]-in->ymesh[0];
+struct newton_save_state *ns=&in->ns;
+
+gdouble dx=ns->ymesh[1]-ns->ymesh[0];
 
 
 
@@ -452,6 +455,7 @@ void carrier_count_add(struct device *in)
 int x=0;
 int y=0;
 int z=0;
+struct newton_save_state *ns=&in->ns;
 
 gdouble locat_n_tot=0.0;
 gdouble locat_p_tot=0.0;
@@ -465,7 +469,7 @@ for (z=0;z<in->zmeshpoints;z++)
 	}
 }
 
-gdouble dx=in->ymesh[1]-in->ymesh[0];
+gdouble dx=ns->ymesh[1]-ns->ymesh[0];
 for (z=0;z<in->zmeshpoints;z++)
 {
 	for (x=0;x<in->xmeshpoints;x++)
@@ -831,6 +835,8 @@ int y=0;
 int z=0;
 
 int band;
+struct newton_save_state *ns=&(in->ns);
+
 for (z=0;z<in->zmeshpoints;z++)
 {
 	for (x=0;x<in->xmeshpoints;x++)
@@ -841,7 +847,7 @@ for (z=0;z<in->zmeshpoints;z++)
 			in->pf_save[z][x][y]=in->p[z][x][y];
 			in->nt_save[z][x][y]=in->nt_all[z][x][y];
 			in->pt_save[z][x][y]=in->pt_all[z][x][y];
-			in->phi_save[z][x][y]=in->phi[z][x][y];
+			in->phi_save[z][x][y]=ns->phi[z][x][y];
 			for (band=0;band<in->srh_bands;band++)
 			{
 				in->ntb_save[z][x][y][band]=in->nt[z][x][y][band];
@@ -1030,7 +1036,8 @@ return ret;
 */
 gdouble get_avg_field(struct device *in)
 {
-	return (in->phi[0][0][in->ymeshpoints-1]-in->phi[0][0][0]);
+	struct newton_save_state *ns=&(in->ns);
+	return (ns->phi[0][0][in->ymeshpoints-1]-ns->phi[0][0][0]);
 }
 
 /**
@@ -1055,6 +1062,7 @@ gdouble dx=0.0;
 int x=0;
 int y=0;
 int z=0;
+struct newton_save_state *ns=&in->ns;
 
 for (z=0;z<in->zmeshpoints;z++)
 {
@@ -1067,13 +1075,13 @@ for (z=0;z<in->zmeshpoints;z++)
 				nl=in->n[z][x][0];
 				pl=in->p[z][x][0];
 				Ecl=in->Ec[z][x][0];
-				xl=in->ymesh[0];
+				xl=ns->ymesh[0];
 			}else
 			{
 				nl=in->n[z][x][y-1];
 				pl=in->p[z][x][y-1];
 				Ecl=in->Ec[z][x][y-1];
-				xl=in->ymesh[y-1];
+				xl=ns->ymesh[y-1];
 			}
 
 			if (y==in->ymeshpoints-1)
@@ -1081,13 +1089,13 @@ for (z=0;z<in->zmeshpoints;z++)
 				nr=in->n[z][x][in->ymeshpoints-1];
 				pr=in->p[z][x][in->ymeshpoints-1];
 				Ecr=in->Ec[z][x][in->ymeshpoints-1];
-				xr=in->ymesh[in->ymeshpoints-1];
+				xr=ns->ymesh[in->ymeshpoints-1];
 			}else
 			{
 				nr=in->n[z][x][y+1];
 				pr=in->p[z][x][y+1];
 				Ecr=in->Ec[z][x][y+1];
-				xr=in->ymesh[y+1];
+				xr=ns->ymesh[y+1];
 			}
 			dn=(nr-nl);
 			dp=(pr-pl);

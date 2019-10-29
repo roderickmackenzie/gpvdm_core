@@ -61,6 +61,8 @@ struct dat_file buf;
 buffer_init(&buf);
 
 
+	struct newton_save_state *ns=&(in->ns);
+
 	buffer_add_dir(sim,out_dir);
 
 	cal_J_drift_diffusion(in);
@@ -386,9 +388,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Fn.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -415,9 +417,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Fp.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -445,9 +447,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","phi.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -478,7 +480,7 @@ buffer_init(&buf);
 	mem_set_zx_gdouble_from_zx_gdouble(in, temp_btm, in->Vr);
 	mem_add_zx_gdouble_from_zx_gdouble(in, temp_btm, in->Vapplied_r);
 
-	buffer_add_3d_device_data_including_boundaries(sim,&buf,in,  in->phi,temp_top,temp_btm);
+	buffer_add_3d_device_data_including_boundaries(sim,&buf,in,  ns->phi,temp_top,temp_btm);
 
 	free_zx_gdouble(in, temp_btm);
 	free_zx_gdouble(in, temp_top);
@@ -488,9 +490,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dphi.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -513,7 +515,7 @@ buffer_init(&buf);
 	buffer_add_info(sim,&buf);
 
 	three_d_set_gdouble(in, temp_3d, 0.0);
-	three_d_add_gdouble(in, temp_3d, in->phi);
+	three_d_add_gdouble(in, temp_3d, ns->phi);
 	three_d_add_gdouble(in, temp_3d, in->phi_save);
 	buffer_add_3d_device_data(sim,&buf,in, temp_3d);
 
@@ -522,9 +524,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jn.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -554,9 +556,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jp.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -583,9 +585,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jn_x.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -613,9 +615,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jp_x.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -642,9 +644,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jn_plus_Jp.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -665,22 +667,22 @@ buffer_init(&buf);
 	buf.y=in->ymeshpoints;
 	buf.z=in->zmeshpoints;
 	buffer_add_info(sim,&buf);
-	//sprintf(temp,"%Le %Le\n",in->ymesh[0]-in->ymesh[1]/2,get_J_left(in));
+	//sprintf(temp,"%Le %Le\n",ns->ymesh[0]-ns->ymesh[1]/2,get_J_left(in));
 
 	three_d_set_gdouble(in, temp_3d, 0.0);
 	three_d_add_gdouble(in, temp_3d, in->Jp);
 	three_d_add_gdouble(in, temp_3d, in->Jn);
 	buffer_add_3d_device_data(sim,&buf,in, temp_3d);
 
-	//sprintf(temp,"%Le %Le\n",in->ymesh[in->ymeshpoints-1]-in->ymesh[1]/2,get_J_right(in));
+	//sprintf(temp,"%Le %Le\n",ns->ymesh[in->ymeshpoints-1]-ns->ymesh[1]/2,get_J_right(in));
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Jp_drift_plus_diffusion.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -712,9 +714,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Fi.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -741,9 +743,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","epsilon_r.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -771,9 +773,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","mu_n.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -800,9 +802,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","mu_p.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -829,9 +831,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","mu_n_ft.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -859,7 +861,7 @@ buffer_init(&buf);
 
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		sprintf(temp,"%Le %Le\n",in->ymesh[y],in->mun[z][x][y]*in->n[z][x][y]/(in->nt_all[z][x][y]+in->n[z][x][y]));
+		sprintf(temp,"%Le %Le\n",ns->ymesh[y],in->mun[z][x][y]*in->n[z][x][y]/(in->nt_all[z][x][y]+in->n[z][x][y]));
 		buffer_add_string(&buf,temp);
 	}
 	buffer_dump_path(sim,out_dir,name,&buf);
@@ -867,9 +869,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","mu_p_ft.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -892,7 +894,7 @@ buffer_init(&buf);
 	buffer_add_info(sim,&buf);
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		sprintf(temp,"%Le %Le\n",in->ymesh[y],in->mup[z][x][y]*in->p[z][x][y]/(in->pt_all[z][x][y]+in->p[z][x][y]));
+		sprintf(temp,"%Le %Le\n",ns->ymesh[y],in->mup[z][x][y]*in->p[z][x][y]/(in->pt_all[z][x][y]+in->p[z][x][y]));
 		buffer_add_string(&buf,temp);
 	}
 	buffer_dump_path(sim,out_dir,name,&buf);
@@ -901,9 +903,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","nf.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -931,9 +933,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","pf.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -961,9 +963,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","nt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -990,9 +992,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","pt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1019,9 +1021,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","p.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1055,9 +1057,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","n.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1090,9 +1092,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dn.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1126,9 +1128,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","charge.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1162,9 +1164,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dcharge.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1204,9 +1206,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dp.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1241,9 +1243,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dnt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1275,9 +1277,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","dpt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1309,9 +1311,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Gn.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1338,9 +1340,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Gp.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1368,9 +1370,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Rn_srh.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1397,9 +1399,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Rp_srh.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1426,9 +1428,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","R_free.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1455,9 +1457,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","ion.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1510,7 +1512,7 @@ buffer_init(&buf);
 	buffer_add_info(sim,&buf);
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		sprintf(temp,"%Le ",in->ymesh[y]);
+		sprintf(temp,"%Le ",ns->ymesh[y]);
 		buffer_add_string(&buf,temp);
 		for (band=0;band<in->srh_bands;band++)
 		{
@@ -1551,7 +1553,7 @@ buffer_init(&buf);
 	buffer_add_info(sim,&buf);
 	for (y=0;y<in->ymeshpoints;y++)
 	{
-		sprintf(temp,"%Le ",in->ymesh[y]);
+		sprintf(temp,"%Le ",ns->ymesh[y]);
 		buffer_add_string(&buf,temp);
 		for (band=0;band<in->srh_bands;band++)
 		{
@@ -1567,9 +1569,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","imat.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1596,9 +1598,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","passivate_top.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1625,9 +1627,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","passivate_btm.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1654,9 +1656,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","Efield.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1681,8 +1683,8 @@ buffer_init(&buf);
 	for (y=in->ymeshpoints-1;y>1;y--)
 	{
 
-		deriv= -(in->phi[z][x][y]-in->phi[z][x][y-1])/(in->ymesh[y]-in->ymesh[y-1]);
-		sprintf(temp,"%Le %Le\n",in->ymesh[y], deriv);
+		deriv= -(ns->phi[z][x][y]-ns->phi[z][x][y-1])/(ns->ymesh[y]-ns->ymesh[y-1]);
+		sprintf(temp,"%Le %Le\n",ns->ymesh[y], deriv);
 		buffer_add_string(&buf,temp);
 	}
 
@@ -1692,9 +1694,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","pf_to_nt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1722,9 +1724,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","nf_to_pt.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1751,9 +1753,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","prelax.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;
@@ -1780,9 +1782,9 @@ buffer_init(&buf);
 
 	buffer_malloc(&buf);
 	sprintf(name,"%s","nrelax.dat");
-	get_meter_dim(buf.x_units,&mul_x,in->xmesh[in->xmeshpoints-1]);
-	get_meter_dim(buf.y_units,&mul_y,in->ymesh[in->ymeshpoints-1]);
-	get_meter_dim(buf.z_units,&mul_z,in->zmesh[in->zmeshpoints-1]);
+	get_meter_dim(buf.x_units,&mul_x,ns->xmesh[in->xmeshpoints-1]);
+	get_meter_dim(buf.y_units,&mul_y,ns->ymesh[in->ymeshpoints-1]);
+	get_meter_dim(buf.z_units,&mul_z,ns->zmesh[in->zmeshpoints-1]);
 	buf.y_mul=mul_y;
 	buf.x_mul=mul_x;
 	buf.z_mul=mul_z;

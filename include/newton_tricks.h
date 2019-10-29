@@ -29,12 +29,13 @@
 
 struct newton_math_state
 {
-int max_electrical_itt;
-gdouble min_cur_error;
-int newton_min_itt;
-gdouble electrical_clamp;
-int newton_clever_exit;
+	int max_electrical_itt;
+	gdouble min_cur_error;
+	int newton_min_itt;
+	gdouble electrical_clamp;
+	int newton_clever_exit;
 };
+
 
 void newton_push_state(struct device *in);
 void newton_pop_state(struct device *in);
@@ -66,5 +67,11 @@ int load_state(struct simulation *sim,struct device *in,char *file_name);
 void state_gen_vector(struct simulation *sim,struct device *in);
 long double state_load_vector(struct simulation *sim,struct device *in,char *file_name);
 int state_find_vector(struct simulation *sim,struct device *in,char *out);
+
+void newton_save_state_init(struct device *in,struct newton_save_state *ns);
+void newton_save_state_alloc_mesh(struct device *in,struct newton_save_state *ns);
+void newton_save_state_alloc_traps(struct device *in,struct newton_save_state *ns);
+void newton_save_state_free_mesh(struct device *in,struct newton_save_state *ns);
+void newton_save_state_free_traps(struct device *in,struct newton_save_state *ns);
 #endif
 

@@ -205,6 +205,8 @@ long double cal_step=0;
 long double n_steps=0.0;
 char send_data[200];
 
+struct newton_save_state *ns=&(in->ns);
+
 n_steps=get_step_n(config.Vstep,config.jv_step_mul,config.Vstart);
 n_steps+=get_step_n(config.Vstep,config.jv_step_mul,config.Vstop);
 
@@ -253,7 +255,7 @@ if (config.Vstop<config.Vstart)
 
 		if (get_dump_status(sim,dump_print_converge)==TRUE)
 		{
-		printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,in->last_error);
+		printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,ns->last_error);
 		}
 
 		if (first==FALSE)

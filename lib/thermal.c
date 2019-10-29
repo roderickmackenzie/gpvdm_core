@@ -45,6 +45,7 @@ long double yr=0.0;
 long double dh=0.0;
 long double Jn=0.0;
 long double Jp=0.0;
+struct newton_save_state *ns=&(in->ns);
 
 for (i=0;i<in->ymeshpoints;i++)
 {
@@ -52,25 +53,25 @@ for (i=0;i<in->ymeshpoints;i++)
 	{
 		Ecl=-in->Xi[z][x][0]-in->Vapplied_l[z][x];
 		Evl=-in->Xi[z][x][0]-in->Vapplied_l[z][x]-in->Eg[z][x][0];
-		yl=in->ymesh[0]-(in->ymesh[1]-in->ymesh[0]);
+		yl=ns->ymesh[0]-(ns->ymesh[1]-ns->ymesh[0]);
 	}else
 	{
 		Ecl=in->Ec[z][x][i-1];
 		Evl=in->Ev[z][x][i-1];
-		yl=in->ymesh[i-1];
+		yl=ns->ymesh[i-1];
 	}
 
 	if (i==in->ymeshpoints-1)
 	{
 		Ecr=-in->Xi[z][x][i]-in->Vr[z][x];
 		Evr=-in->Xi[z][x][i]-in->Vr[z][x]-in->Eg[z][x][i];
-		yr=in->ymesh[i]+(in->ymesh[i]-in->ymesh[i-1]);
+		yr=ns->ymesh[i]+(ns->ymesh[i]-ns->ymesh[i-1]);
 		
 	}else
 	{
 		Ecr=in->Ec[z][x][i];
 		Evr=in->Ev[z][x][i];
-		yr=in->ymesh[i];
+		yr=ns->ymesh[i];
 	}
 
 	dh=yr-yl;
@@ -90,10 +91,11 @@ for (i=0;i<in->ymeshpoints;i++)
 void dump_thermal(struct simulation *sim,struct device *in, int z, int x)
 {
 int i;
+struct newton_save_state *ns=&(in->ns);
 
 for (i=0;i<in->ymeshpoints;i++)
 {
-	printf_log(sim,"%Le Tl=%Lf Te=%Lf Th=%Lf %Le %Le %Le %Le \n",in->ymesh[i],in->Tl[z][x][i],in->Te[z][x][i],in->Th[z][x][i],in->Hl[z][x][i],in->He[z][x][i],in->Hh[z][x][i],in->kl[z][x][i]);
+	printf_log(sim,"%Le Tl=%Lf Te=%Lf Th=%Lf %Le %Le %Le %Le \n",ns->ymesh[i],in->Tl[z][x][i],in->Te[z][x][i],in->Th[z][x][i],in->Hl[z][x][i],in->He[z][x][i],in->Hh[z][x][i],in->kl[z][x][i]);
 }
 
 }
@@ -126,7 +128,7 @@ return tot;
 int solve_thermal(struct simulation *sim,struct device *in, int z, int x)
 {
 printf_log(sim,"Solve thermal l=%d e=%d h=%d\n",in->thermal_l,in->thermal_e,in->thermal_h);
-
+struct newton_save_state *ns=&(in->ns);
 int i;
 
 int N=0;
@@ -274,7 +276,7 @@ update_heat(in,z,x);
 				}
 
 
-				yl=in->ymesh[0]-(in->ymesh[1]-in->ymesh[0]);
+				yl=ns->ymesh[0]-(ns->ymesh[1]-ns->ymesh[0]);
 				Jnl=in->Jn[z][x][0];
 				Jpl=in->Jp[z][x][0];
 			}else
@@ -285,7 +287,7 @@ update_heat(in,z,x);
 				Tll=in->Tl[z][x][i-1];
 				Tel=in->Te[z][x][i-1];
 				Thl=in->Th[z][x][i-1];
-				yl=in->ymesh[i-1];
+				yl=ns->ymesh[i-1];
 				Jnl=in->Jn[z][x][i-1];
 				Jpl=in->Jp[z][x][i-1];
 			}
@@ -298,7 +300,7 @@ update_heat(in,z,x);
 				Jnr=in->Jn[z][x][in->ymeshpoints-1];
 				Jpr=in->Jp[z][x][in->ymeshpoints-1];
 
-				yr=in->ymesh[i]+(in->ymesh[i]-in->ymesh[i-1]);
+				yr=ns->ymesh[i]+(ns->ymesh[i]-ns->ymesh[i-1]);
 
 				if (in->Triso==FALSE)
 				{
@@ -321,11 +323,11 @@ update_heat(in,z,x);
 				Thr=in->Th[z][x][i+1];
 				Jnr=in->Jn[z][x][i+1];
 				Jpr=in->Jp[z][x][i+1];
-				yr=in->ymesh[i+1];
+				yr=ns->ymesh[i+1];
 			}
 
 
-			yc=in->ymesh[i];
+			yc=ns->ymesh[i];
 			dyl=yc-yl;
 			dyr=yr-yc;
 			

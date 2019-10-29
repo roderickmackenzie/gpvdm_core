@@ -424,9 +424,11 @@ int y=0;
 gdouble Gn=0.0;
 gdouble Gp=0.0;
 long double pos=0;
+struct newton_save_state *ns=&cell->ns;
+
 	for (y=0;y<cell->ymeshpoints;y++)
 	{
-		pos=in->device_start+cell->ymesh[y];
+		pos=in->device_start+ns->ymesh[y];
 
 		Gn=inter_get_raw(in->x,in->Gn,in->points,pos)*in->Dphotoneff;
 		Gp=inter_get_raw(in->x,in->Gp,in->points,pos)*in->Dphotoneff;

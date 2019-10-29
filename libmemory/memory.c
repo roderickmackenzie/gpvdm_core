@@ -36,13 +36,13 @@
 #include <solver_interface.h>
 #include "memory.h"
 #include "ray_fun.h"
+#include "newton_tricks.h"
 
 void device_alloc_traps(struct device *in)
 {
 	malloc_srh_bands(in, &(in->nt));
 	malloc_srh_bands(in, &(in->ntlast));
 
-	malloc_srh_bands(in, &(in->xt));
 	malloc_srh_bands(in, &(in->dnt));
 	malloc_srh_bands(in, &(in->srh_n_r1));
 	malloc_srh_bands(in, &(in->srh_n_r2));
@@ -63,7 +63,6 @@ void device_alloc_traps(struct device *in)
 	malloc_srh_bands(in, &(in->pt));
 	malloc_srh_bands(in, &(in->ptlast));
 
-	malloc_srh_bands(in, &(in->xpt));
 	malloc_srh_bands(in, &(in->dpt));
 	malloc_srh_bands(in, &(in->srh_p_r1));
 	malloc_srh_bands(in, &(in->srh_p_r2));
@@ -80,12 +79,14 @@ void device_alloc_traps(struct device *in)
 	malloc_srh_bands(in, &(in->pt_r2));
 	malloc_srh_bands(in, &(in->pt_r3));
 	malloc_srh_bands(in, &(in->pt_r4));
+
+	newton_save_state_alloc_traps(in,&(in->ns));
+
 }
 
 void device_free_traps(struct device *in)
 {
 	free_srh_bands(in, in->nt);
-	free_srh_bands(in, in->xt);
 	free_srh_bands(in, in->dnt);
 	free_srh_bands(in, in->srh_n_r1);
 	free_srh_bands(in, in->srh_n_r2);
@@ -107,7 +108,6 @@ void device_free_traps(struct device *in)
 
 	free_srh_bands(in, in->pt);
 	free_srh_bands(in, in->dpt);
-	free_srh_bands(in, in->xpt);
 	free_srh_bands(in, in->srh_p_r1);
 	free_srh_bands(in, in->srh_p_r2);
 	free_srh_bands(in, in->srh_p_r3);
@@ -126,6 +126,8 @@ void device_free_traps(struct device *in)
 
 	free_srh_bands(in, in->ptlast);
 
+	newton_save_state_free_traps(in,&(in->ns));
+
 }
 
 void device_free(struct simulation *sim,struct device *in)
@@ -136,9 +138,6 @@ void device_free(struct simulation *sim,struct device *in)
 	}
 
 	//1d
-	free(in->xmesh);
-	free(in->ymesh);
-	free(in->zmesh);
 	free(in->dxmesh);
 	free(in->dymesh);
 	free(in->dzmesh);
@@ -162,7 +161,6 @@ void device_free(struct simulation *sim,struct device *in)
 	free_zx_gdouble(in,in->Vr);
 
 	//3d
-	free_3d_gdouble(in,in->phi);
 	free_3d_gdouble(in,in->B);
 	free_3d_gdouble(in,in->Nad);
 	free_3d_gdouble(in,in->n);
@@ -204,9 +202,7 @@ void device_free(struct simulation *sim,struct device *in)
 	free_3d_gdouble(in,in->Jn_diffusion);
 	free_3d_gdouble(in,in->Jp_drift);
 	free_3d_gdouble(in,in->Jp_diffusion);
-	free_3d_gdouble(in,in->x);
 	free_3d_gdouble(in,in->t);
-	free_3d_gdouble(in,in->xp);
 	free_3d_gdouble(in,in->tp);
 	free_3d_gdouble(in,in->ex);
 	free_3d_gdouble(in,in->Dex);
@@ -271,6 +267,7 @@ void device_free(struct simulation *sim,struct device *in)
 	free_3d_int(in,in->imat);
 	free_3d_int(in,in->imat_epitaxy);
 
+	newton_save_state_free_mesh(in,&(in->ns));
 	//Free epitaxy
 
 	//Free solvers
@@ -307,15 +304,6 @@ void device_get_memory(struct simulation *sim,struct device *in)
 
 
 	//1d
-	in->zmesh = (gdouble *) malloc(in->zmeshpoints * sizeof(gdouble));
-	memset(in->zmesh, 0, in->zmeshpoints * sizeof(gdouble));
-
-	in->xmesh = (gdouble *) malloc(in->xmeshpoints * sizeof(gdouble));
-	memset(in->xmesh, 0, in->xmeshpoints * sizeof(gdouble));
-
-	in->ymesh = (gdouble *) malloc(in->ymeshpoints * sizeof(gdouble));
-	memset(in->ymesh, 0, in->ymeshpoints * sizeof(gdouble));
-
 	in->dzmesh = (gdouble *) malloc(in->zmeshpoints * sizeof(gdouble));
 	memset(in->dzmesh, 0, in->zmeshpoints * sizeof(gdouble));
 
@@ -364,8 +352,6 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_3d_gdouble(in,&(in->ptequlib));
 
 	malloc_3d_gdouble(in,&(in->Habs));
-
-	malloc_3d_gdouble(in,&(in->phi));
 
 	malloc_3d_gdouble(in,&(in->B));
 
@@ -447,11 +433,8 @@ void device_get_memory(struct simulation *sim,struct device *in)
 
 	malloc_3d_gdouble(in,&(in->Jp_diffusion));
 
-	malloc_3d_gdouble(in,&(in->x));
 
 	malloc_3d_gdouble(in,&(in->t));
-
-	malloc_3d_gdouble(in,&(in->xp));
 
 	malloc_3d_gdouble(in,&(in->tp));
 
@@ -533,6 +516,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_3d_int(in,&(in->imat));
 	malloc_3d_int(in,&(in->imat_epitaxy));
 
+	newton_save_state_alloc_mesh(in,&(in->ns));
 
 
 }

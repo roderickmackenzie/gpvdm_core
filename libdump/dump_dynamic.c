@@ -48,7 +48,7 @@ void dump_dynamic_init(struct simulation *sim,struct dynamic_store *store,struct
 int x=0;
 int y=0;
 int z=0;
-
+struct newton_save_state *ns=&(in->ns);
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -122,7 +122,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		{
 			for (y=0;y<in->ymeshpoints;y++)
 			{
-				store->band_snapshot[z][x][y]=in->phi[z][x][y];
+				store->band_snapshot[z][x][y]=ns->phi[z][x][y];
 			}
 		}
 	}
@@ -1079,6 +1079,7 @@ int x=0;
 int y=0;
 int z=0;
 gdouble Vapplied=0.0;
+struct newton_save_state *ns=&(in->ns);
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -1124,7 +1125,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_append(&(store->ntrap),x_value,get_n_trapped_charge(in));
 
-	long double val=(in->phi[0][0][(in->ymeshpoints/2)+1]-in->phi[0][0][(in->ymeshpoints/2)])/(in->ymesh[(in->ymeshpoints/2)+1]-in->ymesh[(in->ymeshpoints/2)]);
+	long double val=(ns->phi[0][0][(in->ymeshpoints/2)+1]-ns->phi[0][0][(in->ymeshpoints/2)])/(ns->ymesh[(in->ymeshpoints/2)+1]-ns->ymesh[(in->ymeshpoints/2)]);
 	inter_append(&(store->E_field),x_value,val);
 
 	Vapplied=contact_get_voltage(sim,in,0);
@@ -1218,7 +1219,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		{
 			for (y=0;y<in->ymeshpoints;y++)
 			{
-				tot+=fabs(store->band_snapshot[z][x][y]-in->phi[z][x][y])/fabs(in->phi[z][x][y]);
+				tot+=fabs(store->band_snapshot[z][x][y]-ns->phi[z][x][y])/fabs(ns->phi[z][x][y]);
 			}
 		}
 	}

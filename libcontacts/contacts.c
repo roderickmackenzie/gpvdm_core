@@ -109,6 +109,7 @@ char temp[400];
 static long double dV=0.1;
 int up=TRUE;
 int changed=FALSE;
+struct newton_save_state *ns=&(in->ns);
 
 	strcpy(text,"Ramping voltage: ");
 
@@ -124,12 +125,12 @@ int changed=FALSE;
 				up=FALSE;
 			}
 
-			if (in->last_ittr<16)
+			if (ns->last_ittr<16)
 			{
 				dV=dV*(1.0+0.001);
 			}
 
-			if (in->last_ittr>18)
+			if (ns->last_ittr>18)
 			{
 				dV*=(1.0-0.001);
 			}
@@ -168,7 +169,7 @@ int changed=FALSE;
 				}
 			}
 
-			printf_log(sim,"Ramping: %s %.2Lf %.2Lf dV=%Lf ittr=%d\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want,dV,in->last_ittr);
+			printf_log(sim,"Ramping: %s %.2Lf %.2Lf dV=%Lf ittr=%d\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want,dV,ns->last_ittr);
 
 			sprintf(temp,"%s %.2Lf V/%.2Lf V",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].voltage_want);
 			strcat(text,temp);
@@ -325,6 +326,7 @@ int n;
 int found=FALSE;
 
 gdouble value=0.0;
+struct newton_save_state *ns=&in->ns;
 
 if (in->xmeshpoints==1)
 {
@@ -371,7 +373,7 @@ for (i=0;i<in->ncontacts;i++)
 	{
 		for (x=0;x<in->xmeshpoints;x++)
 		{
-			if ((in->xmesh[x]>=in->contacts[i].start)&&(in->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+			if ((ns->xmesh[x]>=in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 			{
 
 				if (in->contacts[i].position==TOP)
@@ -697,6 +699,8 @@ int x;
 int y;
 int z;
 return;
+struct newton_save_state *ns=&in->ns;
+
 //passivate under each contact
 for (x=0;x<in->xmeshpoints;x++)
 {
@@ -709,7 +713,7 @@ for (x=0;x<in->xmeshpoints;x++)
 			{
 				if (in->contacts[i].position==TOP)
 				{
-					if ((in->ylen-in->ymesh[y]<=in->contacts[i].depth)&&(in->xmesh[x]>in->contacts[i].start)&&(in->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					if ((in->ylen-ns->ymesh[y]<=in->contacts[i].depth)&&(ns->xmesh[x]>in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;
@@ -718,7 +722,7 @@ for (x=0;x<in->xmeshpoints;x++)
 
 				if (in->contacts[i].position==BOTTOM)
 				{
-					if ((in->ymesh[y]<=in->contacts[i].depth)&&(in->xmesh[x]>in->contacts[i].start)&&(in->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					if ((ns->ymesh[y]<=in->contacts[i].depth)&&(ns->xmesh[x]>in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;

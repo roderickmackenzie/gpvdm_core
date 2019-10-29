@@ -31,6 +31,7 @@
 #include <string.h>
 #include <dump.h>
 #include <ray_fun.h>
+#include <newton_tricks.h>
 
 static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
@@ -46,7 +47,7 @@ void device_init(struct device *in)
 	in->n_contact_r=NULL;
 	in->n_contact_l=NULL;
 
-	in->phi= NULL;
+	newton_save_state_init(in,&(in->ns));
 	in->Nad= NULL;
 	in->G= NULL;
 	in->Gn= NULL;
@@ -78,7 +79,6 @@ void device_init(struct device *in)
 	in->Tl= NULL;
 	in->Te= NULL;
 	in->Th= NULL;
-	in->ymesh= NULL;
 	in->R= NULL;
 	in->Fi= NULL;
 	in->Fi0_top = NULL;
@@ -99,9 +99,7 @@ void device_init(struct device *in)
 	in->Vl= NULL;
 
 	in->Vr= NULL;
-	in->x= NULL;
 	in->t= NULL;
-	in->xp= NULL;
 	in->tp= NULL;
 	in->kf= NULL;
 	in->kd= NULL;
@@ -194,7 +192,6 @@ void device_init(struct device *in)
 	in->Rshort= -1.0;
 	in->onlypos= -1;
 	in->odes= -1;
-	in->last_error= -1.0;
 	in->posclamp= -1.0;
 	in->srh_bands= -1;
 	in->wn= NULL;
@@ -226,7 +223,6 @@ void device_init(struct device *in)
 	in->dsrh_n_r3= NULL;
 	in->dsrh_n_r4= NULL;
 	in->Fnt= NULL;
-	in->xt= NULL;
 	in->tt= NULL;
 
 	in->nt_r1= NULL;
@@ -247,7 +243,6 @@ void device_init(struct device *in)
 	in->dsrh_p_r3= NULL;
 	in->dsrh_p_r4= NULL;
 	in->Fpt= NULL;
-	in->xpt= NULL;
 	in->tpt= NULL;
 
 	in->pt_r1= NULL;
@@ -304,7 +299,6 @@ void device_init(struct device *in)
 
 	in->C= -1.0;
 	in->other_layers= -1.0;
-	in->last_ittr= -1;
 
 	in->kl_in_newton= -1;
 	in->config_kl_in_newton= -1;

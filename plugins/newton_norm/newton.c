@@ -125,6 +125,7 @@ void update_solver_vars(struct simulation *sim,struct device *in, int z, int x,i
 {
 int i;
 int band=0;
+struct newton_save_state *ns=&(in->ns);
 
 gdouble clamp_temp=300.0;
 
@@ -142,10 +143,10 @@ gdouble update=0.0;
 		{
 			if (clamp==TRUE)
 			{
-				in->phi[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
+				ns->phi[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 			}else
 			{
-				in->phi[z][x][i]+=update;
+				ns->phi[z][x][i]+=update;
 
 			}
 		}
@@ -154,20 +155,20 @@ gdouble update=0.0;
 		update=(gdouble)(in->b[in->ymeshpoints*(1)+i])*phi0;
 		if (clamp==TRUE)
 		{
-			in->x[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
+			ns->x[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 		}else
 		{
-			in->x[z][x][i]+=update;
+			ns->x[z][x][i]+=update;
 		}
 
 
 		update=(gdouble)(in->b[in->ymeshpoints*(1+1)+i])*phi0;
 		if (clamp==TRUE)
 		{
-			in->xp[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
+			ns->xp[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 		}else
 		{
-			in->xp[z][x][i]+=update;
+			ns->xp[z][x][i]+=update;
 
 		}
 
@@ -179,11 +180,11 @@ gdouble update=0.0;
 				update=(gdouble)(in->b[in->ymeshpoints*(1+1+1+band)+i]);
 				if (clamp==TRUE)
 				{
-					in->xt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
+					ns->xt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 
 				}else
 				{
-					in->xt[z][x][i][band]+=update;
+					ns->xt[z][x][i][band]+=update;
 				}
 			}
 		}
@@ -195,10 +196,10 @@ gdouble update=0.0;
 				update=(gdouble)(in->b[in->ymeshpoints*(1+1+1+in->srh_bands+band)+i]);
 				if (clamp==TRUE)
 				{
-					in->xpt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
+					ns->xpt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 				}else
 				{
-					in->xpt[z][x][i][band]+=update;
+					ns->xpt[z][x][i][band]+=update;
 
 				}
 			}
@@ -357,14 +358,16 @@ gdouble Nad=0.0;
 //gdouble dncdphic=0.0;
 //gdouble dpcdphic=0.0;
 
+struct newton_save_state *ns=&(in->ns);
+
 	if (in->interfaceleft==TRUE)
 	{
-		in->phi[z][x][0]=in->Vapplied_l[z][x];
+		ns->phi[z][x][0]=in->Vapplied_l[z][x];
 	}
 
 if (in->interfaceright==TRUE)
 {
-		in->phi[z][x][in->ymeshpoints-1]=in->Vr[z][x]-in->Vapplied_r[z][x];
+		ns->phi[z][x][in->ymeshpoints-1]=in->Vr[z][x]-in->Vapplied_r[z][x];
 }
 
 		pos=0;
@@ -378,7 +381,7 @@ if (in->interfaceright==TRUE)
 				phil=(in->Vapplied_l[z][x]/phi0);
 
 
-				yl=in->ymesh[0]/l0-(in->ymesh[1]-in->ymesh[0])/l0;
+				yl=ns->ymesh[0]/l0-(ns->ymesh[1]-ns->ymesh[0])/l0;
 //				Tll=in->Tll;
 				Tel=in->Tll;
 				Thl=in->Tll;
@@ -420,8 +423,8 @@ if (in->interfaceright==TRUE)
 			{
 //				Dexl=in->Dex[i-1];
 //				exl=in->ex[i-1];
-				phil=in->phi[z][x][i-1]/phi0;
-				yl=in->ymesh[i-1]/l0;
+				phil=ns->phi[z][x][i-1]/phi0;
+				yl=ns->ymesh[i-1]/l0;
 //				Tll=in->Tl[z][x][i-1];
 				Tel=in->Te[z][x][i-1];
 				Thl=in->Th[z][x][i-1];
@@ -448,8 +451,8 @@ if (in->interfaceright==TRUE)
 //				kll=in->kl[z][x][i-1];
 			}
 
-			Ecc=(-in->Xi[z][x][i]/phi0-in->phi[z][x][i]/phi0);
-			Evc=(-in->Xi[z][x][i]/phi0-in->phi[z][x][i]/phi0-in->Eg[z][x][i]/phi0);
+			Ecc=(-in->Xi[z][x][i]/phi0-ns->phi[z][x][i]/phi0);
+			Evc=(-in->Xi[z][x][i]/phi0-ns->phi[z][x][i]/phi0-in->Eg[z][x][i]/phi0);
 
 			if (i==(in->ymeshpoints-1))
 			{
@@ -460,7 +463,7 @@ if (in->interfaceright==TRUE)
 
 				phir=(in->Vr[z][x]/phi0+in->Vapplied_r[z][x]/phi0);
 
-				yr=in->ymesh[i]/l0+(in->ymesh[i]-in->ymesh[i-1])/l0;
+				yr=ns->ymesh[i]/l0+(ns->ymesh[i]-ns->ymesh[i-1])/l0;
 //				Tlr=in->Tlr;
 				Ter=in->Tlr;
 				Thr=in->Tlr;
@@ -501,8 +504,8 @@ if (in->interfaceright==TRUE)
 
 //				Dexr=in->Dex[z][x][i+1];
 //				exr=in->ex[z][x][i+1];
-				phir=in->phi[z][x][i+1]/phi0;
-				yr=in->ymesh[i+1]/l0;
+				phir=ns->phi[z][x][i+1]/phi0;
+				yr=ns->ymesh[i+1]/l0;
 //				Tlr=in->Tl[z][x][i+1];
 				Ter=in->Te[z][x][i+1];
 				Thr=in->Th[z][x][i+1];
@@ -535,7 +538,7 @@ if (in->interfaceright==TRUE)
 
 //			exc=in->ex[z][x][i];
 //			Dexc=in->Dex[z][x][i];
-			yc=in->ymesh[i]/l0;
+			yc=ns->ymesh[i]/l0;
 			dyl=yc-yl;
 			dyr=yr-yc;
 			ddh=(dyl+dyr)/2.0;
@@ -543,7 +546,7 @@ if (in->interfaceright==TRUE)
 			gdouble dyrh=dyr/2.0;
 
 //			dh=(dyl+dyr);
-			phic=in->phi[z][x][i]/phi0;
+			phic=ns->phi[z][x][i]/phi0;
 //			Tlc=in->Tl[z][x][i];
 //			Tec=in->Te[z][x][i];
 //			Thc=in->Th[z][x][i];
@@ -1422,6 +1425,7 @@ int thermalrun=0;
 gdouble check[10];
 int cpos=0;
 char temp[PATH_MAX];
+struct newton_save_state *ns=&(in->ns);
 
 gdouble abs_error=0.0;
 	do
@@ -1462,8 +1466,8 @@ gdouble abs_error=0.0;
 			printf_log(sim,"\n");
 		}
 		error=delta_J;
-		in->last_error=error;
-		in->last_ittr=ittr;
+		ns->last_error=error;
+		ns->last_ittr=ittr;
 		ittr++;
 
 		if (get_dump_status(sim,dump_write_converge)==TRUE)

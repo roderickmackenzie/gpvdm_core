@@ -53,6 +53,24 @@ struct solver_cache
 	int enabled;
 };
 
+struct newton_save_state
+{
+	long double *ymesh;
+	long double *xmesh;
+	long double *zmesh;
+
+	int last_ittr;
+	long double last_error;
+
+	long double ***phi;
+	long double ***x;
+	long double ***xp;
+
+	long double ****xt;
+	long double ****xpt;
+
+};
+
 struct device
 {
 	struct epitaxy my_epitaxy;
@@ -84,9 +102,6 @@ struct device
 		gdouble zlen;
 
 		//1D arrays
-		gdouble *ymesh;
-		gdouble *xmesh;
-		gdouble *zmesh;
 
 		gdouble *dymesh;
 		gdouble *dxmesh;
@@ -111,7 +126,6 @@ struct device
 		gdouble **Vr;
 
 		//3D arrays zxy
-		gdouble ***phi;
 		gdouble ***Nad;
 		gdouble ***G;
 		gdouble ***Gn;
@@ -169,9 +183,9 @@ struct device
 		gdouble ***Jp_drift;
 
 
-		gdouble ***x;
+		//gdouble ***x;
 		gdouble ***t;
-		gdouble ***xp;
+		//gdouble ***xp;
 		gdouble ***tp;
 		gdouble ***kf;
 		gdouble ***kd;
@@ -254,7 +268,7 @@ struct device
 			gdouble ****dsrh_n_r3;
 			gdouble ****dsrh_n_r4;
 			gdouble ****Fnt;
-			gdouble ****xt;
+			//gdouble ****xt;
 
 
 			gdouble ****nt_r1;
@@ -274,7 +288,7 @@ struct device
 			gdouble ****dsrh_p_r3;
 			gdouble ****dsrh_p_r4;
 			gdouble ****Fpt;
-			gdouble ****xpt;
+			//gdouble ****xpt;
 
 
 			gdouble ****pt_r1;
@@ -354,7 +368,6 @@ struct device
 
 	int onlypos;
 	int odes;
-	gdouble last_error;
 	gdouble posclamp;
 	int srh_bands;
 
@@ -398,7 +411,6 @@ struct device
 	gdouble t_big_offset;
 
 	gdouble other_layers;
-	int last_ittr;
 
 	int kl_in_newton;
 	int config_kl_in_newton;
@@ -500,6 +512,8 @@ struct device
 	//solver cache
 	struct solver_cache cache;
 	int newton_only_fill_matrix;
+
+	struct newton_save_state ns;
 };
 
 void device_init(struct device *in);

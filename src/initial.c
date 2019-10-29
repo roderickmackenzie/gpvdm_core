@@ -191,6 +191,8 @@ int z;
 int x;
 int y;
 int band;
+struct newton_save_state *ns=&(in->ns);
+
 in->electron_affinity_right=0.0;
 in->electron_affinity_left=0.0;
 
@@ -224,10 +226,10 @@ for (z=0;z<in->zmeshpoints;z++)
 			in->Fn[z][x][y]=0.0;
 			in->Fp[z][x][y]=0.0;
 
-			in->phi[z][x][y]=0.0;
+			ns->phi[z][x][y]=0.0;
 
-			in->x[z][x][y]=0.0;
-			in->xp[z][x][y]=0.0;
+			ns->x[z][x][y]=0.0;
+			ns->xp[z][x][y]=0.0;
 
 			in->Ec[z][x][y]=0.0;
 			in->Ev[z][x][y]=0.0;
@@ -242,12 +244,12 @@ for (z=0;z<in->zmeshpoints;z++)
 			{
 				in->Fnt[z][x][y][band]= 0.0;
 				in->Fpt[z][x][y][band]= 0.0;
-				in->xt[z][x][y][band]=0.0;
+				ns->xt[z][x][y][band]=0.0;
 
 				in->nt[z][x][y][band]=0.0;
 				in->dnt[z][x][y][band]=0.0;
 
-				in->xpt[z][x][y][band]=0.0;
+				ns->xpt[z][x][y][band]=0.0;
 				in->pt[z][x][y][band]=0.0;
 				in->dpt[z][x][y][band]=0.0;
 			}
@@ -294,6 +296,8 @@ top_r=0.0;
 long double left_ref_to_zero=0.0;
 long double right_ref_to_zero=0.0;
 gdouble delta_phi=0.0;
+
+struct newton_save_state *ns=&(in->ns);
 
 if (contacts_get_rcharge_type(sim,in)==ELECTRON)
 {
@@ -354,15 +358,15 @@ if (get_dump_status(sim,dump_print_text)==TRUE)
 	printf_log(sim,">>>>top_l= %Le\n",top_l+Eg);
 	printf_log(sim,">>>>top_r= %Le\n",-top_r);
 	printf_log(sim,"left= %Le right = %Le  %Le %Le\n",in->electron_affinity_left,in->electron_affinity_right,in->electron_affinity_right-in->electron_affinity_left,delta_phi);
-	printf_log(sim,"%Le %Le %Le %Le %Le\n",top_l,top_r,Eg,delta_phi,in->phi[0][0][0]);
+	printf_log(sim,"%Le %Le %Le %Le %Le\n",top_l,top_r,Eg,delta_phi,ns->phi[0][0][0]);
 }
 
 
 
 
-//printf("total %Le\n",(-in->Xi[0][0][0]-in->phi[0][0][0]-Eg)-Ef);
+//printf("total %Le\n",(-in->Xi[0][0][0]-ns->phi[0][0][0]-Eg)-Ef);
 
-printf(">>rod>>%Le\n",Ef-(-in->Xi[0][0][0]-in->phi[0][0][0]));
+printf(">>rod>>%Le\n",Ef-(-in->Xi[0][0][0]-ns->phi[0][0][0]));
 
 gdouble Rp=get_p_den(in,(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
 gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi),in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
@@ -392,32 +396,32 @@ for (z=0;z<in->zmeshpoints;z++)
 	{
 		for (y=0;y<in->ymeshpoints;y++)
 		{
-			phi_ramp=delta_phi*(in->ymesh[y]/in->ymesh[in->ymeshpoints-1]);
+			phi_ramp=delta_phi*(ns->ymesh[y]/ns->ymesh[in->ymeshpoints-1]);
 			//printf("%ld %ld %ld %Le\n",x,y,z,phi_ramp);
 			in->Fi[z][x][y]=Ef;
 
 			in->Fn[z][x][y]=Ef;
 			in->Fp[z][x][y]=Ef;
 
-			in->phi[z][x][y]=phi_ramp;
+			ns->phi[z][x][y]=phi_ramp;
 
-			in->x[z][x][y]=in->phi[z][x][y]+in->Fn[z][x][y];
-			in->xp[z][x][y]= -(in->phi[z][x][y]+in->Fp[z][x][y]);
+			ns->x[z][x][y]=ns->phi[z][x][y]+in->Fn[z][x][y];
+			ns->xp[z][x][y]= -(ns->phi[z][x][y]+in->Fp[z][x][y]);
 
-			in->Ec[z][x][y]= -in->phi[z][x][y]-in->Xi[z][x][y];
+			in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
 			if (in->Ec[z][x][y]<in->Fi[z][x][y])
 			{
-				in->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]);
-				in->Ec[z][x][y]= -in->phi[z][x][y]-in->Xi[z][x][y];
+				ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]);
+				in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
 			}
 
-			in->Ev[z][x][y]= -in->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
+			in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
 			if (in->Ev[z][x][y]>in->Fi[z][x][y])
 			{
-				in->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]+in->Eg[z][x][y]);
-				in->Ev[z][x][y]= -in->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
+				ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]+in->Eg[z][x][y]);
+				in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
 
-				in->Ec[z][x][y]= -in->phi[z][x][y]-in->Xi[z][x][y];
+				in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
 			}
 
 
@@ -432,18 +436,18 @@ for (z=0;z<in->zmeshpoints;z++)
 
 			for (band=0;band<in->srh_bands;band++)
 			{
-				in->Fnt[z][x][y][band]= Ef;//-in->phi[z][x][y]-in->Xi[z][x][y]+dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]);
+				in->Fnt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]+dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]);
 				//printf("d %ld %Le\n",band,dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]));
-				in->Fpt[z][x][y][band]= Ef;//-in->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y]-dos_srh_get_fermi_p(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Th[z][x][y]);
-				in->xt[z][x][y][band]=in->phi[z][x][y]+in->Fnt[z][x][y][band];
+				in->Fpt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y]-dos_srh_get_fermi_p(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Th[z][x][y]);
+				ns->xt[z][x][y][band]=ns->phi[z][x][y]+in->Fnt[z][x][y][band];
 
-				in->nt[z][x][y][band]=get_n_pop_srh(sim,in,in->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
-				in->dnt[z][x][y][band]=get_dn_pop_srh(sim,in,in->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
+				in->nt[z][x][y][band]=get_n_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
+				in->dnt[z][x][y][band]=get_dn_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
 
 
-				in->xpt[z][x][y][band]= -(in->phi[z][x][y]+in->Fpt[z][x][y][band]);
-				in->pt[z][x][y][band]=get_p_pop_srh(sim,in,in->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
-				in->dpt[z][x][y][band]=get_dp_pop_srh(sim,in,in->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
+				ns->xpt[z][x][y][band]= -(ns->phi[z][x][y]+in->Fpt[z][x][y][band]);
+				in->pt[z][x][y][band]=get_p_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
+				in->dpt[z][x][y][band]=get_dp_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
 			}
 
 		}
