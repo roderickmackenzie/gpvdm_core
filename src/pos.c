@@ -167,10 +167,10 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 
 
 	/*out=fopena(get_output_path(sim),"first_guess_np_trap.dat","w");
-	for (i=0;i<in->ymeshpoints;i++)
+	for (i=0;i<dim->ymeshpoints;i++)
 	{
-		fprintf(out,"%Le ",ns->ymesh[i]);
-		for (band=0;band<in->srh_bands;band++)
+		fprintf(out,"%Le ",dim->ymesh[i]);
+		for (band=0;band<dim->srh_bands;band++)
 		{
 			fprintf(out,"%Le %Le ",in->nt[i][band],in->pt[i][band]);
 		}
@@ -185,12 +185,14 @@ long double get_p_error(struct device *in,long double *b)
 {
 gdouble tot=0.0;
 int i;
-for (i=0;i<in->ymeshpoints;i++)
+struct dimensions *dim=&in->dim;
+
+for (i=0;i<dim->ymeshpoints;i++)
 {
 	if ((in->interfaceleft==TRUE)&&(i==0))
 	{
 	}else
-	if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+	if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 	{
 	}else
 	{
@@ -212,11 +214,12 @@ printf_log(sim,"%s\n",_("Solving the initial electrostatic field."));
 
 int i;
 int y;
+struct dimensions *dim=&in->dim;
 
-int N=in->ymeshpoints*3-2;
+int N=dim->ymeshpoints*3-2;
 
 
-int M=in->ymeshpoints;
+int M=dim->ymeshpoints;
 int *Ti =    malloc(N*sizeof(int));
 int *Tj =    malloc(N*sizeof(int));
 gdouble *Tx = malloc(N*sizeof(gdouble));
@@ -273,12 +276,12 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 		if (in->interfaceright==TRUE)
 		{
-			ns->phi[z][x][in->ymeshpoints-1]=in->Vr[z][x];
+			ns->phi[z][x][dim->ymeshpoints-1]=in->Vr[z][x];
 		}
 
 		pos=0;
 
-		for (i=0;i<in->ymeshpoints;i++)
+		for (i=0;i<dim->ymeshpoints;i++)
 		{
 
 
@@ -286,31 +289,31 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 			{
 				phil=in->Vl[z][x];
 				el=in->epsilonr[z][x][0]*epsilon0;
-				yl=ns->ymesh[0]-(ns->ymesh[1]-ns->ymesh[0]);
+				yl=dim->ymesh[0]-(dim->ymesh[1]-dim->ymesh[0]);
 
 
 			}else
 			{
 				el=in->epsilonr[z][x][i-1]*epsilon0;
 				phil=ns->phi[z][x][i-1];
-				yl=ns->ymesh[i-1];
+				yl=dim->ymesh[i-1];
 			}
 
-			if (i==(in->ymeshpoints-1))
+			if (i==(dim->ymeshpoints-1))
 			{
 				phir=in->Vr[z][x];
 				er=in->epsilonr[z][x][i]*epsilon0;
-				yr=ns->ymesh[i]+(ns->ymesh[i]-ns->ymesh[i-1]);
+				yr=dim->ymesh[i]+(dim->ymesh[i]-dim->ymesh[i-1]);
 			}else
 			{
 				er=in->epsilonr[z][x][i+1]*epsilon0;
 				phir=ns->phi[z][x][i+1];
-				yr=ns->ymesh[i+1];
+				yr=dim->ymesh[i+1];
 
 			}
 
 
-			yc=ns->ymesh[i];
+			yc=dim->ymesh[i];
 			dyl=yc-yl;
 			dyr=yr-yc;
 			dyc=(dyl+dyr)/2.0;
@@ -372,14 +375,14 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 			if (in->interfaceright==TRUE)
 			{
 
-				if (i==in->ymeshpoints-2)
+				if (i==dim->ymeshpoints-2)
 				{
 					dphir_d=0.0;
 					phir=in->Vr[z][x];
 
 				}
 
-				if (i==in->ymeshpoints-1)
+				if (i==dim->ymeshpoints-1)
 				{
 					dphil_d=0.0;
 					dphic_d=1e-6;
@@ -395,7 +398,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 			//if (adv==TRUE)
 			//{
-			//	for (band=0;band<in->srh_bands;band++)
+			//	for (band=0;band<dim->srh_bands;band++)
 			//	{
 			//		dphic_d+=(-q*(in->dnt[i][band]-in->dpt[i][band]));
 			//	}
@@ -419,7 +422,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 
 
-			if (i!=(in->ymeshpoints-1))
+			if (i!=(dim->ymeshpoints-1))
 			{
 				Ti[pos]=i;
 				Tj[pos]=i+1;
@@ -432,7 +435,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 			{
 				b[i]= -0.0;
 			}else
-			if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 			{
 				b[i]= -0.0;
 			}else
@@ -440,7 +443,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 				b[i]= -(dphi-Q*(in->n[z][x][i]-in->p[z][x][i]-in->Nad[z][x][i])); //
 				if (adv==TRUE)
 				{
-					for (band=0;band<in->srh_bands;band++)
+					for (band=0;band<dim->srh_bands;band++)
 					{
 						b[i]+= -(-Q*(in->nt[z][x][i][band]-in->pt[z][x][i][band]));
 					}
@@ -455,12 +458,12 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 		solver(sim,M,N,Ti,Tj, Tx,b);
 
 
-		for (i=0;i<in->ymeshpoints;i++)
+		for (i=0;i<dim->ymeshpoints;i++)
 		{
 			if ((in->interfaceleft==TRUE)&&(i==0))
 			{
 			}else
-			if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 			{
 			}else
 			{
@@ -475,7 +478,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 		//getchar();
 
-		for (i=0;i<in->ymeshpoints;i++)
+		for (i=0;i<dim->ymeshpoints;i++)
 		{
 			in->Ec[z][x][i]= -ns->phi[z][x][i]-in->Xi[z][x][i];
 			in->Ev[z][x][i]= -ns->phi[z][x][i]-in->Xi[z][x][i]-in->Eg[z][x][i];
@@ -508,7 +511,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 				}
 
 
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 
 					in->Fnt[z][x][i][band]= -ns->phi[z][x][i]-in->Xi[z][x][i]+dos_srh_get_fermi_n(in,in->n[z][x][i], in->p[z][x][i],band,in->imat[z][x][i],in->Te[z][x][i]);
@@ -590,11 +593,11 @@ pos_dump(sim,in);
 
 
 
-in->odes+=in->ymeshpoints;
+in->odes+=dim->ymeshpoints;
 
 
 
-for (y=0;y<in->ymeshpoints;y++)
+for (y=0;y<dim->ymeshpoints;y++)
 {
 
 	in->nf_save[z][x][y]=in->n[z][x][y];
@@ -614,7 +617,7 @@ free(b);
 
 
 //printf_log(sim,"%s\n",_("Converged"));
-printf_log(sim,"Vl=%Le Vr=%Le phi_mid=%Le\n",in->Vl[0][0],in->Vr[z][x], ns->phi[z][x][in->ymeshpoints/2]);
+printf_log(sim,"Vl=%Le Vr=%Le phi_mid=%Le\n",in->Vl[0][0],in->Vr[z][x], ns->phi[z][x][dim->ymeshpoints/2]);
 
 return 0;
 }

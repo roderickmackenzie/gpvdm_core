@@ -68,10 +68,9 @@ void state_gen_vector(struct simulation *sim,struct device *in);
 long double state_load_vector(struct simulation *sim,struct device *in,char *file_name);
 int state_find_vector(struct simulation *sim,struct device *in,char *out);
 
-void newton_save_state_init(struct device *in,struct newton_save_state *ns);
-void newton_save_state_alloc_mesh(struct device *in,struct newton_save_state *ns);
-void newton_save_state_alloc_traps(struct device *in,struct newton_save_state *ns);
-void newton_save_state_free_mesh(struct device *in,struct newton_save_state *ns);
-void newton_save_state_free_traps(struct device *in,struct newton_save_state *ns);
+void newton_save_state_init(struct newton_save_state *ns);
+void newton_save_state_alloc_mesh(struct newton_save_state *ns,struct dimensions *dim);
+void newton_save_state_alloc_traps(struct newton_save_state *ns,struct dimensions *dim);
+void newton_save_state_free(struct newton_save_state *ns,struct dimensions *dim);
 #endif
 

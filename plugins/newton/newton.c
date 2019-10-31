@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file newton.c
 	@brief Standard newton solver.
@@ -118,16 +118,18 @@ int band=0;
 long double Vapplied=0.0;
 long double clamp_temp=300.0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 gdouble update=0.0;
-	for (i=0;i<in->ymeshpoints;i++)
+
+	for (i=0;i<dim->ymeshpoints;i++)
 	{
 
 		update=(gdouble)in->b[i];
 		if ((in->interfaceleft==TRUE)&&(i==0))
 		{
 		}else
-		if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+		if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 		{
 		}else
 		{
@@ -142,7 +144,7 @@ gdouble update=0.0;
 		}
 
 
-		update=(gdouble)(in->b[in->ymeshpoints*(1)+i]);
+		update=(gdouble)(in->b[dim->ymeshpoints*(1)+i]);
 		if (clamp==TRUE)
 		{
 			ns->x[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -152,7 +154,7 @@ gdouble update=0.0;
 		}
 
 
-		update=(gdouble)(in->b[in->ymeshpoints*(1+1)+i]);
+		update=(gdouble)(in->b[dim->ymeshpoints*(1+1)+i]);
 		if (clamp==TRUE)
 		{
 			ns->xp[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -165,9 +167,9 @@ gdouble update=0.0;
 
 		if (in->ntrapnewton==TRUE)
 		{
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
-				update=(gdouble)(in->b[in->ymeshpoints*(1+1+1+band)+i]);
+				update=(gdouble)(in->b[dim->ymeshpoints*(1+1+1+band)+i]);
 				if (clamp==TRUE)
 				{
 					ns->xt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -181,9 +183,9 @@ gdouble update=0.0;
 
 		if (in->ptrapnewton==TRUE)
 		{
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
-				update=(gdouble)(in->b[in->ymeshpoints*(1+1+1+in->srh_bands+band)+i]);
+				update=(gdouble)(in->b[dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]);
 				if (clamp==TRUE)
 				{
 					ns->xpt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -363,6 +365,7 @@ long double didxil=0.0;
 long double didxipl=0.0;
 
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 	if (in->interfaceleft==TRUE)
 	{
@@ -372,11 +375,11 @@ struct newton_save_state *ns=&(in->ns);
 
 if (in->interfaceright==TRUE)
 {
-	ns->phi[z][x][in->ymeshpoints-1]=in->Vr[z][x]-in->Vapplied_r[z][x];
+	ns->phi[z][x][dim->ymeshpoints-1]=in->Vr[z][x]-in->Vapplied_r[z][x];
 }
 
 		pos=0;
-		for (i=0;i<in->ymeshpoints;i++)
+		for (i=0;i<dim->ymeshpoints;i++)
 		{
 
 			//printf("density=%Le\n",get_dos_ion_density(in,in->imat[z][x][i]));
@@ -387,7 +390,7 @@ if (in->interfaceright==TRUE)
 
 				phil=in->Vapplied_l[z][x];
 
-				yl=ns->ymesh[0]-(ns->ymesh[1]-ns->ymesh[0]);
+				yl=dim->ymesh[0]-(dim->ymesh[1]-dim->ymesh[0]);
 //				Tll=in->Tll;
 				Tel=in->Tll;
 				Thl=in->Tll;
@@ -430,7 +433,7 @@ if (in->interfaceright==TRUE)
 //				Dexl=in->Dex[i-1];
 //				exl=in->ex[z][x][i-1];
 				phil=ns->phi[z][x][i-1];
-				yl=ns->ymesh[i-1];
+				yl=dim->ymesh[i-1];
 //				Tll=in->Tl[z][x][i-1];
 				Tel=in->Te[z][x][i-1];
 				Thl=in->Th[z][x][i-1];
@@ -460,7 +463,7 @@ if (in->interfaceright==TRUE)
 			Ecc=(-in->Xi[z][x][i]-ns->phi[z][x][i]);
 			Evc=(-in->Xi[z][x][i]-ns->phi[z][x][i]-in->Eg[z][x][i]);
 
-			if (i==(in->ymeshpoints-1))
+			if (i==(dim->ymeshpoints-1))
 			{
 
 //				Dexr=in->Dex[i];
@@ -471,7 +474,7 @@ if (in->interfaceright==TRUE)
 
 
 
-				yr=ns->ymesh[i]+(ns->ymesh[i]-ns->ymesh[i-1]);
+				yr=dim->ymesh[i]+(dim->ymesh[i]-dim->ymesh[i-1]);
 //				Tlr=in->Tlr;
 				Ter=in->Tlr;
 				Thr=in->Tlr;
@@ -513,7 +516,7 @@ if (in->interfaceright==TRUE)
 //				Dexr=in->Dex[z][x][i+1];
 //				exr=in->ex[z][x][i+1];
 				phir=ns->phi[z][x][i+1];
-				yr=ns->ymesh[i+1];
+				yr=dim->ymesh[i+1];
 //				Tlr=in->Tl[z][x][i+1];
 				Ter=in->Te[z][x][i+1];
 				Thr=in->Th[z][x][i+1];
@@ -546,7 +549,7 @@ if (in->interfaceright==TRUE)
 
 //			exc=in->ex[z][x][i];
 //			Dexc=in->Dex[z][x][i];
-			yc=ns->ymesh[i];
+			yc=dim->ymesh[i];
 			dyl=yc-yl;
 			dyr=yr-yc;
 			ddh=(dyl+dyr)/2.0;
@@ -614,7 +617,7 @@ if (in->interfaceright==TRUE)
 			nlast=in->nlast[z][x][i];
 			plast=in->plast[z][x][i];
 
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->newton_ntlast[band]=in->ntlast[z][x][i][band];
 				in->newton_ptlast[band]=in->ptlast[z][x][i][band];
@@ -648,7 +651,7 @@ if (in->interfaceright==TRUE)
 	dphidxic=Q*(dnc);
 	dphidxipc= -Q*(dpc);
 
-	if (((in->interfaceleft==TRUE)&&(i==0))||((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1)))
+	if (((in->interfaceleft==TRUE)&&(i==0))||((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)))
 	{
 		dphidxic=0.0;
 		dphidxipc=0.0;
@@ -656,21 +659,21 @@ if (in->interfaceright==TRUE)
 
 	if (in->ntrapnewton==TRUE)
 	{
-		for (band=0;band<in->srh_bands;band++)
+		for (band=0;band<dim->srh_bands;band++)
 		{
 			in->newton_dphidntrap[band]=Q*(in->dnt[z][x][i][band]);
 			if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidntrap[band]=0.0;
-			if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1)) in->newton_dphidntrap[band]=0.0;
+			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)) in->newton_dphidntrap[band]=0.0;
 		}
 	}
 
 	if (in->ptrapnewton==TRUE)
 	{
-		for (band=0;band<in->srh_bands;band++)
+		for (band=0;band<dim->srh_bands;band++)
 		{
 			in->newton_dphidptrap[band]= -Q*(in->dpt[z][x][i][band]);
 			if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidptrap[band]=0.0;
-			if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1)) in->newton_dphidptrap[band]=0.0;
+			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)) in->newton_dphidptrap[band]=0.0;
 
 			//dphidxipc+= -Q*(in->dpt[i]);
 		}
@@ -747,7 +750,7 @@ if (in->interfaceright==TRUE)
 				in->Jpleft[z][x]=Jpl;
 			}
 
-			if (i==in->ymeshpoints-1)
+			if (i==dim->ymeshpoints-1)
 			{
 				in->Jnright[z][x]=Jnr;
 				in->Jpright[z][x]=Jpr;
@@ -785,7 +788,7 @@ if (in->interfaceright==TRUE)
 				if ((in->interfaceleft==TRUE)&&(i==0))
 				{
 				}else
-				if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+				if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 				{
 				}else
 				{
@@ -815,7 +818,7 @@ if (in->interfaceright==TRUE)
 
 			}
 
-			if (i==in->ymeshpoints-1)
+			if (i==dim->ymeshpoints-1)
 			{
 				dJdxic_rightc=dJnrdxir_c;
 				dJpdxipc_rightc=dJprdxipr_c;
@@ -848,7 +851,7 @@ if (in->interfaceright==TRUE)
 
 			if (in->ntrapnewton==TRUE)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 					in->newton_dJdtrapn[band]=0.0;
 					in->newton_dJpdtrapn[band]=0.0;
@@ -880,7 +883,7 @@ if (in->interfaceright==TRUE)
 			if (in->ptrapnewton==TRUE)
 			{
 
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 					//dJdtrapn[band]=0.0;
 					in->newton_dJpdtrapp[band]=0.0;
@@ -933,23 +936,23 @@ if (in->interfaceright==TRUE)
 
 				pos++;
 				//electron
-					in->Ti[pos]=in->ymeshpoints*(1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1)+i-1;
+					in->Ti[pos]=dim->ymeshpoints*(1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1)+i-1;
 					in->Tx[pos]=dJdxil;
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1)+i;
 					in->Tj[pos]=i-1;
 					in->Tx[pos]=dJdphil;
 					pos++;
 
 					//hole
-					in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1)+i-1;
+					in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1)+i-1;
 					in->Tx[pos]=dJpdxipl;
 					pos++;
 
-					in->Ti[pos]=i+in->ymeshpoints*(1+1);
+					in->Ti[pos]=i+dim->ymeshpoints*(1+1);
 					in->Tj[pos]=i-1;
 					in->Tx[pos]=dJpdphil;
 					pos++;
@@ -971,13 +974,13 @@ if (in->interfaceright==TRUE)
 
 
 			in->Ti[pos]=i;
-			in->Tj[pos]=i+in->ymeshpoints*(1);
+			in->Tj[pos]=i+dim->ymeshpoints*(1);
 			in->Tx[pos]=dphidxic;
 			//strcpy(in->Tdebug[pos],"dphidxic");
 			pos++;
 
 			in->Ti[pos]=i;
-			in->Tj[pos]=i+in->ymeshpoints*(1+1);
+			in->Tj[pos]=i+dim->ymeshpoints*(1+1);
 			in->Tx[pos]=dphidxipc;
 			//strcpy(in->Tdebug[pos],"dphidxipc");
 			pos++;
@@ -985,18 +988,18 @@ if (in->interfaceright==TRUE)
 
 			//electron
 
-			in->Ti[pos]=in->ymeshpoints*(1)+i;
-			in->Tj[pos]=in->ymeshpoints*(1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1)+i;
+			in->Tj[pos]=dim->ymeshpoints*(1)+i;
 			in->Tx[pos]=dJdxic;
 			//strcpy(in->Tdebug[pos],"dJdxic");
 			pos++;
 
-			in->Ti[pos]=in->ymeshpoints*(1)+i;
-			in->Tj[pos]=in->ymeshpoints*(1+1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1)+i;
+			in->Tj[pos]=dim->ymeshpoints*(1+1)+i;
 			in->Tx[pos]=dJdxipc;
 			pos++;
 
-			in->Ti[pos]=in->ymeshpoints*(1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1)+i;
 			in->Tj[pos]=i;
 			in->Tx[pos]=dJdphic;
 			pos++;
@@ -1004,17 +1007,17 @@ if (in->interfaceright==TRUE)
 
 
 			//hole
-			in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-			in->Tj[pos]=in->ymeshpoints*(1+1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+			in->Tj[pos]=dim->ymeshpoints*(1+1)+i;
 			in->Tx[pos]=dJpdxipc;
 			pos++;
 
-			in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-			in->Tj[pos]=in->ymeshpoints*(1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+			in->Tj[pos]=dim->ymeshpoints*(1)+i;
 			in->Tx[pos]=dJpdxic;
 			pos++;
 
-			in->Ti[pos]=in->ymeshpoints*(1+1)+i;
+			in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
 			in->Tj[pos]=i;
 			in->Tx[pos]=dJpdphic;
 			pos++;
@@ -1023,35 +1026,35 @@ if (in->interfaceright==TRUE)
 
 			if (in->ntrapnewton==TRUE)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+band)+i;
 					in->Tx[pos]=in->newton_dntrapdntrap[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->ymeshpoints*1+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*1+i;
 					in->Tx[pos]=in->newton_dntrapdn[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1)+i;
 					in->Tx[pos]=in->newton_dntrapdp[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+band)+i;
 					in->Tx[pos]=in->newton_dJdtrapn[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+band)+i;
 					in->Tx[pos]=in->newton_dJpdtrapn[band];
 					pos++;
 
 					in->Ti[pos]=i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+band)+i;
 					in->Tx[pos]=in->newton_dphidntrap[band];
 					pos++;
 
@@ -1063,42 +1066,42 @@ if (in->interfaceright==TRUE)
 
 			if (in->ptrapnewton==TRUE)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
 					in->Tx[pos]=in->newton_dptrapdptrap[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1)+i;
 					in->Tx[pos]=in->newton_dptrapdp[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
-					in->Tj[pos]=in->ymeshpoints*(1)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1)+i;
 					in->Tx[pos]=in->newton_dptrapdn[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
 					in->Tx[pos]=in->newton_dJpdtrapp[band];
 					pos++;
 
-					in->Ti[pos]=in->ymeshpoints*(1)+i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
+					in->Ti[pos]=dim->ymeshpoints*(1)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
 					in->Tx[pos]=in->newton_dJdtrapp[band];
 					pos++;
 
 					in->Ti[pos]=i;
-					in->Tj[pos]=in->ymeshpoints*(1+1+1+in->srh_bands+band)+i;
+					in->Tj[pos]=dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
 					in->Tx[pos]=in->newton_dphidptrap[band];
 					pos++;
 				}
 
 			}
 
-			if (i!=(in->ymeshpoints-1))
+			if (i!=(dim->ymeshpoints-1))
 			{
 
 				if ((in->kl_in_newton==TRUE)&&(in->interfaceleft==TRUE)&&(i==0))
@@ -1116,23 +1119,23 @@ if (in->interfaceright==TRUE)
 
 
 				//electron
-				in->Ti[pos]=in->ymeshpoints*(1)+i;
-				in->Tj[pos]=in->ymeshpoints*(1)+i+1;
+				in->Ti[pos]=dim->ymeshpoints*(1)+i;
+				in->Tj[pos]=dim->ymeshpoints*(1)+i+1;
 				in->Tx[pos]=dJdxir;
 				pos++;
 
-				in->Ti[pos]=i+in->ymeshpoints*(1);
+				in->Ti[pos]=i+dim->ymeshpoints*(1);
 				in->Tj[pos]=i+1;
 				in->Tx[pos]=dJdphir;
 				pos++;
 
 				//hole
-				in->Ti[pos]=in->ymeshpoints*(1+1)+i;
-				in->Tj[pos]=in->ymeshpoints*(1+1)+i+1;
+				in->Ti[pos]=dim->ymeshpoints*(1+1)+i;
+				in->Tj[pos]=dim->ymeshpoints*(1+1)+i+1;
 				in->Tx[pos]=dJpdxipr;
 				pos++;
 
-				in->Ti[pos]=i+in->ymeshpoints*(1+1);
+				in->Ti[pos]=i+dim->ymeshpoints*(1+1);
 				in->Tj[pos]=i+1;
 				in->Tx[pos]=dJpdphir;
 				pos++;
@@ -1148,7 +1151,7 @@ if (in->interfaceright==TRUE)
 			{
 				build= -0.0;
 			}else
-			if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 			{
 				build= -0.0;
 			}else
@@ -1157,7 +1160,7 @@ if (in->interfaceright==TRUE)
 
 				build+= -(-(pc-nc+Nad+Nion)*Q);
 
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 					build+= -(-Q*(in->pt[z][x][i][band]-in->nt[z][x][i][band]));
 				}
@@ -1172,7 +1175,7 @@ if (in->interfaceright==TRUE)
 
 			//getchar();
 			build-=Gn;
-			in->b[in->ymeshpoints*(1)+i]=build;
+			in->b[dim->ymeshpoints*(1)+i]=build;
 
 			//hole
 			build=0.0;
@@ -1181,21 +1184,21 @@ if (in->interfaceright==TRUE)
 			build-= -Gp;
 
 
-			in->b[in->ymeshpoints*(1+1)+i]=build;
+			in->b[dim->ymeshpoints*(1+1)+i]=build;
 
 			if (in->ntrapnewton==TRUE)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->b[in->ymeshpoints*(1+1+1+band)+i]= -(in->newton_dntrap[band]);
+					in->b[dim->ymeshpoints*(1+1+1+band)+i]= -(in->newton_dntrap[band]);
 				}
 			}
 
 			if (in->ptrapnewton==TRUE)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->b[in->ymeshpoints*(1+1+1+in->srh_bands+band)+i]= -(in->newton_dptrap[band]);
+					in->b[dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]= -(in->newton_dptrap[band]);
 				}
 
 			}
@@ -1223,34 +1226,36 @@ gdouble ttn=0.0;
 gdouble ttp=0.0;
 gdouble i0=0.0;
 int band=0;
-for (i=0;i<in->ymeshpoints;i++)
+struct dimensions *dim=&in->dim;
+
+for (i=0;i<dim->ymeshpoints;i++)
 {
 		if ((in->interfaceleft==TRUE)&&(i==0))
 		{
 		}else
-		if ((in->interfaceright==TRUE)&&(i==in->ymeshpoints-1))
+		if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
 		{
 		}else
 		{
 			phi+=gfabs(in->b[i]);
 		}
 
-		n+=gfabs(in->b[in->ymeshpoints*(1)+i]);
-		p+=+gfabs(in->b[in->ymeshpoints*(1+1)+i]);
+		n+=gfabs(in->b[dim->ymeshpoints*(1)+i]);
+		p+=+gfabs(in->b[dim->ymeshpoints*(1+1)+i]);
 
 		if (in->ntrapnewton==TRUE)
 		{
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
-				ttn+=gfabs(in->b[in->ymeshpoints*(1+1+1+band)+i]);
+				ttn+=gfabs(in->b[dim->ymeshpoints*(1+1+1+band)+i]);
 			}
 		}
 
 		if (in->ptrapnewton==TRUE)
 		{
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
-				ttp+=gfabs(in->b[in->ymeshpoints*(1+1+1+in->srh_bands+band)+i]);
+				ttp+=gfabs(in->b[dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]);
 			}
 		}
 
@@ -1274,53 +1279,55 @@ void solver_cal_memory(struct device *in,int *ret_N,int *ret_M)
 int i=0;
 int N=0;
 int M=0;
-N=in->ymeshpoints*3-2;	//Possion main
+struct dimensions *dim=&in->dim;
 
-N+=in->ymeshpoints*3-2;	//Je main
-N+=in->ymeshpoints*3-2;	//Jh main
+N=dim->ymeshpoints*3-2;	//Possion main
 
-N+=in->ymeshpoints*3-2;	//dJe/phi
-N+=in->ymeshpoints*3-2;	//dJh/phi
+N+=dim->ymeshpoints*3-2;	//Je main
+N+=dim->ymeshpoints*3-2;	//Jh main
 
-N+=in->ymeshpoints;		//dphi/dn
-N+=in->ymeshpoints;		//dphi/dh
+N+=dim->ymeshpoints*3-2;	//dJe/phi
+N+=dim->ymeshpoints*3-2;	//dJh/phi
 
-N+=in->ymeshpoints;		//dJndp
-N+=in->ymeshpoints;		//dJpdn
+N+=dim->ymeshpoints;		//dphi/dn
+N+=dim->ymeshpoints;		//dphi/dh
 
-M=in->ymeshpoints;	//Pos
+N+=dim->ymeshpoints;		//dJndp
+N+=dim->ymeshpoints;		//dJpdn
 
-M+=in->ymeshpoints;		//Je
-M+=in->ymeshpoints;		//Jh
+M=dim->ymeshpoints;	//Pos
+
+M+=dim->ymeshpoints;		//Je
+M+=dim->ymeshpoints;		//Jh
 
 if (in->ntrapnewton==TRUE)
 {
-	for (i=0;i<in->srh_bands;i++)
+	for (i=0;i<dim->srh_bands;i++)
 	{
-		N+=in->ymeshpoints;		//dntrapdn
-		N+=in->ymeshpoints;		//dntrapdntrap
-		N+=in->ymeshpoints;		//dntrapdp
-		N+=in->ymeshpoints;		//dJndtrapn
-		N+=in->ymeshpoints;		//dJpdtrapn
-		N+=in->ymeshpoints;		//dphidntrap
+		N+=dim->ymeshpoints;		//dntrapdn
+		N+=dim->ymeshpoints;		//dntrapdntrap
+		N+=dim->ymeshpoints;		//dntrapdp
+		N+=dim->ymeshpoints;		//dJndtrapn
+		N+=dim->ymeshpoints;		//dJpdtrapn
+		N+=dim->ymeshpoints;		//dphidntrap
 
-		M+=in->ymeshpoints;		//nt
+		M+=dim->ymeshpoints;		//nt
 	}
 
 }
 
 if (in->ptrapnewton==TRUE)
 {
-	for (i=0;i<in->srh_bands;i++)
+	for (i=0;i<dim->srh_bands;i++)
 	{
-		N+=in->ymeshpoints;		//dptrapdp
-		N+=in->ymeshpoints;		//dptrapdptrap
-		N+=in->ymeshpoints;		//dptrapdn
-		N+=in->ymeshpoints;		//dJpdtrapp
-		N+=in->ymeshpoints;		//dJdtrapp
-		N+=in->ymeshpoints;		//dphidptrap
+		N+=dim->ymeshpoints;		//dptrapdp
+		N+=dim->ymeshpoints;		//dptrapdptrap
+		N+=dim->ymeshpoints;		//dptrapdn
+		N+=dim->ymeshpoints;		//dJpdtrapp
+		N+=dim->ymeshpoints;		//dJdtrapp
+		N+=dim->ymeshpoints;		//dphidptrap
 
-		M+=in->ymeshpoints;		//pt
+		M+=dim->ymeshpoints;		//pt
 	}
 }
 
@@ -1329,10 +1336,11 @@ if (in->ptrapnewton==TRUE)
 *ret_M=M;
 }
 
-void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int dim)
+void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int dim_)
 {
 int N=0;
 int M=0;
+struct dimensions *dim=&in->dim;
 gdouble *dtemp=NULL;
 int *itemp=NULL;
 
@@ -1404,9 +1412,9 @@ if (alloc==TRUE)
 		in->b=dtemp;
 	}
 
-	if (in->srh_bands>0)
+	if (dim->srh_bands>0)
 	{
-		dtemp=realloc(in->newton_dntrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dntrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1415,7 +1423,7 @@ if (alloc==TRUE)
 			in->newton_dntrap=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dntrapdntrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dntrapdntrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1424,7 +1432,7 @@ if (alloc==TRUE)
 			in->newton_dntrapdntrap=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dntrapdn,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dntrapdn,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1433,7 +1441,7 @@ if (alloc==TRUE)
 			in->newton_dntrapdn=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dntrapdp,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dntrapdp,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1442,7 +1450,7 @@ if (alloc==TRUE)
 			in->newton_dntrapdp=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dJdtrapn,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dJdtrapn,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1451,7 +1459,7 @@ if (alloc==TRUE)
 			in->newton_dJdtrapn=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dJpdtrapn,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dJpdtrapn,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1460,7 +1468,7 @@ if (alloc==TRUE)
 			in->newton_dJpdtrapn=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dphidntrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dphidntrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1470,7 +1478,7 @@ if (alloc==TRUE)
 		}
 
 
-		dtemp=realloc(in->newton_ntlast,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_ntlast,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1481,7 +1489,7 @@ if (alloc==TRUE)
 
 
 
-		dtemp=realloc(in->newton_dptrapdp,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dptrapdp,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1490,7 +1498,7 @@ if (alloc==TRUE)
 			in->newton_dptrapdp=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dptrapdptrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dptrapdptrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1499,7 +1507,7 @@ if (alloc==TRUE)
 			in->newton_dptrapdptrap=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dptrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dptrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1508,7 +1516,7 @@ if (alloc==TRUE)
 			in->newton_dptrap=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dptrapdn,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dptrapdn,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1517,7 +1525,7 @@ if (alloc==TRUE)
 			in->newton_dptrapdn=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dJpdtrapp,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dJpdtrapp,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1527,7 +1535,7 @@ if (alloc==TRUE)
 		}
 
 
-		dtemp=realloc(in->newton_dJdtrapp,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dJdtrapp,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1536,7 +1544,7 @@ if (alloc==TRUE)
 			in->newton_dJdtrapp=dtemp;
 		}
 
-		dtemp=realloc(in->newton_dphidptrap,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_dphidptrap,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1545,7 +1553,7 @@ if (alloc==TRUE)
 			in->newton_dphidptrap=dtemp;
 		}
 
-		dtemp=realloc(in->newton_ptlast,in->srh_bands*sizeof(gdouble));
+		dtemp=realloc(in->newton_ptlast,dim->srh_bands*sizeof(gdouble));
 		if (dtemp==NULL)
 		{
 			ewe(sim,"memory error\n");
@@ -1563,7 +1571,8 @@ if (alloc==TRUE)
 void dllinternal_solver_free_memory(struct device *in)
 {
 //int i=0;
-if (in->srh_bands>0)
+struct dimensions *dim=&in->dim;
+if (dim->srh_bands>0)
 {
 	free(in->newton_dntrap);
 	free(in->newton_dntrapdntrap);

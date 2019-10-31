@@ -41,10 +41,12 @@ static int unused __attribute__((unused));
 
 void dump_device_map(struct simulation *sim,char* out_dir,struct device *in)
 {
-if (in->srh_bands==0) return;
+struct dimensions *dim=&in->dim;
 
-if (in->dump_1d_slice_xpos>=in->xmeshpoints) return;
-if (in->dump_1d_slice_zpos>=in->zmeshpoints) return;
+if (dim->srh_bands==0) return;
+
+if (in->dump_1d_slice_xpos>=dim->xmeshpoints) return;
+if (in->dump_1d_slice_zpos>=dim->zmeshpoints) return;
 
 int x=0;
 int y=0;
@@ -63,7 +65,8 @@ long double E=0;
 int vpos=0;
 struct newton_save_state *ns=&(in->ns);
 
-data2d_init(&map,in->ymeshpoints,Epoints);
+
+data2d_init(&map,dim->ymeshpoints,Epoints);
 data2d_init_y_mesh(&map,start, stop);
 
 
@@ -89,7 +92,7 @@ buf.logscale_y=0;
 buf.logscale_data=TRUE;
 
 buf.x=Epoints;
-buf.y=in->ymeshpoints;
+buf.y=dim->ymeshpoints;
 buf.z=1;
 
 buf.Vexternal=Vexternal;
@@ -98,10 +101,10 @@ buf.time=in->time;
 buffer_add_info(sim,&buf);
 
 data2d_set_value(&map,0.0);
-for (band=0;band<in->srh_bands;band++)
+for (band=0;band<dim->srh_bands;band++)
 {
 
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 		E=in->Ec[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]+dos_get_band_energy_n(in,band,in->imat[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]);
 		vpos=search(map.y_mesh,map.y_len,E);
@@ -113,9 +116,9 @@ for (band=0;band<in->srh_bands;band++)
 for (y=0;y<Epoints;y++)
 {
 
-	for (x=0;x<in->ymeshpoints;x++)
+	for (x=0;x<dim->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],dim->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 
@@ -151,7 +154,7 @@ buf.logscale_y=0;
 buf.logscale_data=TRUE;
 
 buf.x=Epoints;
-buf.y=in->ymeshpoints;
+buf.y=dim->ymeshpoints;
 buf.z=1;
 
 buf.Vexternal=Vexternal;
@@ -160,10 +163,10 @@ buf.time=in->time;
 buffer_add_info(sim,&buf);
 
 data2d_set_value(&map,0.0);
-for (band=0;band<in->srh_bands;band++)
+for (band=0;band<dim->srh_bands;band++)
 {
 
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 		E=in->Ev[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]-dos_get_band_energy_p(in,band,in->imat[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]);
 		vpos=search(map.y_mesh,map.y_len,E);
@@ -175,9 +178,9 @@ for (band=0;band<in->srh_bands;band++)
 for (y=0;y<Epoints;y++)
 {
 
-	for (x=0;x<in->ymeshpoints;x++)
+	for (x=0;x<dim->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],dim->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 
@@ -210,7 +213,7 @@ buf.logscale_y=0;
 buf.logscale_data=TRUE;
 
 buf.x=Epoints;
-buf.y=in->ymeshpoints;
+buf.y=dim->ymeshpoints;
 buf.z=1;
 
 buf.Vexternal=Vexternal;
@@ -220,10 +223,10 @@ buffer_add_info(sim,&buf);
 
 
 data2d_set_value(&map,0.0);
-for (band=0;band<in->srh_bands;band++)
+for (band=0;band<dim->srh_bands;band++)
 {
 
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 		E=in->Ev[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]-dos_get_band_energy_p(in,band,in->imat[in->dump_1d_slice_zpos][in->dump_1d_slice_xpos][y]);
 		vpos=search(map.y_mesh,map.y_len,E);
@@ -239,9 +242,9 @@ for (band=0;band<in->srh_bands;band++)
 for (y=0;y<Epoints;y++)
 {
 
-	for (x=0;x<in->ymeshpoints;x++)
+	for (x=0;x<dim->ymeshpoints;x++)
 	{
-		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],ns->ymesh[x],map.data[x][y]);
+		sprintf(temp,"%Le %Le %Le\n",map.y_mesh[y],dim->ymesh[x],map.data[x][y]);
 		buffer_add_string(&buf,temp);
 	}
 

@@ -28,34 +28,34 @@
 
 #include <device.h>
 
-void three_d_copy_gdouble(struct device *in, gdouble ***dst, gdouble ***src);
-void three_d_mul_gdouble(struct device *in, gdouble ***src, gdouble val);
-void malloc_zx_gdouble(struct device *in, gdouble * (**var));
-void free_zx_gdouble(struct device *in, gdouble **var);
-void free_srh_bands(struct device *in, gdouble **** var);
-void malloc_3d_gdouble(struct device *in, gdouble * (***var));
-void free_3d_gdouble(struct device *in, gdouble ***var);
-void malloc_3d_int(struct device *in, int * (***var));
-void free_3d_int(struct device *in, int ***var);
-void malloc_srh_bands(struct device *in, gdouble * (****var));
-void malloc_zx_int(struct device *in, int * (**var));
-void free_zx_int(struct device *in, int **var);
+void three_d_copy_gdouble(struct dimensions *dim, gdouble ***dst, gdouble ***src);
+void three_d_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val);
+void malloc_zx_gdouble(struct dimensions *dim, gdouble * (**var));
+void free_zx_gdouble(struct dimensions *dim, gdouble **var);
+void free_srh_bands(struct dimensions *dim, gdouble **** var);
+void malloc_3d_gdouble(struct dimensions *dim, gdouble * (***var));
+void free_3d_gdouble(struct dimensions *dim, gdouble ***var);
+void malloc_3d_int(struct dimensions *dim, int * (***var));
+void free_3d_int(struct dimensions *dim, int ***var);
+void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
+void malloc_zx_int(struct dimensions *dim, int * (**var));
+void free_zx_int(struct dimensions *dim, int **var);
 
 //3d opps
 long double three_d_avg(struct device *in, gdouble ***src);
 long double three_d_integrate(struct device *in, long double ***src);
 long double three_d_avg_fabsl(struct device *in, long double ***src);
-void three_d_printf(struct device *in, long double ***src);
-void three_d_set_gdouble(struct device *in, gdouble ***var, gdouble val);
-void three_d_sub_gdouble(struct device *in, gdouble ***var, gdouble ***sub);
-void three_d_add_gdouble(struct device *in, gdouble ***var, gdouble ***add);
+void three_d_printf(struct dimensions *dim, long double ***src);
+void three_d_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val);
+void three_d_sub_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***sub);
+void three_d_add_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***add);
 
 //2d opps
-void mem_set_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in);
-void mem_add_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in);
+void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
+void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
 
 void memory_flip_1d_long_double(long double *var,int len);
 void memory_flip_1d_int(int *var,int len);
 
-void malloc_srh_bands(struct device *in, gdouble * (****var));
+void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
 #endif

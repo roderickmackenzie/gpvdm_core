@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file memory_basic.c
 @brief memory functions for 3D arrays
@@ -36,17 +36,22 @@
 #include <solver_interface.h>
 #include "memory.h"
 
-void free_srh_bands(struct device *in, gdouble **** var)
+void free_srh_bands(struct dimensions *dim, gdouble **** var)
 {
+	if (var==NULL)
+	{
+		return;
+	}
+
 	int x=0;
 	int y=0;
 	int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 					free(var[z][x][y]);
 			}
@@ -58,38 +63,38 @@ void free_srh_bands(struct device *in, gdouble **** var)
 	free(var);
 }
 
-void malloc_3d_gdouble(struct device *in, gdouble * (***var))
+void malloc_3d_gdouble(struct dimensions *dim, gdouble * (***var))
 {
 	int x=0;
 	int y=0;
 	int z=0;
 
 
-	*var = (gdouble ***) malloc(in->zmeshpoints * sizeof(gdouble **));
+	*var = (gdouble ***) malloc(dim->zmeshpoints * sizeof(gdouble **));
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		(*var)[z] = (gdouble **) malloc(in->xmeshpoints * sizeof(gdouble*));
-		for (x = 0; x < in->xmeshpoints; x++)
+		(*var)[z] = (gdouble **) malloc(dim->xmeshpoints * sizeof(gdouble*));
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			(*var)[z][x] = (gdouble *) malloc(in->ymeshpoints * sizeof(gdouble));
-			memset((*var)[z][x], 0, in->ymeshpoints * sizeof(gdouble));
+			(*var)[z][x] = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
+			memset((*var)[z][x], 0, dim->ymeshpoints * sizeof(gdouble));
 		}
 	}
 
 }
 
-void three_d_set_gdouble(struct device *in, gdouble ***var, gdouble val)
+void three_d_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				var[z][x][y]=val;
 			}
@@ -100,17 +105,17 @@ int z=0;
 }
 
 
-void three_d_sub_gdouble(struct device *in, gdouble ***var, gdouble ***sub)
+void three_d_sub_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***sub)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				var[z][x][y]-=sub[z][x][y];
 			}
@@ -120,17 +125,17 @@ int z=0;
 
 }
 
-void three_d_copy_gdouble(struct device *in, gdouble ***dst, gdouble ***src)
+void three_d_copy_gdouble(struct dimensions *dim, gdouble ***dst, gdouble ***src)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				dst[z][x][y]=src[z][x][y];
 			}
@@ -140,17 +145,17 @@ int z=0;
 
 }
 
-void three_d_add_gdouble(struct device *in, gdouble ***var, gdouble ***add)
+void three_d_add_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***add)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				var[z][x][y]+=add[z][x][y];
 			}
@@ -160,17 +165,17 @@ int z=0;
 
 }
 
-void three_d_mul_gdouble(struct device *in, gdouble ***src, gdouble val)
+void three_d_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				src[z][x][y]*=val;
 			}
@@ -187,14 +192,23 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+
+long double dx=0.0;
+long double dy=0.0;
+long double dz=0.0;
+
+struct dimensions *dim=&in->dim;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				sum+=src[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z];
-//				printf("%Le %Le %Le %Le %Le %Le\n",in->dxmesh[x],in->dymesh[y],in->dzmesh[z],in->zlen,in->xlen,in->ylen);
+				if (y==0)
+
+				sum+=src[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
+//				printf("%Le %Le %Le %Le %Le %Le\n",dim->dxmesh[x],dim->dymesh[y],dim->dzmesh[z],in->zlen,in->xlen,in->ylen);
 			}
 
 		}
@@ -205,18 +219,18 @@ ret=sum/(in->zlen*in->xlen*in->ylen);
 return ret;
 }
 
-void three_d_printf(struct device *in, long double ***src)
+void three_d_printf(struct dimensions *dim, long double ***src)
 {
 int x=0;
 int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
 				printf("%Le\n",src[z][x][y]);
 			}
@@ -234,13 +248,14 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+struct dimensions *dim=&in->dim;
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				sum+=fabsl(src[z][x][y])*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z];
+				sum+=fabsl(src[z][x][y])*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
 			}
 
 		}
@@ -256,13 +271,16 @@ int x=0;
 int y=0;
 int z=0;
 long double sum=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+
+struct dimensions *dim=&in->dim;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				sum+=src[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z];
+				sum+=src[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
 			}
 
 		}
@@ -271,7 +289,7 @@ long double sum=0.0;
 return sum;
 }
 
-void free_3d_gdouble(struct device *in, gdouble ***var)
+void free_3d_gdouble(struct dimensions *dim, gdouble ***var)
 {
 	int x=0;
 	int y=0;
@@ -282,10 +300,10 @@ void free_3d_gdouble(struct device *in, gdouble ***var)
 		return;
 	}
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
 
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
 			free(var[z][x]);
 		}
@@ -296,29 +314,29 @@ void free_3d_gdouble(struct device *in, gdouble ***var)
 
 }
 
-void malloc_zx_gdouble(struct device *in, gdouble * (**var))
+void malloc_zx_gdouble(struct dimensions *dim, gdouble * (**var))
 {
 	int z=0;
 
-	*var = (gdouble **) malloc(in->zmeshpoints * sizeof(gdouble *));
+	*var = (gdouble **) malloc(dim->zmeshpoints * sizeof(gdouble *));
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		(*var)[z] = (gdouble *) malloc(in->xmeshpoints * sizeof(gdouble));
-		memset((*var)[z], 0, in->xmeshpoints * sizeof(gdouble));
+		(*var)[z] = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
+		memset((*var)[z], 0, dim->xmeshpoints * sizeof(gdouble));
 	}
 
 }
 
-void mem_set_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in)
+void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in)
 {
 	int z=0;
 	int x=0;
 
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
 			data_out[z][x]=data_in[z][x];
 		}
@@ -326,22 +344,22 @@ void mem_set_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, g
 
 }
 
-void mem_add_zx_gdouble_from_zx_gdouble(struct device *in, gdouble **data_out, gdouble **data_in)
+void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in)
 {
 	int z=0;
 	int x=0;
 
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
 			data_out[z][x]+=data_in[z][x];
 		}
 	}
 
 }
-void free_zx_gdouble(struct device *in, gdouble **var)
+void free_zx_gdouble(struct dimensions *dim, gdouble **var)
 {
 	int z=0;
 
@@ -350,7 +368,7 @@ void free_zx_gdouble(struct device *in, gdouble **var)
 		return;
 	}
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
 		free(var[z]);
 	}
@@ -358,21 +376,21 @@ void free_zx_gdouble(struct device *in, gdouble **var)
 	free(var);
 }
 
-void malloc_zx_int(struct device *in, int * (**var))
+void malloc_zx_int(struct dimensions *dim, int * (**var))
 {
 	int z=0;
 
-	*var = (int **) malloc(in->zmeshpoints * sizeof(int *));
+	*var = (int **) malloc(dim->zmeshpoints * sizeof(int *));
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		(*var)[z] = (int *) malloc(in->xmeshpoints * sizeof(int));
-		memset((*var)[z], 0, in->xmeshpoints * sizeof(int));
+		(*var)[z] = (int *) malloc(dim->xmeshpoints * sizeof(int));
+		memset((*var)[z], 0, dim->xmeshpoints * sizeof(int));
 	}
 
 }
 
-void free_zx_int(struct device *in, int **var)
+void free_zx_int(struct dimensions *dim, int **var)
 {
 	int z=0;
 
@@ -381,7 +399,7 @@ void free_zx_int(struct device *in, int **var)
 		return;
 	}
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
 		free(var[z]);
 	}
@@ -390,28 +408,28 @@ void free_zx_int(struct device *in, int **var)
 }
 
 
-void malloc_3d_int(struct device *in, int * (***var))
+void malloc_3d_int(struct dimensions *dim, int * (***var))
 {
 	int x=0;
 	int y=0;
 	int z=0;
 
 
-	*var = (int ***) malloc(in->zmeshpoints * sizeof(int **));
+	*var = (int ***) malloc(dim->zmeshpoints * sizeof(int **));
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		(*var)[z] = (int **) malloc(in->xmeshpoints * sizeof(int*));
-		for (x = 0; x < in->xmeshpoints; x++)
+		(*var)[z] = (int **) malloc(dim->xmeshpoints * sizeof(int*));
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			(*var)[z][x] = (int *) malloc(in->ymeshpoints * sizeof(int));
-			memset((*var)[z][x], 0, in->ymeshpoints * sizeof(int));
+			(*var)[z][x] = (int *) malloc(dim->ymeshpoints * sizeof(int));
+			memset((*var)[z][x], 0, dim->ymeshpoints * sizeof(int));
 		}
 	}
 
 }
 
-void free_3d_int(struct device *in, int ***var)
+void free_3d_int(struct dimensions *dim, int ***var)
 {
 	int x=0;
 	int y=0;
@@ -422,10 +440,10 @@ void free_3d_int(struct device *in, int ***var)
 		return;
 	}
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
 
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
 			free(var[z][x]);
 		}
@@ -475,27 +493,28 @@ void memory_flip_1d_long_double(long double *var,int len)
 	free(data);
 
 }
-
-void malloc_srh_bands(struct device *in, gdouble * (****var))
+void malloc_srh_bands(struct dimensions *dim, gdouble * (****var))
 {
 	int x=0;
 	int y=0;
 	int z=0;
 
-	*var = (gdouble ****) malloc(in->zmeshpoints * sizeof(gdouble ***));
+	//printf("alloc %d %d %d %d \n",dim->xmeshpoints,dim->ymeshpoints,dim->zmeshpoints,dim->srh_bands);
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	*var = (gdouble ****) malloc(dim->zmeshpoints * sizeof(gdouble ***));
+
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		(*var)[z] = (gdouble ***) malloc(in->xmeshpoints * sizeof(gdouble**));
-		for (x = 0; x < in->xmeshpoints; x++)
+		(*var)[z] = (gdouble ***) malloc(dim->xmeshpoints * sizeof(gdouble**));
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			(*var)[z][x] = (gdouble **) malloc(in->ymeshpoints * sizeof(gdouble*));
-			for (y = 0; y < in->ymeshpoints; y++)
+			(*var)[z][x] = (gdouble **) malloc(dim->ymeshpoints * sizeof(gdouble*));
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				if (in->srh_bands != 0)
+				if (dim->srh_bands != 0)
 				{
-					(*var)[z][x][y] = (gdouble *) malloc(in->srh_bands * sizeof(gdouble));
-					memset((*var)[z][x][y], 0, in->srh_bands * sizeof(gdouble));
+					(*var)[z][x][y] = (gdouble *) malloc(dim->srh_bands * sizeof(gdouble));
+					memset((*var)[z][x][y], 0, dim->srh_bands * sizeof(gdouble));
 				}else
 				{
 					(*var)[z][x][y] = NULL;

@@ -76,6 +76,7 @@ gdouble Jlast;
 gdouble Pdenlast;
 gdouble Vexternal;
 gdouble V=0.0;
+struct dimensions *dim=&in->dim;
 
 light_solve_and_update(sim,in,&(in->mylight),0.0);
 
@@ -148,7 +149,7 @@ inter_init(sim,&lj);
 state_cache_enable(sim,in);
 
 
-if ((in->zmeshpoints>1) || (in->xmeshpoints>1))
+if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
 {
 	contact_set_wanted_active_contact_voltage(sim,in,config.Vstart);
 	//contact_set_active_contact_voltage(sim,in,config.Vstart);

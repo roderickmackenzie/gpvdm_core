@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file contacts.c
 @brief backend to handle complex contacts
@@ -175,7 +175,7 @@ struct newton_save_state *ns=&(in->ns);
 			strcat(text,temp);
 		}
 
-		
+
 	}
 
 	if (changed==TRUE)
@@ -275,10 +275,11 @@ void contacts_force_to_zero(struct simulation *sim,struct device *in)
 {
 int x;
 int z;
+struct dimensions *dim=&in->dim;
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
 		in->Vapplied_l[z][x]=0.0;
 		in->Vapplied_r[z][x]=0.0;
@@ -292,6 +293,8 @@ for (x=0;x<in->xmeshpoints;x++)
 void contacts_dump(struct simulation *sim,struct device *in)
 {
 int i;
+struct dimensions *dim=&in->dim;
+
 	if (get_dump_status(sim,dump_print_text)==TRUE)
 	{
 		for (i=0;i<in->ncontacts;i++)
@@ -307,9 +310,9 @@ int i;
 	int x=0;
 
 
-	for (z = 0; z < in->zmeshpoints; z++)
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
 			printf("%.2Lf %.2Lf\n",in->Vapplied_l[z][x],in->Vapplied_r[z][x]);
 		}
@@ -327,10 +330,11 @@ int found=FALSE;
 
 gdouble value=0.0;
 struct newton_save_state *ns=&in->ns;
+struct dimensions *dim=&in->dim;
 
-if (in->xmeshpoints==1)
+if (dim->xmeshpoints==1)
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
 		in->passivate_r[z][0]=FALSE;
 		in->passivate_l[z][0]=FALSE;
@@ -352,9 +356,9 @@ if (in->xmeshpoints==1)
 }
 
 //Reset contacts
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
 		in->Vapplied_l[z][x]=0.0;
 		in->Vapplied_r[z][x]=0.0;
@@ -369,11 +373,11 @@ for (z=0;z<in->zmeshpoints;z++)
 
 for (i=0;i<in->ncontacts;i++)
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			if ((ns->xmesh[x]>=in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+			if ((dim->xmesh[x]>=in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 			{
 
 				if (in->contacts[i].position==TOP)
@@ -538,10 +542,11 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
+struct dimensions *dim=&in->dim;
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 			if (in->n_contact_l[z][x]>=0)
 			{
@@ -565,10 +570,11 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
+struct dimensions *dim=&in->dim;
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 			if (in->n_contact_r[z][x]>=0)
 			{
@@ -612,25 +618,27 @@ int i;
 int x;
 int z;
 
+struct dimensions *dim=&in->dim;
+
 for (i=0;i<in->ncontacts;i++)
 {
 	in->contacts[i].area=0.0;
 }
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 			i=in->n_contact_r[z][x];
 			if (i!=-1)
 			{
-				in->contacts[i].area+=in->dxmesh[x]*in->dzmesh[z];
+				in->contacts[i].area+=dim->dxmesh[x]*dim->dzmesh[z];
 			}
 
 			i=in->n_contact_l[z][x];
 			if (i!=-1)
 			{
-				in->contacts[i].area+=in->dxmesh[x]*in->dzmesh[z];
+				in->contacts[i].area+=dim->dxmesh[x]*dim->dzmesh[z];
 			}
 
 		}
@@ -643,10 +651,11 @@ void contacts_detailed_dump(struct device *in)
 int i;
 int x;
 int z;
+struct dimensions *dim=&in->dim;
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 			printf("%d %Le %Le\n",in->n_contact_l[z][x],in->Jpleft[z][x],in->Jnleft[z][x]);
 		}
@@ -663,10 +672,12 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
+struct dimensions *dim=&in->dim;
 
-for (x=0;x<in->xmeshpoints;x++)
+
+for (x=0;x<dim->xmeshpoints;x++)
 {
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 			for (i=0;i<in->ncontacts;i++)
 			{
@@ -700,20 +711,21 @@ int y;
 int z;
 return;
 struct newton_save_state *ns=&in->ns;
+struct dimensions *dim=&in->dim;
 
 //passivate under each contact
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 
 			for (i=0;i<in->ncontacts;i++)
 			{
 				if (in->contacts[i].position==TOP)
 				{
-					if ((in->ylen-ns->ymesh[y]<=in->contacts[i].depth)&&(ns->xmesh[x]>in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					if ((in->ylen-dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;
@@ -722,7 +734,7 @@ for (x=0;x<in->xmeshpoints;x++)
 
 				if (in->contacts[i].position==BOTTOM)
 				{
-					if ((ns->ymesh[y]<=in->contacts[i].depth)&&(ns->xmesh[x]>in->contacts[i].start)&&(ns->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					if ((dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;
@@ -733,15 +745,15 @@ for (x=0;x<in->xmeshpoints;x++)
 	}
 }
 
-for (x=0;x<in->xmeshpoints;x++)
+for (x=0;x<dim->xmeshpoints;x++)
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
 		i=in->n_contact_r[z][x];
 		if (i==-1)
 		{
-			in->mun[z][x][in->ymeshpoints-1]=1e-15;
-			in->mup[z][x][in->ymeshpoints-1]=1e-15;
+			in->mun[z][x][dim->ymeshpoints-1]=1e-15;
+			in->mup[z][x][dim->ymeshpoints-1]=1e-15;
 		}
 
 		i=in->n_contact_l[z][x];

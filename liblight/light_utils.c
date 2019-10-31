@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file light_utils.c
 	@brief Miscellaneous functions for the light model.
@@ -311,7 +311,7 @@ void light_solve_all(struct simulation *sim,struct device *cell,struct light *in
 			memset(in->Epz[i], 0.0, in->points*sizeof(gdouble));
 		}
 	}
-	
+
 if (slices_solved==0)
 {
 	printf_log(sim,_("It was dark I did not solve any slices\n"));
@@ -424,17 +424,19 @@ int y=0;
 gdouble Gn=0.0;
 gdouble Gp=0.0;
 long double pos=0;
-struct newton_save_state *ns=&cell->ns;
+struct dimensions *dim=&cell->dim;
 
-	for (y=0;y<cell->ymeshpoints;y++)
+//struct newton_save_state *ns=&cell->ns;
+
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
-		pos=in->device_start+ns->ymesh[y];
+		pos=in->device_start+dim->ymesh[y];
 
 		Gn=inter_get_raw(in->x,in->Gn,in->points,pos)*in->Dphotoneff;
 		Gp=inter_get_raw(in->x,in->Gp,in->points,pos)*in->Dphotoneff;
-		for (z=0;z<cell->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
-			for (x=0;x<cell->xmeshpoints;x++)
+			for (x=0;x<dim->xmeshpoints;x++)
 			{
 				cell->Gn[z][x][y]=Gn*in->electron_eff;
 				cell->Gp[z][x][y]=Gp*in->hole_eff;
@@ -442,7 +444,7 @@ struct newton_save_state *ns=&cell->ns;
 			}
 		}
 	}
-	
+
 
 }
 

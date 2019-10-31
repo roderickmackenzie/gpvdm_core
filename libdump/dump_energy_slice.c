@@ -40,8 +40,9 @@ int band=0;
 int x=in->dump_energy_slice_xpos;
 int y=in->dump_energy_slice_ypos;
 int z=in->dump_energy_slice_zpos;
+struct dimensions *dim=&in->dim;
 
-if ((y>=in->ymeshpoints)||(x>=in->xmeshpoints)||(z>=in->zmeshpoints))
+if ((y>=dim->ymeshpoints)||(x>=dim->xmeshpoints)||(z>=dim->zmeshpoints))
 {
 	return;
 }
@@ -77,7 +78,7 @@ struct istruct dump_pt;
 inter_init(sim,&dump_pt);
 
 int mat=in->imat[z][x][y];
-for (band=0;band<in->srh_bands;band++)
+for (band=0;band<dim->srh_bands;band++)
 {
 	inter_append(&dump1,get_dos_E_n(in,band,mat),in->n[z][x][y]*in->srh_n_r1[z][x][y][band]-in->srh_n_r2[z][x][y][band]);
 	inter_append(&dump2,get_dos_E_p(in,band,mat),in->p[z][x][y]*in->srh_p_r1[z][x][y][band]-in->srh_p_r2[z][x][y][band]);

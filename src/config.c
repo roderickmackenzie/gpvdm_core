@@ -78,8 +78,12 @@ join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
 
 epitaxy_load(sim,&(in->my_epitaxy),device_file_path);
 
-mesh_load(sim,in);
+mesh_obj_load(sim,&(in->mesh_data));
+
+
 device_get_memory(sim,in);
+
+
 mesh_build(sim,in);
 
 ///////////////////////////////
@@ -88,7 +92,9 @@ in->ylen=0.0;
 
 in->ylen=epitaxy_get_electrical_length(&(in->my_epitaxy));
 
-mesh_check_y(sim,in);
+
+mesh_check_y(sim,&(in->mesh_data.meshdata_y),in);
+
 
 inp_init(sim,&inp);
 inp_load_from_path(sim,&inp,get_input_path(sim),"device.inp");
@@ -140,7 +146,7 @@ inp_free(sim,&inp);
 
 inp_init(sim,&inp);
 inp_load_from_path(sim,&inp,get_input_path(sim),"math.inp");
-inp_check(sim,&inp,1.49);
+inp_check(sim,&inp,1.50);
 inp_search_int(sim,&inp,&(in->max_electrical_itt0),"#maxelectricalitt_first");
 inp_search_gdouble(sim,&inp,&(in->electrical_clamp0),"#electricalclamp_first");
 inp_search_gdouble(sim,&inp,&(in->electrical_error0),"#math_electrical_error_first");
@@ -163,6 +169,9 @@ inp_search_string(sim,&inp,in->newton_name,"#newton_name");
 inp_search_gdouble(sim,&inp,&(sim->T0),"#math_t0");
 inp_search_gdouble(sim,&inp,&(sim->D0),"#math_d0");
 inp_search_gdouble(sim,&inp,&(sim->n0),"#math_n0");
+
+inp_search_string(sim,&inp,temp,"#math_dynamic_mesh");
+in->dynamic_mesh=english_to_bin(sim,temp);
 
 inp_free(sim,&inp);
 

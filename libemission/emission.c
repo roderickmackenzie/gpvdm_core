@@ -49,13 +49,15 @@ long double tot=0.0;
 long double E=0.0;
 long double R=0.0;
 long double eff=0.0;
-	for (y=0;y<in->ymeshpoints;y++)
+struct dimensions *dim=&in->dim;
+
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 			layer=in->imat_epitaxy[0][0][y];
 			if (in->my_epitaxy.layer[layer].pl_enabled==TRUE)
 			{
 				E=hp*cl/in->my_epitaxy.layer[layer].peak_wavelength;
-				R=in->dymesh[y]*(in->Rn[0][0][y]+in->Rp[0][0][y])/2.0;
+				R=dim->dymesh[y]*(in->Rn[0][0][y]+in->Rp[0][0][y])/2.0;
 				eff=in->my_epitaxy.layer[layer].avg_photon_extract_eff;
 				tot+=R*E*eff;
 				//printf("%d %Le\n",layer,tot);

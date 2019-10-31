@@ -44,6 +44,7 @@ void init_dump(struct simulation *sim,struct device *in)
 struct dat_file buf;
 char out_dir[400];
 char name[400];
+struct dimensions *dim=&in->dim;
 
 if (get_dump_status(sim,dump_first_guess)==TRUE)
 {
@@ -75,9 +76,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
-	buf.z=in->zmeshpoints;
+	buf.x=dim->xmeshpoints;
+	buf.y=dim->ymeshpoints;
+	buf.z=dim->zmeshpoints;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -99,9 +100,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
-	buf.z=in->zmeshpoints;
+	buf.x=dim->xmeshpoints;
+	buf.y=dim->ymeshpoints;
+	buf.z=dim->zmeshpoints;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -123,9 +124,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
-	buf.z=in->zmeshpoints;
+	buf.x=dim->xmeshpoints;
+	buf.y=dim->ymeshpoints;
+	buf.z=dim->zmeshpoints;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -147,9 +148,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
-	buf.z=in->zmeshpoints;
+	buf.x=dim->xmeshpoints;
+	buf.y=dim->ymeshpoints;
+	buf.z=dim->zmeshpoints;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -171,9 +172,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->xmeshpoints;
-	buf.y=in->ymeshpoints;
-	buf.z=in->zmeshpoints;
+	buf.x=dim->xmeshpoints;
+	buf.y=dim->ymeshpoints;
+	buf.z=dim->zmeshpoints;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -192,13 +193,14 @@ int x;
 int y;
 int band;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 in->electron_affinity_right=0.0;
 in->electron_affinity_left=0.0;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
 		in->Fi0_top[z][x]=0.0;
 		in->Vl[z][x]=0.0;
@@ -215,11 +217,11 @@ for (z=0;z<in->zmeshpoints;z++)
 
 
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->Fi[z][x][y]=0.0;
 
@@ -240,7 +242,7 @@ for (z=0;z<in->zmeshpoints;z++)
 			in->mun[z][x][y]=0.0;
 			in->mup[z][x][y]=0.0;
 
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->Fnt[z][x][y][band]= 0.0;
 				in->Fpt[z][x][y][band]= 0.0;
@@ -298,17 +300,18 @@ long double right_ref_to_zero=0.0;
 gdouble delta_phi=0.0;
 
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 if (contacts_get_rcharge_type(sim,in)==ELECTRON)
 {
-	top_r=get_top_from_n(in,charge_right,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
-	in->electron_affinity_right= -in->Xi[0][0][in->ymeshpoints-1]+top_r;
-	right_ref_to_zero=top_r-in->Xi[0][0][in->ymeshpoints-1];
+	top_r=get_top_from_n(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
+	in->electron_affinity_right= -in->Xi[0][0][dim->ymeshpoints-1]+top_r;
+	right_ref_to_zero=top_r-in->Xi[0][0][dim->ymeshpoints-1];
 }else
 {
-	top_r= get_top_from_p(in,charge_right,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
-	in->electron_affinity_right= -in->Xi[0][0][in->ymeshpoints-1]-in->Eg[0][0][in->ymeshpoints-1]-get_top_from_p(in,charge_right,in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
-	right_ref_to_zero=-(in->Eg[0][0][in->ymeshpoints-1]+top_r)-in->Xi[0][0][in->ymeshpoints-1];
+	top_r= get_top_from_p(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
+	in->electron_affinity_right= -in->Xi[0][0][dim->ymeshpoints-1]-in->Eg[0][0][dim->ymeshpoints-1]-get_top_from_p(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
+	right_ref_to_zero=-(in->Eg[0][0][dim->ymeshpoints-1]+top_r)-in->Xi[0][0][dim->ymeshpoints-1];
 }
 
 //in->electron_affinity_left= -in->Xi[0][0][0]-in->Eg[0][0][0]-get_top_from_p(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
@@ -316,9 +319,9 @@ if (contacts_get_rcharge_type(sim,in)==ELECTRON)
 in->electron_affinity_left=0.0;
 int c=0;
 int type=0;
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
 		c=in->n_contact_l[z][x];
 
@@ -368,12 +371,12 @@ if (get_dump_status(sim,dump_print_text)==TRUE)
 
 printf(">>rod>>%Le\n",Ef-(-in->Xi[0][0][0]-ns->phi[0][0][0]));
 
-gdouble Rp=get_p_den(in,(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
-gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][in->ymeshpoints-1]-delta_phi),in->Te[0][0][in->ymeshpoints-1],in->imat[0][0][in->ymeshpoints-1]);
+gdouble Rp=get_p_den(in,(-in->Xi[0][0][dim->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
+gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][dim->ymeshpoints-1]-delta_phi),in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
 		in->l_electrons[z][x]=get_n_den(in,Ef-(-in->Xi[z][x][0]-in->Vl[z][x]),in->Te[z][x][0],in->imat[z][x][0]);
 		in->l_holes[z][x]=get_p_den(in,(-in->Xi[z][x][0]-in->Vl[z][x]-in->Eg[z][x][0])-Ef,in->Th[z][x][0],in->imat[z][x][0]);;
@@ -390,13 +393,13 @@ printf_log(sim,"Rp = %Le\n",Rp);
 printf_log(sim,"Rn = %Le\n",Rn);
 
 int band;
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
-			phi_ramp=delta_phi*(ns->ymesh[y]/ns->ymesh[in->ymeshpoints-1]);
+			phi_ramp=delta_phi*(dim->ymesh[y]/dim->ymesh[dim->ymeshpoints-1]);
 			//printf("%ld %ld %ld %Le\n",x,y,z,phi_ramp);
 			in->Fi[z][x][y]=Ef;
 
@@ -434,7 +437,7 @@ for (z=0;z<in->zmeshpoints;z++)
 			in->mun[z][x][y]=get_n_mu(in,in->imat[z][x][y]);
 			in->mup[z][x][y]=get_p_mu(in,in->imat[z][x][y]);
 
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->Fnt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]+dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]);
 				//printf("d %ld %Le\n",band,dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]));

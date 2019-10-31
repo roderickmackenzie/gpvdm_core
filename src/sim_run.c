@@ -72,6 +72,7 @@ dump_load_config(sim,&cell);
 char temp[PATH_MAX];
 
 cell.kl_in_newton=FALSE;
+struct dimensions *dim=&(cell.dim);
 
 //if (strcmp(outputpath,"")!=0) strcpy(get_output_path(sim),outputpath);
 
@@ -180,8 +181,8 @@ if (enable_electrical==TRUE)
 		load_dos(sim,&cell,tempn,tempp,i);
 	}
 
-
 	device_alloc_traps(&cell);
+
 
 	if (get_dump_status(sim,dump_write_converge)==TRUE)
 	{
@@ -200,14 +201,14 @@ if (enable_electrical==TRUE)
 	long double value=0.0;
 
 
-	for (z=0;z<cell.zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<cell.xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<cell.ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 
-				depth=cell.ns.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
+				depth=cell.dim.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
 				percent=depth/cell.my_epitaxy.layer[cell.imat_epitaxy[z][x][y]].width;
 				cell.Nad[z][x][y]=get_dos_doping_start(&cell,cell.imat[z][x][y])+(get_dos_doping_stop(&cell,cell.imat[z][x][y])-get_dos_doping_start(&cell,cell.imat[z][x][y]))*percent;
 			}
@@ -220,11 +221,11 @@ if (enable_electrical==TRUE)
 
 
 
-	for (z=0;z<cell.zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<cell.xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<cell.ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				cell.ns.phi[z][x][y]=0.0;
 				cell.R[z][x][y]=0.0;
@@ -248,8 +249,9 @@ if (enable_electrical==TRUE)
 	gdouble old_Psun=0.0;
 	old_Psun=light_get_sun(&cell.mylight);
 	light_init(&cell.mylight);
-	light_set_dx(&cell.mylight,cell.ns.ymesh[1]-cell.ns.ymesh[0]);
+	light_set_dx(&cell.mylight,cell.dim.ymesh[1]-cell.dim.ymesh[0]);
 	light_load_config(sim,&cell.mylight,&cell.my_epitaxy);
+
 
 	//printf("%d %d\n",get_dump_status(sim,dump_optics_verbose), get_dump_status(sim,dump_optics_summary));
 	//getchar();
@@ -276,9 +278,9 @@ if (enable_electrical==TRUE)
 
 	if (cell.math_enable_pos_solver==TRUE)
 	{
-		for (z=0;z<cell.zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
-			for (x=0;x<cell.xmeshpoints;x++)
+			for (x=0;x<dim->xmeshpoints;x++)
 			{
 				solve_pos(sim,&cell,z,x);
 			}
@@ -307,7 +309,7 @@ if (enable_electrical==TRUE)
 
 	find_n0(sim,&cell);
 
-	cell.map_start=cell.Ev[0][0][cell.ymeshpoints-1];
+	cell.map_start=cell.Ev[0][0][dim->ymeshpoints-1];
 	cell.map_stop=cell.Ec[0][0][0]+1.0;
 
 	//set_solver_dump_every_matrix(0);
@@ -321,8 +323,7 @@ if (enable_electrical==TRUE)
 		cache_free(sim);
 		epitaxy_free(&cell.my_epitaxy);
 		device_free(sim,&cell);
-		device_free_traps(&cell);
-		mesh_free(sim,&cell);
+		mesh_obj_free(sim,&(cell.mesh_data));
 		color_cie_load(sim);
 		return 0;
 	}
@@ -359,8 +360,7 @@ if (enable_electrical==TRUE)
 {
 
 	device_free(sim,&cell);
-	device_free_traps(&cell);
-	mesh_free(sim,&cell);
+	mesh_obj_free(sim,&(cell.mesh_data));
 	color_cie_load(sim);
 
 	plot_close(sim);

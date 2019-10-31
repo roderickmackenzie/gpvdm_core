@@ -49,15 +49,16 @@ gdouble pavg=0.0;
 gdouble nsum=0.0;
 gdouble psum=0.0;
 struct newton_save_state *ns=&in->ns;
+struct dimensions *dim=&in->dim;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (z=0;z<in->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
-			navg+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y])*ns->ymesh[y];
-			pavg+=(in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y])*ns->ymesh[y];
+			navg+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y])*dim->ymesh[y];
+			pavg+=(in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y])*dim->ymesh[y];
 			nsum+=(in->n[z][x][y]+in->nt_all[z][x][y]-in->n_orig[z][x][y]);
 			psum+=in->p[z][x][y]+in->pt_all[z][x][y]-in->p_orig[z][x][y];
 		}
@@ -99,19 +100,21 @@ int y=0;
 int z=0;
 
 int band=0;
+struct dimensions *dim=&in->dim;
+
 if (in->go_time==TRUE)
 {
 
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				n=0.0;
 				p=0.0;
 
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 					n+=in->ntlast[z][x][y][band];
 					p+=in->ptlast[z][x][y][band];
@@ -305,16 +308,17 @@ int z=0;
 gdouble Rtot=0.0;
 gdouble add=0.0;
 struct newton_save_state *ns=&in->ns;
+struct dimensions *dim=&in->dim;
 
-gdouble dx=ns->ymesh[1]-ns->ymesh[0];
+gdouble dx=dim->ymesh[1]-dim->ymesh[0];
 
 
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 
 			add=(in->Rn[z][x][y]-in->Gn[z][x][y]-in->Rp[z][x][y]-in->Gn[z][x][y])*dx/2.0;
@@ -323,7 +327,7 @@ for (z=0;z<in->zmeshpoints;z++)
 				add/=2.0;
 			}
 
-			if ((in->interfaceright==TRUE)&&(y==in->ymeshpoints-1))
+			if ((in->interfaceright==TRUE)&&(y==dim->ymeshpoints-1))
 			{
 				add/=2.0;
 			}
@@ -354,38 +358,40 @@ gdouble Javg=0.0;
 gdouble Jstd_dev=0.0;
 gdouble Jtot=0.0;
 
-for (z=0;z<in->zmeshpoints;z++)
+struct dimensions *dim=&in->dim;
+
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			Javg+=in->Jn[z][x][y]+in->Jp[z][x][y];
 		}
 	}
 }
 
-Javg/=(gdouble)in->ymeshpoints;
+Javg/=(gdouble)dim->ymeshpoints;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			Jstd_dev+=pow(((in->Jn[z][x][y]+in->Jp[z][x][y])-Javg),2.0);
 		}
 	}
 }
 
-Jstd_dev/=(gdouble)in->ymeshpoints;
+Jstd_dev/=(gdouble)dim->ymeshpoints;
 Jstd_dev=sqrt(Jstd_dev);
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			J=in->Jn[z][x][y]+in->Jp[z][x][y];
 			if (fabs(J-Javg)<Jstd_dev*0.05)
@@ -397,9 +403,9 @@ for (z=0;z<in->zmeshpoints;z++)
 		}
 	}
 }
-Jtot/=(gdouble)in->xmeshpoints;
-Jtot/=(gdouble)in->ymeshpoints;
-Jtot/=(gdouble)in->zmeshpoints;
+Jtot/=(gdouble)dim->xmeshpoints;
+Jtot/=(gdouble)dim->ymeshpoints;
+Jtot/=(gdouble)dim->zmeshpoints;
 
 
 return Javg;
@@ -456,25 +462,26 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&in->ns;
+struct dimensions *dim=&in->dim;
 
 gdouble locat_n_tot=0.0;
 gdouble locat_p_tot=0.0;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		n_count+=(in->Jn[z][x][0]+in->Jn[z][x][in->ymeshpoints-1])*in->dt/Q;
-		p_count+=(in->Jp[z][x][0]+in->Jp[z][x][in->ymeshpoints-1])*in->dt/Q;
+		n_count+=(in->Jn[z][x][0]+in->Jn[z][x][dim->ymeshpoints-1])*in->dt/Q;
+		p_count+=(in->Jp[z][x][0]+in->Jp[z][x][dim->ymeshpoints-1])*in->dt/Q;
 	}
 }
 
-gdouble dx=ns->ymesh[1]-ns->ymesh[0];
-for (z=0;z<in->zmeshpoints;z++)
+gdouble dx=dim->ymesh[1]-dim->ymesh[0];
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			locat_n_tot+=in->Rfree[z][x][y]*dx;
 			locat_p_tot+=in->Rfree[z][x][y]*dx;
@@ -567,13 +574,15 @@ int y=0;
 int z=0;
 
 gdouble tot=0.0;
-for (z=0;z<in->zmeshpoints;z++)
+struct dimensions *dim=&in->dim;
+
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
-			tot+=in->Gn[z][x][y]*in->dymesh[y];
+			tot+=in->Gn[z][x][y]*dim->dymesh[y];
 		}
 	}
 }
@@ -608,11 +617,14 @@ int z=0;
 
 gdouble tot=0.0;
 gdouble n=0.0;
-for (z=0;z<in->zmeshpoints;z++)
+struct dimensions *dim=&in->dim;
+
+
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			tot+=in->Rfree[z][x][y];
 			n+=in->n[z][x][y]*in->p[z][x][y];
@@ -647,13 +659,15 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+struct dimensions *dim=&in->dim;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				sum+=in->mun[z][x][y]*in->n[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z]/(in->nt_all[z][x][y]+in->n[z][x][y]);
+				sum+=in->mun[z][x][y]*in->n[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z]/(in->nt_all[z][x][y]+in->n[z][x][y]);
 			}
 
 		}
@@ -674,13 +688,16 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < in->zmeshpoints; z++)
+
+struct dimensions *dim=&in->dim;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
 	{
-		for (x = 0; x < in->xmeshpoints; x++)
+		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			for (y = 0; y < in->ymeshpoints; y++)
+			for (y = 0; y < dim->ymeshpoints; y++)
 			{
-				sum+=in->mup[z][x][y]*in->p[z][x][y]*in->dxmesh[x]*in->dymesh[y]*in->dzmesh[z]/(in->pt_all[z][x][y]+in->p[z][x][y]);
+				sum+=in->mup[z][x][y]*in->p[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z]/(in->pt_all[z][x][y]+in->p[z][x][y]);
 			}
 
 		}
@@ -779,12 +796,13 @@ void set_orig_charge_den(struct device *in)
 int x=0;
 int y=0;
 int z=0;
+struct dimensions *dim=&in->dim;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->n_orig[z][x][y]=in->n[z][x][y]+in->nt_all[z][x][y];
 			in->p_orig[z][x][y]=in->p[z][x][y]+in->pt_all[z][x][y];
@@ -835,20 +853,22 @@ int y=0;
 int z=0;
 
 int band;
-struct newton_save_state *ns=&(in->ns);
 
-for (z=0;z<in->zmeshpoints;z++)
+struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
+
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->nf_save[z][x][y]=in->n[z][x][y];
 			in->pf_save[z][x][y]=in->p[z][x][y];
 			in->nt_save[z][x][y]=in->nt_all[z][x][y];
 			in->pt_save[z][x][y]=in->pt_all[z][x][y];
 			in->phi_save[z][x][y]=ns->phi[z][x][y];
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->ntb_save[z][x][y][band]=in->nt[z][x][y][band];
 				in->ptb_save[z][x][y][band]=in->pt[z][x][y][band];
@@ -864,14 +884,18 @@ for (z=0;z<in->zmeshpoints;z++)
 */
 void reset_npequlib(struct device *in)
 {
+
 	int x=0;
 	int y=0;
 	int z=0;
-	for (z=0;z<in->zmeshpoints;z++)
+
+	struct dimensions *dim=&in->dim;
+
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				in->nfequlib[z][x][y]=in->n[z][x][y];
 				in->pfequlib[z][x][y]=in->p[z][x][y];
@@ -1037,7 +1061,8 @@ return ret;
 gdouble get_avg_field(struct device *in)
 {
 	struct newton_save_state *ns=&(in->ns);
-	return (ns->phi[0][0][in->ymeshpoints-1]-ns->phi[0][0][0]);
+	struct dimensions *dim=&in->dim;
+	return (ns->phi[0][0][dim->ymeshpoints-1]-ns->phi[0][0][0]);
 }
 
 /**
@@ -1064,38 +1089,40 @@ int y=0;
 int z=0;
 struct newton_save_state *ns=&in->ns;
 
-for (z=0;z<in->zmeshpoints;z++)
+struct dimensions *dim=&in->dim;
+
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			if (y==0)
 			{
 				nl=in->n[z][x][0];
 				pl=in->p[z][x][0];
 				Ecl=in->Ec[z][x][0];
-				xl=ns->ymesh[0];
+				xl=dim->ymesh[0];
 			}else
 			{
 				nl=in->n[z][x][y-1];
 				pl=in->p[z][x][y-1];
 				Ecl=in->Ec[z][x][y-1];
-				xl=ns->ymesh[y-1];
+				xl=dim->ymesh[y-1];
 			}
 
-			if (y==in->ymeshpoints-1)
+			if (y==dim->ymeshpoints-1)
 			{
-				nr=in->n[z][x][in->ymeshpoints-1];
-				pr=in->p[z][x][in->ymeshpoints-1];
-				Ecr=in->Ec[z][x][in->ymeshpoints-1];
-				xr=ns->ymesh[in->ymeshpoints-1];
+				nr=in->n[z][x][dim->ymeshpoints-1];
+				pr=in->p[z][x][dim->ymeshpoints-1];
+				Ecr=in->Ec[z][x][dim->ymeshpoints-1];
+				xr=dim->ymesh[dim->ymeshpoints-1];
 			}else
 			{
 				nr=in->n[z][x][y+1];
 				pr=in->p[z][x][y+1];
 				Ecr=in->Ec[z][x][y+1];
-				xr=ns->ymesh[y+1];
+				xr=dim->ymesh[y+1];
 			}
 			dn=(nr-nl);
 			dp=(pr-pl);
@@ -1130,6 +1157,7 @@ return J;
 gdouble get_Jn_drift(struct device *in)
 {
 long double J=0.0;
+
 
 J=three_d_avg_fabsl(in, in->Jn_drift);
 

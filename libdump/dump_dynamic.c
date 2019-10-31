@@ -49,6 +49,7 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -115,12 +116,12 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_init(sim,&(store->band_bend));
 
-	malloc_3d_gdouble(in,&(store->band_snapshot));
-	for (z=0;z<in->zmeshpoints;z++)
+	malloc_3d_gdouble(dim,&(store->band_snapshot));
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				store->band_snapshot[z][x][y]=ns->phi[z][x][y];
 			}
@@ -1080,6 +1081,7 @@ int y=0;
 int z=0;
 gdouble Vapplied=0.0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -1099,9 +1101,9 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	inter_append(&(store->dynamic_jp_drift),x_value,get_Jp_drift(in));
 	inter_append(&(store->dynamic_jp_diffusion),x_value,get_Jp_diffusion(in));
 
-	inter_append(&(store->jnout_mid),x_value,in->Jn[in->zmeshpoints/2][in->xmeshpoints/2][in->ymeshpoints/2]);
+	inter_append(&(store->jnout_mid),x_value,in->Jn[dim->zmeshpoints/2][dim->xmeshpoints/2][dim->ymeshpoints/2]);
 
-	inter_append(&(store->jpout_mid),x_value,in->Jp[in->zmeshpoints/2][in->xmeshpoints/2][in->ymeshpoints/2]);
+	inter_append(&(store->jpout_mid),x_value,in->Jp[dim->zmeshpoints/2][dim->xmeshpoints/2][dim->ymeshpoints/2]);
 
 	inter_append(&(store->iout),x_value,get_equiv_I(sim,in));
 
@@ -1125,7 +1127,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_append(&(store->ntrap),x_value,get_n_trapped_charge(in));
 
-	long double val=(ns->phi[0][0][(in->ymeshpoints/2)+1]-ns->phi[0][0][(in->ymeshpoints/2)])/(ns->ymesh[(in->ymeshpoints/2)+1]-ns->ymesh[(in->ymeshpoints/2)]);
+	long double val=(ns->phi[0][0][(dim->ymeshpoints/2)+1]-ns->phi[0][0][(dim->ymeshpoints/2)])/(dim->ymesh[(dim->ymeshpoints/2)+1]-dim->ymesh[(dim->ymeshpoints/2)]);
 	inter_append(&(store->E_field),x_value,val);
 
 	Vapplied=contact_get_voltage(sim,in,0);
@@ -1179,13 +1181,13 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	gdouble srh_p_r3=0.0;
 	gdouble srh_p_r4=0.0;
 
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
-				for (band=0;band<in->srh_bands;band++)
+				for (band=0;band<dim->srh_bands;band++)
 				{
 					srh_n_r1+=in->n[z][x][y]*in->srh_n_r1[z][x][y][band];
 					srh_n_r2+=in->srh_n_r2[z][x][y][band];
@@ -1201,30 +1203,30 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 		}
 	}
 
-	inter_append(&(store->srh_n_r1),x_value,srh_n_r1/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_n_r2),x_value,srh_n_r2/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_n_r3),x_value,srh_n_r3/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_n_r4),x_value,srh_n_r4/((gdouble)(in->ymeshpoints*in->srh_bands)));
+	inter_append(&(store->srh_n_r1),x_value,srh_n_r1/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_n_r2),x_value,srh_n_r2/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_n_r3),x_value,srh_n_r3/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_n_r4),x_value,srh_n_r4/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
 
-	inter_append(&(store->srh_p_r1),x_value,srh_p_r1/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_p_r2),x_value,srh_p_r2/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_p_r3),x_value,srh_p_r3/((gdouble)(in->ymeshpoints*in->srh_bands)));
-	inter_append(&(store->srh_p_r4),x_value,srh_p_r4/((gdouble)(in->ymeshpoints*in->srh_bands)));
+	inter_append(&(store->srh_p_r1),x_value,srh_p_r1/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_p_r2),x_value,srh_p_r2/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_p_r3),x_value,srh_p_r3/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
+	inter_append(&(store->srh_p_r4),x_value,srh_p_r4/((gdouble)(dim->ymeshpoints*dim->srh_bands)));
 
 	gdouble tot=0.0;
 
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				tot+=fabs(store->band_snapshot[z][x][y]-ns->phi[z][x][y])/fabs(ns->phi[z][x][y]);
 			}
 		}
 	}
 
-	tot/=(gdouble)(in->ymeshpoints);
+	tot/=(gdouble)(dim->ymeshpoints);
 	inter_append(&(store->band_bend),x_value,tot);
 
 }
@@ -1235,6 +1237,8 @@ void dump_dynamic_free(struct simulation *sim,struct device *in,struct dynamic_s
 {
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
+	struct dimensions *dim=&in->dim;
+
 	inter_free(&(store->charge_change));
 	inter_free(&(store->jout));
 	inter_free(&(store->jn_avg));
@@ -1296,7 +1300,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_free(&(store->band_bend));
 
-	free_3d_gdouble(in,store->band_snapshot);
+	free_3d_gdouble(dim,store->band_snapshot);
 }
 }
 

@@ -34,8 +34,11 @@
 void dump_load_config(struct simulation* sim,struct device *in)
 {
 	int dump;
+	struct dimensions *dim=&in->dim;
+
 	struct inp_file inp;
 	inp_init(sim,&inp);
+
 
 	inp_load_from_path(sim,&inp,get_input_path(sim),"dump.inp");
 
@@ -80,21 +83,21 @@ void dump_load_config(struct simulation* sim,struct device *in)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_xpos>=in->xmeshpoints) in->dump_energy_slice_xpos=0;
+	if (in->dump_energy_slice_xpos>=dim->xmeshpoints) in->dump_energy_slice_xpos=0;
 
 	inp_search_int(sim,&inp,&(in->dump_energy_slice_ypos),"#dump_energy_slice_ypos");
 	if (in->dump_energy_slice_xpos<0)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_ypos>=in->ymeshpoints) in->dump_energy_slice_ypos=0;
+	if (in->dump_energy_slice_ypos>=dim->ymeshpoints) in->dump_energy_slice_ypos=0;
 
 	inp_search_int(sim,&inp,&(in->dump_energy_slice_zpos),"#dump_energy_slice_zpos");
 	if (in->dump_energy_slice_xpos<0)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_zpos>=in->zmeshpoints) in->dump_energy_slice_zpos=0;
+	if (in->dump_energy_slice_zpos>=dim->zmeshpoints) in->dump_energy_slice_zpos=0;
 
 
 	set_dump_status(sim,dump_1d_slices, TRUE);

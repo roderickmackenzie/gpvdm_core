@@ -36,14 +36,29 @@
 #include <perovskite_struct.h>
 
 
+struct mesh_layer
+{
+	long double dx;
+	long double len;
+	long double mul;
+	long double *dmesh;
+	int n_points;
+	int left_right;
+};
+
 struct mesh
 {
-long double dx;
-long double len;
-long double mul;
-long double *dmesh;
-int n_points;
-int left_right;
+	struct mesh_layer *layers;
+	int nlayers;
+	int remesh;
+	int tot_points;
+};
+
+struct mesh_obj
+{
+	struct mesh meshdata_x;
+	struct mesh meshdata_y;
+	struct mesh meshdata_z;
 };
 
 struct solver_cache
@@ -53,11 +68,27 @@ struct solver_cache
 	int enabled;
 };
 
-struct newton_save_state
+struct dimensions
 {
+	int zmeshpoints;
+	int xmeshpoints;
+	int ymeshpoints;
+
 	long double *ymesh;
 	long double *xmesh;
 	long double *zmesh;
+
+	long double *dymesh;
+	long double *dxmesh;
+	long double *dzmesh;
+
+	int srh_bands;
+
+};
+
+struct newton_save_state
+{
+	//struct dimensions save_dim;
 
 	int last_ittr;
 	long double last_error;
@@ -71,6 +102,7 @@ struct newton_save_state
 
 };
 
+
 struct device
 {
 	struct epitaxy my_epitaxy;
@@ -78,15 +110,13 @@ struct device
 		//0D arrays
 
 		//mesh points
-		int zmeshpoints;
-		int xmeshpoints;
-		int ymeshpoints;
+		struct dimensions dim;
+		struct dimensions dim_save;
 
 		int remesh;
-		int remesh_x;
-		int remesh_y;
-		int remesh_z;
 		int newmeshsize;
+
+		int dynamic_mesh;
 
 		int excite_conv;
 		int thermal_conv;
@@ -102,10 +132,6 @@ struct device
 		gdouble zlen;
 
 		//1D arrays
-
-		gdouble *dymesh;
-		gdouble *dxmesh;
-		gdouble *dzmesh;
 
 		//2D arrays
 		gdouble **Vapplied_r;
@@ -126,37 +152,42 @@ struct device
 		gdouble **Vr;
 
 		//3D arrays zxy
-		gdouble ***Nad;
-		gdouble ***G;
-		gdouble ***Gn;
-		gdouble ***Gp;
-		gdouble ***Photon_gen;
-
 		gdouble ***n;
 		gdouble ***p;
 		gdouble ***dn;
 		gdouble ***dndphi;
 		gdouble ***dp;
 		gdouble ***dpdphi;
+
+
+		gdouble ***Rfree;
+
+		//material constants
+		gdouble ***mun;
+		gdouble ***mup;
+		gdouble ***Nad;
+		gdouble ***muion;
 		gdouble ***Eg;
 		gdouble ***Xi;
 		gdouble ***Ev;
 		gdouble ***Ec;
 
-		gdouble ***Rfree;
-
-		gdouble ***mun;
-		gdouble ***mup;
-
-		gdouble ***muion;
-		gdouble ***Nion;
-		gdouble ***Nion_last;
-
+		gdouble ***G;
+		gdouble ***Gn;
+		gdouble ***Gp;
+		gdouble ***Photon_gen;
 
 		gdouble ***Dn;
 		gdouble ***Dp;
-
 		gdouble ***epsilonr;
+
+		int ***imat;
+
+		//Calculated
+
+		gdouble ***Nion;
+		gdouble ***Nion_last;
+
 
 		gdouble ***Fn;
 		gdouble ***Fp;
@@ -169,7 +200,6 @@ struct device
 		gdouble ***R;
 		gdouble ***Fi;
 
-		int ***imat;
 		int ***imat_epitaxy;
 		gdouble ***Jn;
 		gdouble ***Jp;
@@ -338,13 +368,7 @@ struct device
 	char newton_name[20];
 
 	//meshing
-	struct mesh *meshdata_x;
-	struct mesh *meshdata_y;
-	struct mesh *meshdata_z;
-
-	int xmeshlayers;
-	int ymeshlayers;
-	int zmeshlayers;
+	struct mesh_obj mesh_data;
 
 //Device characterisation
 	gdouble Voc;
@@ -359,9 +383,6 @@ struct device
 	long double fx;
 
 
-	int ntrapnewton;
-	int ptrapnewton;
-
 	int stop;
 	gdouble Rshort;
 
@@ -369,7 +390,6 @@ struct device
 	int onlypos;
 	int odes;
 	gdouble posclamp;
-	int srh_bands;
 
 	gdouble A;
 	gdouble Vol;
@@ -397,6 +417,8 @@ struct device
 	char simmode[200];
 	gdouble area;
 
+	int ntrapnewton;
+	int ptrapnewton;
 
 	gdouble lcharge;
 	gdouble rcharge;
@@ -518,7 +540,12 @@ struct device
 
 void device_init(struct device *in);
 void device_alloc_traps(struct device *in);
-void device_free_traps(struct device *in);
 void device_get_memory(struct simulation *sim,struct device *in);
 void device_free(struct simulation *sim,struct device *in);
+
+//dimension
+void dim_init(struct dimensions *dim);
+void dim_free(struct dimensions *dim);
+void dim_alloc(struct dimensions *dim);
+void dim_cpy(struct dimensions *out,struct dimensions *in);
 #endif

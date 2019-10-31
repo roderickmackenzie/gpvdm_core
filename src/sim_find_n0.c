@@ -41,6 +41,7 @@ void find_n0(struct simulation *sim,struct device *in)
 int x;
 int y;
 int z;
+struct dimensions *dim=&in->dim;
 
 printf_log(sim,"%s\n",_("Finding equilibrium conditions"));
 gdouble oldsun=light_get_sun(&(in->mylight));
@@ -55,11 +56,11 @@ light_solve_and_update(sim,in,&(in->mylight),0.0);
 
 
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->B[z][x][y]=0.0;
 		}
@@ -85,11 +86,11 @@ in->min_cur_error=save_electricalerror;
 
 solve_all(sim,in);
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->B[z][x][y]=get_dos_B(in,in->imat[z][x][y]);
 		}

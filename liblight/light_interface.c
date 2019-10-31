@@ -95,6 +95,8 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 	int y=0;
 	int z=0;
 
+	struct dimensions *dim=&cell->dim;
+
 	if (in->disable_transfer_to_electrical_mesh==FALSE)
 	{
 		if (fabs(in->device_ylen-cell->ylen)>0.01e-9)
@@ -125,16 +127,16 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 		gdouble ***Gn;
 		gdouble ***Gp;
 
-		malloc_3d_gdouble(cell, &Gn);
-		malloc_3d_gdouble(cell, &Gp);
+		malloc_3d_gdouble(dim, &Gn);
+		malloc_3d_gdouble(dim, &Gp);
 
-		for (z=0;z<cell->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
 
-			for (x=0;x<cell->xmeshpoints;x++)
+			for (x=0;x<dim->xmeshpoints;x++)
 			{
 
-				for (y=0;y<cell->ymeshpoints;y++)
+				for (y=0;y<dim->ymeshpoints;y++)
 				{
 					Gn[z][x][y]=cell->Gn[z][x][y];
 					Gp[z][x][y]=cell->Gp[z][x][y];
@@ -143,32 +145,32 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 			}
 		}
 
-		for (z=0;z<cell->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
-			for (x=0;x<cell->xmeshpoints;x++)
+			for (x=0;x<dim->xmeshpoints;x++)
 			{
-				for (y=0;y<cell->ymeshpoints;y++)
+				for (y=0;y<dim->ymeshpoints;y++)
 				{
-					cell->Gn[z][x][cell->ymeshpoints-y-1]=Gn[z][x][y];
-					cell->Gp[z][x][cell->ymeshpoints-y-1]=Gp[z][x][y];
+					cell->Gn[z][x][dim->ymeshpoints-y-1]=Gn[z][x][y];
+					cell->Gp[z][x][dim->ymeshpoints-y-1]=Gp[z][x][y];
 				}
 			}
 		}
 
-		for (z=0;z<cell->zmeshpoints;z++)
+		for (z=0;z<dim->zmeshpoints;z++)
 		{
-			for (x=0;x<cell->xmeshpoints;x++)
+			for (x=0;x<dim->xmeshpoints;x++)
 			{
-				for (y=0;y<cell->ymeshpoints;y++)
+				for (y=0;y<dim->ymeshpoints;y++)
 				{
-					cell->Gn[z][x][cell->ymeshpoints-y-1]=Gn[z][x][y];
-					cell->Gp[z][x][cell->ymeshpoints-y-1]=Gp[z][x][y];
+					cell->Gn[z][x][dim->ymeshpoints-y-1]=Gn[z][x][y];
+					cell->Gp[z][x][dim->ymeshpoints-y-1]=Gp[z][x][y];
 				}
 			}
 		}
 
-		free_3d_gdouble(cell, Gn);
-		free_3d_gdouble(cell, Gp);
+		free_3d_gdouble(dim, Gn);
+		free_3d_gdouble(dim, Gp);
 	}
 
 }

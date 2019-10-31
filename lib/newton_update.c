@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file newton_update.c
 	@brief Update the dependent variables after running the newton solver to calculate new solution parameters.
@@ -32,8 +32,9 @@ void update_y_array(struct simulation *sim,struct device *in,int z,int x)
 int y=0;
 int band=0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 		in->Fn[z][x][y]=ns->x[z][x][y]-ns->phi[z][x][y];
 		in->Fp[z][x][y]= -ns->xp[z][x][y]-ns->phi[z][x][y];
@@ -57,7 +58,7 @@ struct newton_save_state *ns=&(in->ns);
 		if (in->ntrapnewton)
 		{
 			in->nt_all[z][x][y]=0.0;
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->Fnt[z][x][y][band]=ns->xt[z][x][y][band]-ns->phi[z][x][y];
 
@@ -80,7 +81,7 @@ struct newton_save_state *ns=&(in->ns);
 		if (in->ptrapnewton)
 		{
 			in->pt_all[z][x][y]=0.0;
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->Fpt[z][x][y][band]= -ns->xpt[z][x][y][band]-ns->phi[z][x][y];
 
@@ -110,18 +111,19 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
 
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
 
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
-				in->Tl[z][x][y]=in->Tll+ns->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
-				in->Te[z][x][y]=in->Tll+ns->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
-				in->Th[z][x][y]=in->Tll+ns->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
+				in->Tl[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
+				in->Te[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
+				in->Th[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
 				in->ex[z][x][y]=0.0;
 				in->Hex[z][x][y]=0.0;
 				//if ((i>in->ymeshpoints/2)&&(i<in->ymeshpoints/2+10)) in->Hex[z][x][y]=1e9;

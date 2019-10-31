@@ -207,6 +207,7 @@ int z=0;
 int x=0;
 int ittr=0;
 int cont=TRUE;
+struct dimensions *dim=&in->dim;
 
 if (state_search_and_load(sim,in)==TRUE)
 {
@@ -217,7 +218,7 @@ if (state_search_and_load(sim,in)==TRUE)
 }
 
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
 //	for (x=0;x<in->xmeshpoints;x++)
 //	{

@@ -104,6 +104,7 @@ gdouble zpos=0.0;
 long double tot=0.0;
 
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -112,34 +113,34 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	buffer_add_string(buf,string);
 }
 
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
 			tot=0.0;
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				tot+=data[z][x][y];
 			}
 
-			sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],ns->zmesh[z],tot/((long double)in->ymeshpoints));
+			sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],dim->zmesh[z],tot/((long double)dim->ymeshpoints));
 			buffer_add_string(buf,string);
 		}
 	}
 }else
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1))
 {
 	z=0;
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
 		tot=0.0;
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			tot+=data[z][x][y];
 		}
-		sprintf(string,"%Le %Le\n",ns->xmesh[x],tot/((long double)in->ymeshpoints));
+		sprintf(string,"%Le %Le\n",dim->xmesh[x],tot/((long double)dim->ymeshpoints));
 		buffer_add_string(buf,string);
 	}
 }else
@@ -147,12 +148,12 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 	x=0;
 	z=0;
 	tot=0.0;
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
 		tot+=data[z][x][y];
 	}
 
-	sprintf(string,"%Le %Le\n",ns->xmesh[x],tot/((long double)in->ymeshpoints));
+	sprintf(string,"%Le %Le\n",dim->xmesh[x],tot/((long double)dim->ymeshpoints));
 	buffer_add_string(buf,string);
 }
 
@@ -174,6 +175,7 @@ gdouble xpos=0.0;
 gdouble ypos=0.0;
 gdouble zpos=0.0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -182,28 +184,28 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	buffer_add_string(buf,string);
 }
 
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
-				sprintf(string,"%Le %Le %Le %Le\n",ns->xmesh[x],ns->ymesh[y],ns->zmesh[z],data[z][x][y]);
+				sprintf(string,"%Le %Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],dim->zmesh[z],data[z][x][y]);
 				buffer_add_string(buf,string);
 			}
 		}
 	}
 }else
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1))
 {
 	z=0;
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
-			sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],ns->ymesh[y],data[z][x][y]);
+			sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],data[z][x][y]);
 			buffer_add_string(buf,string);
 		}
 		buffer_add_string(buf,"\n");
@@ -212,9 +214,9 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 {
 	x=0;
 	z=0;
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
-		sprintf(string,"%Le %Le\n",ns->ymesh[y],data[z][x][y]);
+		sprintf(string,"%Le %Le\n",dim->ymesh[y],data[z][x][y]);
 		buffer_add_string(buf,string);
 	}
 }
@@ -238,6 +240,7 @@ gdouble ypos=0.0;
 gdouble zpos=0.0;
 
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -246,28 +249,28 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	buffer_add_string(buf,string);
 }
 
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
-				sprintf(string,"%Le %Le %Le %d\n",ns->xmesh[x],ns->ymesh[y],ns->zmesh[z],data[z][x][y]);
+				sprintf(string,"%Le %Le %Le %d\n",dim->xmesh[x],dim->ymesh[y],dim->zmesh[z],data[z][x][y]);
 				buffer_add_string(buf,string);
 			}
 		}
 	}
 }else
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1))
 {
 	z=0;
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
-			sprintf(string,"%Le %Le %d\n",ns->xmesh[x],ns->ymesh[y],data[z][x][y]);
+			sprintf(string,"%Le %Le %d\n",dim->xmesh[x],dim->ymesh[y],data[z][x][y]);
 			buffer_add_string(buf,string);
 		}
 		buffer_add_string(buf,"\n");
@@ -276,9 +279,9 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 {
 	x=0;
 	z=0;
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
-		sprintf(string,"%Le %d\n",ns->ymesh[y],data[z][x][y]);
+		sprintf(string,"%Le %d\n",dim->ymesh[y],data[z][x][y]);
 		buffer_add_string(buf,string);
 	}
 }
@@ -296,6 +299,7 @@ void buffer_add_2d_device_data_int(struct simulation *sim,struct dat_file *buf,s
 int x=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 gdouble xpos=0.0;
 gdouble zpos=0.0;
@@ -307,30 +311,30 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	buffer_add_string(buf,string);
 }
 
-if ((in->xmeshpoints>1)&&(in->zmeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->zmeshpoints>1))
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-				sprintf(string,"%Le %Le %d\n",ns->xmesh[x],ns->zmesh[z],data[z][x]);
+				sprintf(string,"%Le %Le %d\n",dim->xmesh[x],dim->zmesh[z],data[z][x]);
 				buffer_add_string(buf,string);
 		}
 
 		buffer_add_string(buf,"\n");
 	}
 }else
-if ((in->xmeshpoints>1))
+if ((dim->xmeshpoints>1))
 {
 	z=0;
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		sprintf(string,"%Le %d\n",ns->xmesh[x],data[z][x]);
+		sprintf(string,"%Le %d\n",dim->xmesh[x],data[z][x]);
 		buffer_add_string(buf,string);
 	}
 }else
 {
-	sprintf(string,"%Le %d\n",ns->ymesh[0],data[0][0]);
+	sprintf(string,"%Le %d\n",dim->ymesh[0],data[0][0]);
 	buffer_add_string(buf,string);
 }
 
@@ -354,6 +358,7 @@ gdouble zpos=0.0;
 
 char string[200];
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&in->dim;
 
 if (get_dump_status(sim,dump_write_headers)==TRUE)
 {
@@ -361,42 +366,42 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	buffer_add_string(buf,string);
 }
 
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 {
-	for (z=0;z<in->zmeshpoints;z++)
+	for (z=0;z<dim->zmeshpoints;z++)
 	{
-		for (x=0;x<in->xmeshpoints;x++)
+		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],(long double)0.0,left[z][x]);
+			sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],(long double)0.0,left[z][x]);
 			buffer_add_string(buf,string);
 
-			for (y=0;y<in->ymeshpoints;y++)
+			for (y=0;y<dim->ymeshpoints;y++)
 			{
-				sprintf(string,"%Le %Le %Le %Le\n",ns->xmesh[x],ns->ymesh[y],ns->zmesh[z],data[z][x][y]);
+				sprintf(string,"%Le %Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],dim->zmesh[z],data[z][x][y]);
 				buffer_add_string(buf,string);
 			}
 
-			sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],in->ylen,right[z][x]);
+			sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],in->ylen,right[z][x]);
 			buffer_add_string(buf,string);
 
 		}
 	}
 }else
-if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1))
 {
 	z=0;
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],(long double)0.0,left[z][x]);
+		sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],(long double)0.0,left[z][x]);
 		buffer_add_string(buf,string);
 
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
-			sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],ns->ymesh[y],data[z][x][y]);
+			sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],data[z][x][y]);
 			buffer_add_string(buf,string);
 		}
 
-		sprintf(string,"%Le %Le %Le\n",ns->xmesh[x],in->ylen,right[z][x]);
+		sprintf(string,"%Le %Le %Le\n",dim->xmesh[x],in->ylen,right[z][x]);
 		buffer_add_string(buf,string);
 
 		buffer_add_string(buf,"\n");
@@ -408,9 +413,9 @@ if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
 	sprintf(string,"%Le %Le\n",(long double)0.0,left[z][x]);
 	buffer_add_string(buf,string);
 
-	for (y=0;y<in->ymeshpoints;y++)
+	for (y=0;y<dim->ymeshpoints;y++)
 	{
-		sprintf(string,"%Le %Le\n",ns->ymesh[y],data[z][x][y]);
+		sprintf(string,"%Le %Le\n",dim->ymesh[y],data[z][x][y]);
 		buffer_add_string(buf,string);
 	}
 
@@ -429,11 +434,13 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 void buffer_set_graph_type(struct dat_file *buf,struct device *in)
 {
-	if ((in->xmeshpoints>1)&&(in->ymeshpoints>1)&&(in->zmeshpoints>1))
+	struct dimensions *dim=&in->dim;
+
+	if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 	{
 		strcpy(buf->type,"4d");
 	}else
-	if ((in->xmeshpoints>1)&&(in->ymeshpoints>1))
+	if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1))
 	{
 		strcpy(buf->type,"3d");
 	}else

@@ -30,6 +30,7 @@
 #include <device.h>
 #include <string.h>
 #include <dump.h>
+#include <mesh.h>
 #include <ray_fun.h>
 #include <newton_tricks.h>
 
@@ -47,7 +48,6 @@ void device_init(struct device *in)
 	in->n_contact_r=NULL;
 	in->n_contact_l=NULL;
 
-	newton_save_state_init(in,&(in->ns));
 	in->Nad= NULL;
 	in->G= NULL;
 	in->Gn= NULL;
@@ -193,21 +193,8 @@ void device_init(struct device *in)
 	in->onlypos= -1;
 	in->odes= -1;
 	in->posclamp= -1.0;
-	in->srh_bands= -1;
 	in->wn= NULL;
 	in->wp= NULL;
-//mesh
-	in->meshdata_z= NULL;
-	in->meshdata_x= NULL;
-	in->meshdata_y= NULL;
-
-	in->zmeshpoints= -1;
-	in->xmeshpoints= -1;
-	in->ymeshpoints= -1;
-
-	in->zmeshlayers= -1;
-	in->xmeshlayers= -1;
-	in->ymeshlayers= -1;
 
 //n traps
 	in->nt_all= NULL;
@@ -374,6 +361,14 @@ void device_init(struct device *in)
 	in->ncontacts=-1;
 	in->active_contact=-1;
 	in->newton_only_fill_matrix=FALSE;
+
+	in->dynamic_mesh=-1;
+
+	newton_save_state_init(&(in->ns));
+	dim_init(&(in->dim));
+	dim_init(&(in->dim_save));
+	mesh_obj_init(&(in->mesh_data));
+
 }
 
 

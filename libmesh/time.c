@@ -208,19 +208,20 @@ int x;
 int y;
 int z;
 int band;
+struct dimensions *dim=&in->dim;
 
-for (z=0;z<in->zmeshpoints;z++)
+for (z=0;z<dim->zmeshpoints;z++)
 {
-	for (x=0;x<in->xmeshpoints;x++)
+	for (x=0;x<dim->xmeshpoints;x++)
 	{
-		for (y=0;y<in->ymeshpoints;y++)
+		for (y=0;y<dim->ymeshpoints;y++)
 		{
 			in->nlast[z][x][y]=in->n[z][x][y];
 			in->plast[z][x][y]=in->p[z][x][y];
 
 			in->Nion_last[z][x][y]=in->Nion[z][x][y];
 
-			for (band=0;band<in->srh_bands;band++)
+			for (band=0;band<dim->srh_bands;band++)
 			{
 				in->ntlast[z][x][y][band]=in->nt[z][x][y][band];
 				in->ptlast[z][x][y][band]=in->pt[z][x][y][band];
