@@ -365,6 +365,8 @@ void device_init(struct device *in)
 	in->dynamic_mesh=-1;
 
 	newton_save_state_init(&(in->ns));
+	newton_save_state_init(&(in->ns_save));
+
 	dim_init(&(in->dim));
 	dim_init(&(in->dim_save));
 	mesh_obj_init(&(in->mesh_data));

@@ -49,6 +49,9 @@ void three_d_printf(struct dimensions *dim, long double ***src);
 void three_d_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val);
 void three_d_sub_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***sub);
 void three_d_add_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***add);
+void three_d_interpolate_gdouble(long double ***out, long double ***in, struct dimensions *dim_out, struct dimensions *dim_in);
+void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *dim);
+void three_d_interpolate_srh(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
 
 //2d opps
 void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
@@ -57,5 +60,7 @@ void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_o
 void memory_flip_1d_long_double(long double *var,int len);
 void memory_flip_1d_int(int *var,int len);
 
+//srh opps
 void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
+void srh_copy_gdouble(struct dimensions *dim, gdouble ****dst, gdouble ****src);
 #endif

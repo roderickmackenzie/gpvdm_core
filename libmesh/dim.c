@@ -145,6 +145,17 @@ void dim_alloc(struct dimensions *dim)
 
 }
 
+void dim_swap(struct dimensions *out,struct dimensions *in)
+{
+	struct dimensions tmp;
+	dim_init(&tmp);
+	dim_cpy(&tmp,out);
+	dim_cpy(out,in);
+	dim_cpy(in,&tmp);
+	dim_free(&tmp);
+
+}
+
 void dim_cpy(struct dimensions *out,struct dimensions *in)
 {
 

@@ -72,5 +72,6 @@ void newton_save_state_init(struct newton_save_state *ns);
 void newton_save_state_alloc_mesh(struct newton_save_state *ns,struct dimensions *dim);
 void newton_save_state_alloc_traps(struct newton_save_state *ns,struct dimensions *dim);
 void newton_save_state_free(struct newton_save_state *ns,struct dimensions *dim);
+void newton_save_state_cpy(struct newton_save_state *out,struct newton_save_state *in,struct dimensions *dim);
 #endif
 

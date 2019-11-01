@@ -145,6 +145,30 @@ int z=0;
 
 }
 
+void srh_copy_gdouble(struct dimensions *dim, gdouble ****dst, gdouble ****src)
+{
+int x=0;
+int y=0;
+int z=0;
+int b=0;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
+	{
+		for (x = 0; x < dim->xmeshpoints; x++)
+		{
+			for (y = 0; y < dim->ymeshpoints; y++)
+			{
+				for (b = 0; b < dim->srh_bands; b++)
+				{
+					dst[z][x][y][b]=src[z][x][y][b];
+				}
+			}
+
+		}
+	}
+
+}
+
 void three_d_add_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***add)
 {
 int x=0;
@@ -524,6 +548,152 @@ void malloc_srh_bands(struct dimensions *dim, gdouble * (****var))
 		}
 	}
 
+}
 
+void three_d_interpolate_gdouble(long double ***out, long double ***in, struct dimensions *dim_out, struct dimensions *dim_in)
+{
+int x=0;
+int y=0;
+int z=0;
+
+int yi;
+int xi;
+
+long double y_out;
+long double x_out;
+
+long double y00;
+long double y01;
+long double yr;
+long double y0;
+
+long double y10;
+long double y11;
+long double y1;
+
+long double x0;
+long double x1;
+long double xr;
+
+long double c;
+
+	z=0;
+	for (x = 0; x < dim_out->xmeshpoints; x++)
+	{
+
+		x_out=dim_out->xmesh[x];
+		xi=hashget(dim_in->xmesh,dim_in->xmeshpoints,x_out);
+
+		for (y = 0; y < dim_out->ymeshpoints; y++)
+		{
+			y_out=dim_out->ymesh[y];
+			yi=hashget(dim_in->ymesh,dim_in->ymeshpoints,y_out);
+
+			y00=dim_in->ymesh[yi];
+			y01=dim_in->ymesh[yi+1];
+			yr=(y_out-y00)/(y01-y00);
+			y0=in[z][xi][yi]+yr*(in[z][xi][yi+1]-in[z][xi][yi]);
+
+			y10=dim_in->ymesh[yi];
+			y11=dim_in->ymesh[yi+1];
+			yr=(y_out-y10)/(y11-y10);
+			y1=in[z][xi+1][yi]+yr*(in[z][xi+1][yi+1]-in[z][xi+1][yi]);
+
+			x0=dim_in->xmesh[xi];
+			x1=dim_in->xmesh[xi+1];
+			xr=(x_out-x0)/(x1-x0);
+
+			c=y0+xr*(y1-y0);
+			out[z][x][y]=c;
+		}
+
+	}
 
 }
+
+void three_d_interpolate_srh(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band)
+{
+int x=0;
+int y=0;
+int z=0;
+
+int yi;
+int xi;
+
+long double y_out;
+long double x_out;
+
+long double y00;
+long double y01;
+long double yr;
+long double y0;
+
+long double y10;
+long double y11;
+long double y1;
+
+long double x0;
+long double x1;
+long double xr;
+
+long double c;
+
+	z=0;
+	for (x = 0; x < dim_out->xmeshpoints; x++)
+	{
+
+		x_out=dim_out->xmesh[x];
+		xi=hashget(dim_in->xmesh,dim_in->xmeshpoints,x_out);
+
+		for (y = 0; y < dim_out->ymeshpoints; y++)
+		{
+			y_out=dim_out->ymesh[y];
+			yi=hashget(dim_in->ymesh,dim_in->ymeshpoints,y_out);
+
+			y00=dim_in->ymesh[yi];
+			y01=dim_in->ymesh[yi+1];
+			yr=(y_out-y00)/(y01-y00);
+			y0=in[z][xi][yi][band]+yr*(in[z][xi][yi+1][band]-in[z][xi][yi][band]);
+
+			y10=dim_in->ymesh[yi];
+			y11=dim_in->ymesh[yi+1];
+			yr=(y_out-y10)/(y11-y10);
+			y1=in[z][xi+1][yi][band]+yr*(in[z][xi+1][yi+1][band]-in[z][xi+1][yi][band]);
+
+			x0=dim_in->xmesh[xi];
+			x1=dim_in->xmesh[xi+1];
+			xr=(x_out-x0)/(x1-x0);
+
+			c=y0+xr*(y1-y0);
+			out[z][x][y][band]=c;
+		}
+
+	}
+
+}
+
+void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *dim)
+{
+int x=0;
+int y=0;
+int z=0;
+	FILE *out=fopen(file_name,"w");
+
+	for (z = 0; z < dim->zmeshpoints; z++)
+	{
+
+		for (x = 0; x < dim->xmeshpoints; x++)
+		{
+
+			for (y = 0; y < dim->ymeshpoints; y++)
+			{
+				fprintf(out,"%Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],in[z][x][y]);
+			}
+
+			fprintf(out,"\n");
+		}
+	}
+
+fclose(out);
+}
+

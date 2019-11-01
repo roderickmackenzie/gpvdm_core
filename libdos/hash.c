@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include "sim.h"
 
-int hashget(gdouble *x,int N,gdouble find)
+int hashget(long double *x,int N,long double find)
 {
 static gdouble *x_=NULL;
 static gdouble find_=0.0;

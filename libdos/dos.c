@@ -35,6 +35,7 @@
 #include "lang.h"
 #include "log.h"
 #include "cal_path.h"
+#include "util.h"
 
 long double max= -1000;
 long double min=1000;

@@ -42,6 +42,7 @@
 static int unused __attribute__((unused));
 static int dump_number;
 
+
 void dump_clean_cache_files(struct simulation* sim)
 {
 struct inp_file inp;
@@ -499,4 +500,5 @@ FILE* out;
 
 
 }
+
 

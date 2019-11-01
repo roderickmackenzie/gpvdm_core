@@ -537,6 +537,8 @@ struct device
 	int newton_only_fill_matrix;
 
 	struct newton_save_state ns;
+	struct newton_save_state ns_save;
+
 };
 
 void device_init(struct device *in);
@@ -550,4 +552,6 @@ void dim_free(struct dimensions *dim);
 void dim_alloc(struct dimensions *dim);
 void dim_cpy(struct dimensions *out,struct dimensions *in);
 void dim_alloc_xyz(struct dimensions *dim,char xyz);
+void dim_free_xyz(struct dimensions *dim,char xyz);
+void dim_swap(struct dimensions *out,struct dimensions *in);
 #endif

@@ -81,7 +81,7 @@ long double get_dos_filled_n(struct device *in);
 long double get_dos_filled_p(struct device *in);
 void gen_dos_fd_gaus_n(struct simulation *sim,int mat);
 void gen_dos_fd_gaus_p(struct simulation *sim,int mat);
-int hashget(long double *x,int N,long double find);
+//int hashget(long double *x,int N,long double find);
 
 long double get_dos_filled_n(struct device *in);
 long double get_dos_filled_p(struct device *in);

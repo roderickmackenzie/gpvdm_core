@@ -24,7 +24,7 @@
 */
 
 #include "device.h"
-#include "mesh.h"
+#include <mesh.h>
 #include "inp.h"
 #include "util.h"
 #include "const.h"
@@ -271,9 +271,9 @@ void mesh_load_file(struct simulation * sim, struct mesh *in,char *file)
 	char token1[200];
 	//char token1[200];
 	char val[200];
-	long double dx=0.0;
-	int points=0;
-	long double pos=0.0;
+	//long double dx=0.0;
+	//int points=0;
+	//long double pos=0.0;
 
 	inp_init(sim,&inp);
 	inp_load_from_path(sim,&inp,get_input_path(sim),file);
@@ -447,16 +447,16 @@ void mesh_dump_y(struct simulation *sim,struct device *in)
 void mesh_build(struct simulation *sim,struct device *in)
 {
 
-	int shape=0;
+	//int shape=0;
 	//int pos=0;
-	int z=0;
-	int x=0;
-	int y=0;
+	//int z=0;
+	//int x=0;
+	//int y=0;
 
 	//struct newton_save_state *ns=&(in->ns);
-	struct dimensions *dim=&in->dim;
+	//struct dimensions *dim=&in->dim;
 
-	gdouble dpos=0.0;
+	//gdouble dpos=0.0;
 
 	in->zlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_z),'z');
 	in->xlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_x),'x');
