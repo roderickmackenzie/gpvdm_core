@@ -35,6 +35,13 @@
 #include <shape.h>
 
 
+void mesh_obj_cpy(struct simulation *sim,struct mesh_obj *out,struct mesh_obj *in)
+{
+	mesh_cpy(sim,&(out->meshdata_x),&(in->meshdata_x));
+	mesh_cpy(sim,&(out->meshdata_y),&(in->meshdata_y));
+	mesh_cpy(sim,&(out->meshdata_z),&(in->meshdata_z));
+}
+
 void mesh_obj_free(struct simulation *sim,struct mesh_obj *in)
 {
 	mesh_free(&(in->meshdata_x));

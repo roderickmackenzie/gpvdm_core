@@ -34,6 +34,44 @@
 #include <lang.h>
 #include <shape.h>
 
+void mesh_cpy(struct simulation *sim,struct mesh *out,struct mesh *in)
+{
+	int i;
+	int ii;
+
+	mesh_free(out);
+
+	out->nlayers= in->nlayers;
+	out->remesh= in->remesh;
+
+
+	out->layers = malloc (out->nlayers * sizeof(struct mesh_layer));
+
+	for (i=0;i<out->nlayers;i++)
+	{
+		out->layers[i].len=in->layers[i].len;
+		out->layers[i].n_points=in->layers[i].n_points;
+		out->layers[i].mul=in->layers[i].mul;
+		out->layers[i].left_right=in->layers[i].left_right;
+	}
+
+
+	for (i=0;i<out->nlayers;i++)
+	{
+		out->layers[i].n_points=in->layers[i].n_points;
+
+		in->layers[i].dmesh=malloc ( out->layers[i].n_points * sizeof(long double));
+
+		for (ii=0;ii>out->layers[i].n_points;ii++)
+		{
+			out->layers[i].dmesh[ii]=in->layers[i].dmesh[ii];
+		}
+
+	}
+
+	out->tot_points=in->tot_points;
+
+}
 
 void mesh_check_y(struct simulation *sim,struct mesh *in,struct device *dev)
 {
@@ -145,17 +183,16 @@ void mesh_free(struct mesh *in)
 {
 	int i=0;
 
-	for (i=0;i<in->nlayers;i++)
+	if (in->nlayers==-1)
 	{
-		free(in->layers[i].dmesh);
-		in->layers[i].dmesh=NULL;
+		for (i=0;i<in->nlayers;i++)
+		{
+			free(in->layers[i].dmesh);
+		}
+
+		free(in->layers);
+		mesh_init(in);
 	}
-
-	free(in->layers);
-	in->layers=NULL;
-
-	in->nlayers=-1;
-
 
 
 }
@@ -165,6 +202,65 @@ void mesh_init(struct mesh *in)
 	in->layers= NULL;
 	in->nlayers=-1;
 	in->remesh=-1;
+}
+
+
+void mesh_malloc_sub_mesh(struct simulation * sim, struct mesh *in)
+{
+	int i;
+	long double pos;
+
+	pos=0.0;
+	int points=0;
+	long double dx=0.0;
+
+	for (i=0;i<in->nlayers;i++)
+	{
+		dx=in->layers[i].len/((long double)in->layers[i].n_points);
+		pos=0.0;
+		in->layers[i].n_points=0;
+		while(pos<in->layers[i].len)
+		{
+			pos+=dx/2.0;
+			//printf("%Le %Le\n",pos,(*meshdata)[i].len);
+			//getchar();
+			if (pos>in->layers[i].len)
+			{
+				break;
+			}
+
+			in->layers[i].n_points++;
+			points++;
+			pos+=dx/2.0;
+			dx=dx*in->layers[i].mul;
+		}
+
+		in->layers[i].dmesh=malloc ( in->layers[i].n_points * sizeof(long double));
+
+	}
+
+	in->tot_points=points;
+
+}
+
+void mesh_gen_simple(struct simulation * sim, struct mesh *in,long double len,int points)
+{
+	int i;
+
+	in->remesh=FALSE;
+	in->nlayers=1;
+
+	in->layers = malloc (in->nlayers * sizeof(struct mesh_layer));
+
+	i=0;
+	in->layers[i].len=len;
+	in->layers[i].n_points=points;
+	in->layers[i].dx=in->layers[i].len/((long double)in->layers[i].n_points);
+	in->layers[i].mul=1.0;
+	in->layers[i].left_right=TRUE;
+
+	mesh_malloc_sub_mesh(sim, in);
+
 }
 
 void mesh_load_file(struct simulation * sim, struct mesh *in,char *file)
@@ -216,36 +312,41 @@ void mesh_load_file(struct simulation * sim, struct mesh *in,char *file)
 
 	inp_free(sim,&inp);
 
-	for (i=0;i<in->nlayers;i++)
-	{
-		dx=in->layers[i].len/((long double)in->layers[i].n_points);
-		pos=0.0;
-		in->layers[i].n_points=0;
-		while(pos<in->layers[i].len)
-		{
-			pos+=dx/2.0;
-			//printf("%Le %Le\n",pos,(*meshdata)[i].len);
-			//getchar();
-			if (pos>in->layers[i].len)
-			{
-				break;
-			}
+	mesh_malloc_sub_mesh(sim, in);
 
-			in->layers[i].n_points++;
-			points++;
-			pos+=dx/2.0;
-			dx=dx*in->layers[i].mul;
-		}
-
-		in->layers[i].dmesh=malloc ( in->layers[i].n_points * sizeof(long double));
-
-	}
-
-	in->tot_points=points;
 }
 
-void mesh_build_from_submesh(struct simulation *sim,long double *mesh, long double *dmesh, int meshpoints,long double *ret_len, struct mesh *in)
+long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct mesh *in,char xyz)
 {
+
+	long double *mesh;
+	long double *dmesh;
+	long double ret_len=0.0;
+
+	dim_free_xyz(dim,xyz);
+
+	if (xyz=='x')
+	{
+		dim->xmeshpoints=in->tot_points;
+		dim_alloc_xyz(dim,'x');
+		mesh=dim->xmesh;
+		dmesh=dim->dxmesh;
+	}else
+	if (xyz=='y')
+	{
+		dim->ymeshpoints=in->tot_points;
+		dim_alloc_xyz(dim,'y');
+		mesh=dim->ymesh;
+		dmesh=dim->dymesh;
+	}else
+	if (xyz=='z')
+	{
+		dim->zmeshpoints=in->tot_points;
+		dim_alloc_xyz(dim,'z');
+		mesh=dim->zmesh;
+		dmesh=dim->dzmesh;
+	}
+
 	int pos=0;
 	int i=0;
 	int ii=0;
@@ -274,7 +375,7 @@ void mesh_build_from_submesh(struct simulation *sim,long double *mesh, long doub
 		len+=in->layers[i].len;
 	}
 
-	(*ret_len)=len;
+	ret_len=len;
 
 	len=0.0;
 	pos=0;
@@ -296,14 +397,15 @@ void mesh_build_from_submesh(struct simulation *sim,long double *mesh, long doub
 		len+=in->layers[i].len;
 	}
 
+	//build dmesh
 	long double last=0.0;
 	long double next=0.0;
-	long double sum=0.0;
-	for (i=0;i<meshpoints;i++)
+
+	for (i=0;i<in->tot_points;i++)
 	{
-		if ((meshpoints-1)==i)
+		if ((in->tot_points-1)==i)
 		{
-			next=(*ret_len);
+			next=ret_len;
 		}else
 		{
 			next=(mesh[i]+mesh[i+1])/2.0;
@@ -311,9 +413,11 @@ void mesh_build_from_submesh(struct simulation *sim,long double *mesh, long doub
 
 		dx=next-last;
 		dmesh[i]=dx;
-		sum=sum+dx;
 		last=next;
 	}
+
+
+	return ret_len;
 
 }
 
@@ -353,20 +457,24 @@ void mesh_build(struct simulation *sim,struct device *in)
 	struct dimensions *dim=&in->dim;
 
 	gdouble dpos=0.0;
-	//long double dx=0.0;
-	//long double len=0.0;
 
-	//printf("%d\n",in->meshdata_y[0].n_points);
-	//getchar();
-	mesh_build_from_submesh(sim,in->dim.zmesh, in->dim.dzmesh, in->dim.zmeshpoints,&(in->zlen), &(in->mesh_data.meshdata_z));
-	mesh_build_from_submesh(sim,in->dim.xmesh, in->dim.dxmesh, in->dim.xmeshpoints,&(in->xlen), &(in->mesh_data.meshdata_x));
-	mesh_build_from_submesh(sim,in->dim.ymesh, in->dim.dymesh, in->dim.ymeshpoints,&(in->ylen), &(in->mesh_data.meshdata_y));
+	in->zlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_z),'z');
+	in->xlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_x),'x');
+	in->ylen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_y),'y');
 
-	//mesh_dump_y(sim,in);
-	//getchar();
-	//in->zmesh[pos]=dpos;
-	//in->xmesh[pos]=dpos;
-	//in->ymesh[pos]=dpos;
+}
+
+void mesh_numerate_points(struct simulation *sim,struct device *in)
+{
+
+	int shape=0;
+	int z=0;
+	int x=0;
+	int y=0;
+
+	struct dimensions *dim=&in->dim;
+
+	gdouble dpos=0.0;
 
 	//len=0.0;
 	for (y=0;y<dim->ymeshpoints;y++)
@@ -393,7 +501,6 @@ void mesh_build(struct simulation *sim,struct device *in)
 	}
 
 }
-
 void mesh_cal_layer_widths(struct device *in)
 {
 int i;

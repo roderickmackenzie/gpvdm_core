@@ -166,7 +166,7 @@ if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
 //sim_externalv(in,in->Vapplied);
 
 
-remesh_reset(in,Vapplied);
+remesh_reset(sim,in,Vapplied);
 //if (in->remesh==TRUE)
 //{
 //

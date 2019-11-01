@@ -299,11 +299,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 
 	struct dimensions *dim=&in->dim;
 
-	dim->xmeshpoints=in->mesh_data.meshdata_x.tot_points;
-	dim->ymeshpoints=in->mesh_data.meshdata_y.tot_points;
-	dim->zmeshpoints=in->mesh_data.meshdata_z.tot_points;
-
-	dim_alloc(dim);
+	//dim_alloc(dim);
 	if (dim->ymeshpoints==0)
 	{
 		return;

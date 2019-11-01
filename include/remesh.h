@@ -35,6 +35,6 @@ int len;
 gdouble new_dx;
 };
 
-void remesh_shrink(struct device *in);
-void remesh_reset(struct device *in,gdouble voltage);
+void remesh_shrink(struct simulation *sim,struct device *in);
+void remesh_reset(struct simulation *sim,struct device *in,gdouble voltage);
 #endif

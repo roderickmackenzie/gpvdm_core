@@ -369,6 +369,7 @@ struct device
 
 	//meshing
 	struct mesh_obj mesh_data;
+	struct mesh_obj mesh_data_save;
 
 //Device characterisation
 	gdouble Voc;
@@ -548,4 +549,5 @@ void dim_init(struct dimensions *dim);
 void dim_free(struct dimensions *dim);
 void dim_alloc(struct dimensions *dim);
 void dim_cpy(struct dimensions *out,struct dimensions *in);
+void dim_alloc_xyz(struct dimensions *dim,char xyz);
 #endif

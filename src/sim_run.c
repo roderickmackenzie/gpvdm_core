@@ -274,7 +274,7 @@ if (enable_electrical==TRUE)
 
 
 
-	remesh_shrink(&cell);
+	remesh_shrink(sim,&cell);
 
 	if (cell.math_enable_pos_solver==TRUE)
 	{

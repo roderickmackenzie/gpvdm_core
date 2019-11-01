@@ -35,60 +35,113 @@
 #include <shape.h>
 
 
+void dim_init_xyz(struct dimensions *dim,char xyz)
+{
+	if (xyz=='x')
+	{
+		dim->xmesh= NULL;
+		dim->dxmesh= NULL;
+		dim->xmeshpoints=-1;
+	}else
+	if (xyz=='y')
+	{
+		dim->ymesh= NULL;
+		dim->dymesh= NULL;
+		dim->ymeshpoints=-1;
+	}else
+	if (xyz=='z')
+	{
+		dim->zmesh= NULL;
+		dim->dzmesh= NULL;
+		dim->zmeshpoints=-1;
+	}
+
+}
+
 void dim_init(struct dimensions *dim)
 {
-	dim->ymesh= NULL;
-	dim->xmesh= NULL;
-	dim->zmesh= NULL;
-
-	dim->dymesh=NULL;
-	dim->dxmesh=NULL;
-	dim->dzmesh=NULL;
-
-	dim->zmeshpoints=-1;
-	dim->xmeshpoints=-1;
-	dim->ymeshpoints=-1;
+	dim_init_xyz(dim,'x');
+	dim_init_xyz(dim,'y');
+	dim_init_xyz(dim,'z');
 	dim->srh_bands=-1;
+}
+
+void dim_free_xyz(struct dimensions *dim,char xyz)
+{
+	if (xyz=='x')
+	{
+		if (dim->xmesh!=NULL)
+		{
+			free(dim->xmesh);
+			free(dim->dxmesh);
+			dim_init_xyz(dim,'x');
+		}
+	}else
+	if (xyz=='y')
+	{
+		if (dim->ymesh!=NULL)
+		{
+			free(dim->ymesh);
+			free(dim->dymesh);
+			dim_init_xyz(dim,'y');
+		}
+	}else
+	if (xyz=='z')
+	{
+		if (dim->zmesh!=NULL)
+		{
+			free(dim->zmesh);
+			free(dim->dzmesh);
+			dim_init_xyz(dim,'z');
+		}
+	}
+
 }
 
 void dim_free(struct dimensions *dim)
 {
-	if (dim->ymesh!=NULL)
+	dim_free_xyz(dim,'x');
+	dim_free_xyz(dim,'y');
+	dim_free_xyz(dim,'z');
+	dim_init(dim);
+}
+
+void dim_alloc_xyz(struct dimensions *dim,char xyz)
+{
+
+	if (xyz=='x')
 	{
-		free(dim->ymesh);
-		free(dim->xmesh);
-		free(dim->zmesh);
+		dim->xmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
+		memset(dim->xmesh, 0, dim->xmeshpoints * sizeof(gdouble));
 
-		free(dim->dymesh);
-		free(dim->dxmesh);
-		free(dim->dzmesh);
+		dim->dxmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
+		memset(dim->dxmesh, 0, dim->xmeshpoints * sizeof(gdouble));
+	}else
+	if (xyz=='y')
+	{
+		dim->ymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
+		memset(dim->ymesh, 0, dim->ymeshpoints * sizeof(gdouble));
 
-		dim_init(dim);
+		dim->dymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
+		memset(dim->dymesh, 0, dim->ymeshpoints * sizeof(gdouble));
+	}else
+	if (xyz=='z')
+	{
+		dim->zmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
+		memset(dim->zmesh, 0, dim->zmeshpoints * sizeof(gdouble));
+
+		dim->dzmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
+		memset(dim->dzmesh, 0, dim->zmeshpoints * sizeof(gdouble));
 	}
+
+
 }
 
 void dim_alloc(struct dimensions *dim)
 {
-
-	dim->zmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
-	memset(dim->zmesh, 0, dim->zmeshpoints * sizeof(gdouble));
-
-	dim->xmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
-	memset(dim->xmesh, 0, dim->xmeshpoints * sizeof(gdouble));
-
-	dim->ymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
-	memset(dim->ymesh, 0, dim->ymeshpoints * sizeof(gdouble));
-
-	dim->dzmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
-	memset(dim->dzmesh, 0, dim->zmeshpoints * sizeof(gdouble));
-
-	dim->dxmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
-	memset(dim->dxmesh, 0, dim->xmeshpoints * sizeof(gdouble));
-
-	dim->dymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
-	memset(dim->dymesh, 0, dim->ymeshpoints * sizeof(gdouble));
-
-	printf("%d %d %d %d %d %d\n",dim->ymesh,dim->xmesh,dim->zmesh,dim->dymesh,dim->dxmesh,dim->dzmesh);
+	dim_alloc_xyz(dim,'x');
+	dim_alloc_xyz(dim,'y');
+	dim_alloc_xyz(dim,'z');
 
 }
 

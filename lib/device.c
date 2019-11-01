@@ -368,6 +368,7 @@ void device_init(struct device *in)
 	dim_init(&(in->dim));
 	dim_init(&(in->dim_save));
 	mesh_obj_init(&(in->mesh_data));
+	mesh_obj_init(&(in->mesh_data_save));
 
 }
 

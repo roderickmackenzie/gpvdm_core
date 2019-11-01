@@ -32,8 +32,18 @@
 
 struct remesh my_mesh;
 
-void remesh_shrink(struct device *in)
+void remesh_shrink(struct simulation *sim,struct device *in)
 {
+
+	if (in->dynamic_mesh==TRUE)
+	{
+		mesh_obj_cpy(sim,&(in->mesh_data_save),&(in->mesh_data));
+		mesh_free(&(in->mesh_data.meshdata_x));
+		mesh_gen_simple(sim, &(in->mesh_data.meshdata_x),in->xlen,4);
+		mesh_to_dim(sim,&(in->dim), &(in->mesh_data.meshdata_x),'x');
+
+	}
+
 }
 
 void remesh_expand_array_band(gdouble **y,int band,struct device *in)
@@ -44,6 +54,6 @@ void remesh_expand_array(gdouble *y,struct device *in)
 {
 }
 
-void remesh_reset(struct device *in,gdouble voltage)
+void remesh_reset(struct simulation *sim,struct device *in,gdouble voltage)
 {
 }
