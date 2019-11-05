@@ -36,8 +36,10 @@
 #include <solver_interface.h>
 #include "memory.h"
 
-void free_srh_bands(struct dimensions *dim, gdouble **** var)
+void free_srh_bands(struct dimensions *dim, gdouble *(**** in_var))
 {
+	long double ****var=*in_var;
+
 	if (var==NULL)
 	{
 		return;
@@ -62,7 +64,7 @@ void free_srh_bands(struct dimensions *dim, gdouble **** var)
 
 	free(var);
 
-	*var=NULL;
+	*in_var=NULL;
 }
 
 void malloc_3d_gdouble(struct dimensions *dim, gdouble * (***var))
@@ -313,12 +315,13 @@ long double sum=0.0;
 return sum;
 }
 
-void free_3d_gdouble(struct dimensions *dim, gdouble ***var)
+void free_3d_gdouble(struct dimensions *dim, gdouble * (***in_var))
 {
 	int x=0;
 	int y=0;
 	int z=0;
 
+	long double ***var=*in_var;
 	if (var==NULL)
 	{
 		return;
@@ -336,7 +339,7 @@ void free_3d_gdouble(struct dimensions *dim, gdouble ***var)
 
 	free(var);
 
-	*var=NULL;
+	*in_var=NULL;
 
 }
 
@@ -385,23 +388,27 @@ void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_o
 	}
 
 }
-void free_zx_gdouble(struct dimensions *dim, gdouble **var)
+
+void free_zx_gdouble(struct dimensions *dim, gdouble * (**in_var))
 {
 	int z=0;
+	long double **var=*in_var;
 
 	if (var==NULL)
 	{
 		return;
 	}
 
+	//printf("%d %d %d\n",dim->zmeshpoints,dim->xmeshpoints,dim->ymeshpoints);
 	for (z = 0; z < dim->zmeshpoints; z++)
 	{
 		free(var[z]);
 	}
 
+	//printf("free\n");
 	free(var);
 
-	*var=NULL;
+	*in_var=NULL;
 }
 
 void malloc_zx_int(struct dimensions *dim, int * (**var))
@@ -418,9 +425,11 @@ void malloc_zx_int(struct dimensions *dim, int * (**var))
 
 }
 
-void free_zx_int(struct dimensions *dim, int **var)
+void free_zx_int(struct dimensions *dim, int *(**in_var))
 {
 	int z=0;
+
+	int **var=*in_var;
 
 	if (var==NULL)
 	{
@@ -434,7 +443,7 @@ void free_zx_int(struct dimensions *dim, int **var)
 
 	free(var);
 
-	*var=NULL;
+	*in_var=NULL;
 }
 
 

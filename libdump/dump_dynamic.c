@@ -1300,7 +1300,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_free(&(store->band_bend));
 
-	free_3d_gdouble(dim,store->band_snapshot);
+	free_3d_gdouble(dim,&store->band_snapshot);
 }
 }
 

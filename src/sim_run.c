@@ -250,6 +250,7 @@ if (enable_electrical==TRUE)
 	old_Psun=light_get_sun(&cell.mylight);
 	light_init(&cell.mylight);
 	light_set_dx(&cell.mylight,cell.ns.dim.ymesh[1]-cell.ns.dim.ymesh[0]);
+
 	light_load_config(sim,&cell.mylight,&cell.my_epitaxy);
 
 

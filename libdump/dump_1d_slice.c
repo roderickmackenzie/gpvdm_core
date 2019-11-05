@@ -483,8 +483,8 @@ buffer_init(&buf);
 
 	buffer_add_3d_device_data_including_boundaries(sim,&buf,in,  ns->phi,temp_top,temp_btm);
 
-	free_zx_gdouble(dim, temp_btm);
-	free_zx_gdouble(dim, temp_top);
+	free_zx_gdouble(dim, &temp_btm);
+	free_zx_gdouble(dim, &temp_top);
 
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
@@ -1811,5 +1811,5 @@ buffer_init(&buf);
 	buffer_free(&buf);
 
 
-	free_3d_gdouble(dim, temp_3d);
+	free_3d_gdouble(dim, &temp_3d);
 }

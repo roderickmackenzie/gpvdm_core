@@ -101,7 +101,7 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 	{
 		if (fabs(in->device_ylen-cell->ylen)>0.01e-9)
 		{
-		ewe(sim,"The electrical mesh (%.9le) and the optical mesh (%.9le) don't match. %le",cell->ylen,in->device_ylen);
+			ewe(sim,"The electrical mesh (%.9Le) and the optical mesh (%.9Le) don't match.",cell->ylen,in->device_ylen);
 		}
 	}
 
@@ -169,8 +169,8 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 			}
 		}
 
-		free_3d_gdouble(dim, Gn);
-		free_3d_gdouble(dim, Gp);
+		free_3d_gdouble(dim, &Gn);
+		free_3d_gdouble(dim, &Gp);
 	}
 
 }

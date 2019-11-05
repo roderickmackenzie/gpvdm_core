@@ -86,7 +86,7 @@ gdouble mesh_len=0.0;
 
 	if (fabs(dev->ylen-mesh_len)>1e-14)
 	{
-		printf_log(sim,"calling remesh\n");
+		printf_log(sim,"calling remesh %Le %Le\n",dev->ylen,mesh_len);
 		//getchar();
 		mesh_remesh(sim,in,dev);
 		printf_log(sim,"Warning: Length of epitaxy and computational mesh did not match, so I remesshed the device.\n");
@@ -121,8 +121,15 @@ void mesh_remesh(struct simulation *sim,struct mesh *in,struct device *dev)
 		epitaxy_load(sim,&(dev->my_epitaxy),device_file_path);
 
 		mesh_obj_load(sim,&(dev->mesh_data));
+
+		dev->ns.dim.zmeshpoints=dev->mesh_data.meshdata_z.tot_points;
+		dev->ns.dim.xmeshpoints=dev->mesh_data.meshdata_x.tot_points;
+		dev->ns.dim.ymeshpoints=dev->mesh_data.meshdata_y.tot_points;
+
 		device_get_memory(sim,dev);
 		mesh_build(sim,dev);
+		//printf("remesh\n");
+		//getchar();
 	}else
 	{
 		ewe(sim,"%s\n",_("The mesh does not match the device length and I am not alowed to remesh it"));

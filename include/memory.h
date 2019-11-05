@@ -30,16 +30,21 @@
 
 void three_d_copy_gdouble(struct dimensions *dim, gdouble ***dst, gdouble ***src);
 void three_d_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val);
+
 void malloc_zx_gdouble(struct dimensions *dim, gdouble * (**var));
-void free_zx_gdouble(struct dimensions *dim, gdouble **var);
-void free_srh_bands(struct dimensions *dim, gdouble **** var);
+void free_zx_gdouble(struct dimensions *dim, gdouble * (**var));
+
+void free_srh_bands(struct dimensions *dim, gdouble * (**** in_var));
+void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
+
 void malloc_3d_gdouble(struct dimensions *dim, gdouble * (***var));
-void free_3d_gdouble(struct dimensions *dim, gdouble ***var);
+void free_3d_gdouble(struct dimensions *dim, gdouble * (***in_var));
+
 void malloc_3d_int(struct dimensions *dim, int * (***var));
 void free_3d_int(struct dimensions *dim, int ***var);
-void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
+
 void malloc_zx_int(struct dimensions *dim, int * (**var));
-void free_zx_int(struct dimensions *dim, int **var);
+void free_zx_int(struct dimensions *dim, int *(**in_var));
 
 //3d opps
 long double three_d_avg(struct device *in, gdouble ***src);
