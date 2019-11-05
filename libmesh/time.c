@@ -208,7 +208,7 @@ int x;
 int y;
 int z;
 int band;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {

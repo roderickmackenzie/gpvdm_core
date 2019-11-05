@@ -46,7 +46,7 @@ long double dh=0.0;
 long double Jn=0.0;
 long double Jp=0.0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<dim->ymeshpoints;i++)
 {
@@ -93,7 +93,7 @@ void dump_thermal(struct simulation *sim,struct device *in, int z, int x)
 {
 int i;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<dim->ymeshpoints;i++)
 {
@@ -106,7 +106,7 @@ long double get_thermal_error(struct device *in,long double *b)
 {
 long double tot=0.0;
 int i;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<dim->ymeshpoints;i++)
 {
@@ -134,7 +134,7 @@ int solve_thermal(struct simulation *sim,struct device *in, int z, int x)
 printf_log(sim,"Solve thermal l=%d e=%d h=%d\n",in->thermal_l,in->thermal_e,in->thermal_h);
 struct newton_save_state *ns=&(in->ns);
 int i;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 int N=0;
 int M=0;

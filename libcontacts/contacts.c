@@ -275,7 +275,7 @@ void contacts_force_to_zero(struct simulation *sim,struct device *in)
 {
 int x;
 int z;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (x=0;x<dim->xmeshpoints;x++)
 {
@@ -293,7 +293,7 @@ for (x=0;x<dim->xmeshpoints;x++)
 void contacts_dump(struct simulation *sim,struct device *in)
 {
 int i;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	if (get_dump_status(sim,dump_print_text)==TRUE)
 	{
@@ -314,7 +314,7 @@ struct dimensions *dim=&in->dim;
 	{
 		for (x = 0; x < dim->xmeshpoints; x++)
 		{
-			printf("%.2Lf %.2Lf\n",in->Vapplied_l[z][x],in->Vapplied_r[z][x]);
+			printf("%d %.2Le %.2Lf %.2Lf (%.2Lf %.2Lf %Le %Le %Le %Le)\n",x,dim->xmesh[x],in->Vapplied_l[z][x],in->Vapplied_r[z][x],in->Vl[z][x],in->Vr[z][x],in->l_electrons[z][x],in->l_holes[z][x],in->r_electrons[z][x],in->r_holes[z][x]);
 		}
 	}
 
@@ -330,7 +330,7 @@ int found=FALSE;
 
 gdouble value=0.0;
 struct newton_save_state *ns=&in->ns;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (dim->xmeshpoints==1)
 {
@@ -542,7 +542,7 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (x=0;x<dim->xmeshpoints;x++)
 {
@@ -570,7 +570,7 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (x=0;x<dim->xmeshpoints;x++)
 {
@@ -618,7 +618,7 @@ int i;
 int x;
 int z;
 
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<in->ncontacts;i++)
 {
@@ -651,7 +651,7 @@ void contacts_detailed_dump(struct device *in)
 int i;
 int x;
 int z;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (x=0;x<dim->xmeshpoints;x++)
 {
@@ -672,7 +672,7 @@ int z;
 
 long double tot=0.0;
 long double count=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 
 for (x=0;x<dim->xmeshpoints;x++)
@@ -711,7 +711,7 @@ int y;
 int z;
 return;
 struct newton_save_state *ns=&in->ns;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 //passivate under each contact
 for (x=0;x<dim->xmeshpoints;x++)

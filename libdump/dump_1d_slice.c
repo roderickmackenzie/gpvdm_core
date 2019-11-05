@@ -62,7 +62,7 @@ buffer_init(&buf);
 
 
 	struct newton_save_state *ns=&(in->ns);
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	buffer_add_dir(sim,out_dir);
 

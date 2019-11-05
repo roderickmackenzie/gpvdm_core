@@ -72,7 +72,7 @@ dump_load_config(sim,&cell);
 char temp[PATH_MAX];
 
 cell.kl_in_newton=FALSE;
-struct dimensions *dim=&(cell.dim);
+struct dimensions *dim=&(cell.ns.dim);
 
 //if (strcmp(outputpath,"")!=0) strcpy(get_output_path(sim),outputpath);
 
@@ -208,7 +208,7 @@ if (enable_electrical==TRUE)
 			for (y=0;y<dim->ymeshpoints;y++)
 			{
 
-				depth=cell.dim.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
+				depth=cell.ns.dim.ymesh[y]-cell.layer_start[cell.imat[z][x][y]];
 				percent=depth/cell.my_epitaxy.layer[cell.imat_epitaxy[z][x][y]].width;
 				cell.Nad[z][x][y]=get_dos_doping_start(&cell,cell.imat[z][x][y])+(get_dos_doping_stop(&cell,cell.imat[z][x][y])-get_dos_doping_start(&cell,cell.imat[z][x][y]))*percent;
 			}
@@ -249,7 +249,7 @@ if (enable_electrical==TRUE)
 	gdouble old_Psun=0.0;
 	old_Psun=light_get_sun(&cell.mylight);
 	light_init(&cell.mylight);
-	light_set_dx(&cell.mylight,cell.dim.ymesh[1]-cell.dim.ymesh[0]);
+	light_set_dx(&cell.mylight,cell.ns.dim.ymesh[1]-cell.ns.dim.ymesh[0]);
 	light_load_config(sim,&cell.mylight,&cell.my_epitaxy);
 
 
@@ -270,8 +270,7 @@ if (enable_electrical==TRUE)
 
 	state_cache_init(sim,&cell);
 
-	get_initial(sim,&cell);
-
+	get_initial(sim,&cell,TRUE);
 
 
 	remesh_shrink(sim,&cell);

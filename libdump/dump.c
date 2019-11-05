@@ -105,7 +105,7 @@ gdouble zpos=0.0;
 long double tot=0.0;
 
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -176,7 +176,7 @@ gdouble xpos=0.0;
 gdouble ypos=0.0;
 gdouble zpos=0.0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -241,7 +241,7 @@ gdouble ypos=0.0;
 gdouble zpos=0.0;
 
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -300,7 +300,7 @@ void buffer_add_2d_device_data_int(struct simulation *sim,struct dat_file *buf,s
 int x=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 gdouble xpos=0.0;
 gdouble zpos=0.0;
@@ -359,7 +359,7 @@ gdouble zpos=0.0;
 
 char string[200];
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (get_dump_status(sim,dump_write_headers)==TRUE)
 {
@@ -435,7 +435,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 void buffer_set_graph_type(struct dat_file *buf,struct device *in)
 {
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	if ((dim->xmeshpoints>1)&&(dim->ymeshpoints>1)&&(dim->zmeshpoints>1))
 	{

@@ -49,7 +49,7 @@ long double tot=0.0;
 long double E=0.0;
 long double R=0.0;
 long double eff=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&(in->ns.dim);
 
 	for (y=0;y<dim->ymeshpoints;y++)
 	{

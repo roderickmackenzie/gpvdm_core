@@ -126,7 +126,7 @@ void update_solver_vars(struct simulation *sim,struct device *in, int z, int x,i
 int i;
 int band=0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 gdouble clamp_temp=300.0;
 
@@ -360,7 +360,7 @@ gdouble Nad=0.0;
 //gdouble dpcdphic=0.0;
 
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	if (in->interfaceleft==TRUE)
 	{
@@ -1212,7 +1212,7 @@ gdouble ttn=0.0;
 gdouble ttp=0.0;
 gdouble i0=0.0;
 int band=0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 for (i=0;i<dim->ymeshpoints;i++)
 {
 		if ((in->interfaceleft==TRUE)&&(i==0))
@@ -1277,7 +1277,7 @@ void solver_cal_memory(struct device *in,int *ret_N,int *ret_M,int dim_)
 int i=0;
 int N=0;
 int M=0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 N=dim->ymeshpoints*3-2;	//Possion main
 
 N+=dim->ymeshpoints*3-2;	//Je main
@@ -1336,7 +1336,7 @@ if (in->ptrapnewton==TRUE)
 
 void dllinternal_solver_free_memory(struct device *in)
 {
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 if (dim->srh_bands>0)
 {
 	free(in->newton_dntrap);
@@ -1549,7 +1549,7 @@ int N=0;
 int M=0;
 long double* dtemp=NULL;
 int *itemp=NULL;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 solver_cal_memory(in,&N,&M,dim_);
 

@@ -167,6 +167,7 @@ void dim_cpy(struct dimensions *out,struct dimensions *in)
 	out->xmeshpoints=in->xmeshpoints;
 	out->ymeshpoints=in->ymeshpoints;
 	out->zmeshpoints=in->zmeshpoints;
+
 	dim_alloc(out);
 
 	for (x=0;x<out->xmeshpoints;x++)
@@ -187,5 +188,6 @@ void dim_cpy(struct dimensions *out,struct dimensions *in)
 		out->dzmesh[z]=in->dzmesh[z];
 	}
 
+	out->srh_bands=in->srh_bands;
 }
 

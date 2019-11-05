@@ -40,7 +40,7 @@
 
 void device_alloc_traps(struct device *in)
 {
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	//printf("hello %d %d %d %d \n",dim->xmeshpoints,dim->ymeshpoints,dim->zmeshpoints,dim->srh_bands);
 
@@ -102,7 +102,7 @@ void device_alloc_traps(struct device *in)
 
 void device_free(struct simulation *sim,struct device *in)
 {
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	if (dim->ymeshpoints==0)
 	{
@@ -276,8 +276,8 @@ void device_free(struct simulation *sim,struct device *in)
 
 	free_srh_bands(dim, in->ptlast);
 
-	newton_save_state_free(&(in->ns),&(in->dim));
-	dim_free(&(in->dim));
+	newton_save_state_free(&(in->ns));
+	//dim_free(&(in->dim_max));
 	//Free epitaxy
 
 	//Free solvers
@@ -297,7 +297,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	in->Tdebug = NULL;
 
 
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	//dim_alloc(dim);
 	if (dim->ymeshpoints==0)
@@ -523,7 +523,7 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_3d_int(dim,&(in->imat));
 	malloc_3d_int(dim,&(in->imat_epitaxy));
 
-	newton_save_state_alloc_mesh(&(in->ns),&(in->dim));
+	newton_save_state_alloc_mesh(&(in->ns),dim);
 
 
 }

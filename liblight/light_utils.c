@@ -424,7 +424,7 @@ int y=0;
 gdouble Gn=0.0;
 gdouble Gp=0.0;
 long double pos=0;
-struct dimensions *dim=&cell->dim;
+struct dimensions *dim=&(cell->ns.dim);
 
 //struct newton_save_state *ns=&cell->ns;
 

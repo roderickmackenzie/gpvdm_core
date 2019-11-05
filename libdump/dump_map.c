@@ -41,7 +41,7 @@ static int unused __attribute__((unused));
 
 void dump_device_map(struct simulation *sim,char* out_dir,struct device *in)
 {
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (dim->srh_bands==0) return;
 

@@ -34,7 +34,7 @@
 void dump_load_config(struct simulation* sim,struct device *in)
 {
 	int dump;
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	struct inp_file inp;
 	inp_init(sim,&inp);

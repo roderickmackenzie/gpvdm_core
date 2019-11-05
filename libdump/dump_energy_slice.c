@@ -40,7 +40,7 @@ int band=0;
 int x=in->dump_energy_slice_xpos;
 int y=in->dump_energy_slice_ypos;
 int z=in->dump_energy_slice_zpos;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if ((y>=dim->ymeshpoints)||(x>=dim->xmeshpoints)||(z>=dim->zmeshpoints))
 {

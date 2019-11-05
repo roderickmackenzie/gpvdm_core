@@ -49,7 +49,7 @@ gdouble pavg=0.0;
 gdouble nsum=0.0;
 gdouble psum=0.0;
 struct newton_save_state *ns=&in->ns;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -100,7 +100,7 @@ int y=0;
 int z=0;
 
 int band=0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&(in->ns.dim);
 
 if (in->go_time==TRUE)
 {
@@ -143,7 +143,7 @@ gdouble get_tot_photons_abs(struct device *in)
 {
 long double ret=0.0;
 
-ret=three_d_integrate(in, in->Gn);
+ret=three_d_integrate(&(in->ns.dim), in->Gn);
 
 return ret;
 }
@@ -308,7 +308,7 @@ int z=0;
 gdouble Rtot=0.0;
 gdouble add=0.0;
 struct newton_save_state *ns=&in->ns;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 gdouble dx=dim->ymesh[1]-dim->ymesh[0];
 
@@ -358,7 +358,7 @@ gdouble Javg=0.0;
 gdouble Jstd_dev=0.0;
 gdouble Jtot=0.0;
 
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -462,7 +462,7 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&in->ns;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 gdouble locat_n_tot=0.0;
 gdouble locat_p_tot=0.0;
@@ -574,7 +574,7 @@ int y=0;
 int z=0;
 
 gdouble tot=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -617,7 +617,7 @@ int z=0;
 
 gdouble tot=0.0;
 gdouble n=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 
 for (z=0;z<dim->zmeshpoints;z++)
@@ -659,7 +659,7 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	for (z = 0; z < dim->zmeshpoints; z++)
 	{
@@ -689,7 +689,7 @@ int z=0;
 long double sum=0.0;
 long double ret=0.0;
 
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	for (z = 0; z < dim->zmeshpoints; z++)
 	{
@@ -796,7 +796,7 @@ void set_orig_charge_den(struct device *in)
 int x=0;
 int y=0;
 int z=0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -855,7 +855,7 @@ int z=0;
 int band;
 
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -889,7 +889,7 @@ void reset_npequlib(struct device *in)
 	int y=0;
 	int z=0;
 
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	for (z=0;z<dim->zmeshpoints;z++)
 	{
@@ -1061,7 +1061,7 @@ return ret;
 gdouble get_avg_field(struct device *in)
 {
 	struct newton_save_state *ns=&(in->ns);
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 	return (ns->phi[0][0][dim->ymeshpoints-1]-ns->phi[0][0][0]);
 }
 
@@ -1089,7 +1089,7 @@ int y=0;
 int z=0;
 struct newton_save_state *ns=&in->ns;
 
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (z=0;z<dim->zmeshpoints;z++)
 {

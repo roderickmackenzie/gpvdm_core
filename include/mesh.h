@@ -46,4 +46,6 @@ void mesh_obj_load(struct simulation *sim,struct mesh_obj *mesh);
 void mesh_obj_free(struct simulation *sim,struct mesh_obj *in);
 void mesh_obj_init(struct mesh_obj *in);
 void mesh_numerate_points(struct simulation *sim,struct device *in);
+void mesh_dump(struct simulation *sim,struct dimensions *dim);
+void mesh_dump_y(struct simulation *sim,struct dimensions *dim);
 #endif

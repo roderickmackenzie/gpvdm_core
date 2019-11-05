@@ -50,7 +50,7 @@ int i=0;
 int x=0;
 int x_max=0;
 int band=0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	if (x_in==-1)
 	{

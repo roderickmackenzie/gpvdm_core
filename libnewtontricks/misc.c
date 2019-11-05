@@ -207,7 +207,7 @@ int z=0;
 int x=0;
 int ittr=0;
 int cont=TRUE;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (state_search_and_load(sim,in)==TRUE)
 {

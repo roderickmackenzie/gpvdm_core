@@ -47,6 +47,42 @@
 
 static int unused __attribute__((unused));
 
+void jv_voltage_step(struct simulation *sim,struct device *in,long double *V, long double *Vstep)
+{
+	long double Vapplied=*V;
+	long double Vtarget=*V+*Vstep;
+	long double dV=0.05;
+	int i;
+	int steps=*Vstep/dV;
+	long double Vexternal;
+	long double J;
+
+	if (*Vstep>0.1)
+	{
+		remesh_shrink(sim,in);
+		//printf("that's never going to work\n");
+		for (i=0;i<steps;i++)
+		{
+			contact_set_active_contact_voltage(sim,in,Vapplied);
+			Vapplied+=dV;
+			//printf_log(sim,".");
+			if (get_dump_status(sim,dump_print_converge)==TRUE)
+			{
+				Vexternal=get_equiv_V(sim,in);
+				J=get_equiv_J(sim,in);
+				printf_log(sim,"*%s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),Vapplied,Vexternal,_("Current"),get_I(in)/1e-3,J,in->ns.last_error);
+			}
+			newton_sim_simple(sim,in);
+		}
+
+		remesh_reset(sim,in,0.0);
+	}
+
+//	printf_log(sim,"\n");
+	*V+=*Vstep;
+
+}
+
 int get_step_n(long double step0,long double step_mul,long double V)
 {
 int n=0;
@@ -76,7 +112,7 @@ gdouble Jlast;
 gdouble Pdenlast;
 gdouble Vexternal;
 gdouble V=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 light_solve_and_update(sim,in,&(in->mylight),0.0);
 
@@ -165,7 +201,9 @@ if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
 
 //sim_externalv(in,in->Vapplied);
 
-
+//contacts_dump(sim,in);
+//printf("wait a\n");
+//getchar();
 remesh_reset(sim,in,Vapplied);
 //if (in->remesh==TRUE)
 //{
@@ -176,14 +214,24 @@ gdouble sun_orig=light_get_sun(&(in->mylight));
 light_set_sun(&(in->mylight),sun_orig*config.jv_light_efficiency);
 light_solve_and_update(sim,in,&(in->mylight),0.0);
 
+//contacts_dump(sim,in);
+//printf("wait b\n");
+//getchar();
 newton_push_state(in);
 
 newton_set_min_ittr(in,30);
 
 Vapplied=config.Vstart;
+//contacts_dump(sim,in);
+//printf("wait c\n");
+//getchar();
+
 contact_set_active_contact_voltage(sim,in,Vapplied);
+//contacts_dump(sim,in);
 V=Vapplied;
 newton_sim_simple(sim,in);
+//printf("wait d\n");
+//getchar();
 
 newton_pop_state(in);
 //newton_set_min_ittr(in,0);
@@ -332,7 +380,9 @@ if (config.Vstop<config.Vstart)
 		//printf("%Le %Le\n",pl_get_light_energy(),in->my_image.extract_eff[lam]);
 		inter_append(&lj,J,optical_power_m2);
 		//printf("%Le %le\n",get_avg_recom(in),in->my_image.avg_extract_eff);
-		V+=Vstep;
+
+		jv_voltage_step(sim,in,&V,&Vstep);
+
 		if (config.jv_step_mul>1.0)
 		{
 			cal_step=get_step_n(config.Vstep,config.jv_step_mul,V);//roundl(log(1.0+(fabs(V)/config.Vstep)*log(config.jv_step_mul))/log(config.jv_step_mul));

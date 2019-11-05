@@ -32,7 +32,7 @@ void update_y_array(struct simulation *sim,struct device *in,int z,int x)
 int y=0;
 int band=0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	for (y=0;y<dim->ymeshpoints;y++)
 	{
@@ -111,7 +111,7 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 	for (z=0;z<dim->zmeshpoints;z++)
 	{

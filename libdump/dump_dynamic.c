@@ -49,7 +49,7 @@ int x=0;
 int y=0;
 int z=0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -1081,7 +1081,7 @@ int y=0;
 int z=0;
 gdouble Vapplied=0.0;
 struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
@@ -1237,7 +1237,7 @@ void dump_dynamic_free(struct simulation *sim,struct device *in,struct dynamic_s
 {
 if (get_dump_status(sim,dump_dynamic)==TRUE)
 {
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&in->ns.dim;
 
 	inter_free(&(store->charge_change));
 	inter_free(&(store->jout));

@@ -43,7 +43,7 @@ void free_zx_int(struct dimensions *dim, int **var);
 
 //3d opps
 long double three_d_avg(struct device *in, gdouble ***src);
-long double three_d_integrate(struct device *in, long double ***src);
+long double three_d_integrate(struct dimensions *dim, long double ***src);
 long double three_d_avg_fabsl(struct device *in, long double ***src);
 void three_d_printf(struct dimensions *dim, long double ***src);
 void three_d_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val);
@@ -52,7 +52,8 @@ void three_d_add_gdouble(struct dimensions *dim, gdouble ***var, gdouble ***add)
 void three_d_interpolate_gdouble(long double ***out, long double ***in, struct dimensions *dim_out, struct dimensions *dim_in);
 void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *dim);
 void three_d_interpolate_srh(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
-
+void srh_quick_dump(char *file_name, long double ****in, struct dimensions *dim,int band);
+void three_d_interpolate_srh2(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
 //2d opps
 void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
 void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);

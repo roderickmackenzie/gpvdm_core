@@ -247,6 +247,10 @@ void mesh_gen_simple(struct simulation * sim, struct mesh *in,long double len,in
 {
 	int i;
 
+	if (points<=0)
+	{
+		ewe(sim,"%s\n",_("Can't generate a mesh with zero points"));
+	}
 	in->remesh=FALSE;
 	in->nlayers=1;
 
@@ -259,10 +263,38 @@ void mesh_gen_simple(struct simulation * sim, struct mesh *in,long double len,in
 	in->layers[i].mul=1.0;
 	in->layers[i].left_right=TRUE;
 
+
 	mesh_malloc_sub_mesh(sim, in);
 
 }
 
+void mesh_gen_graded(struct simulation * sim, struct mesh *in,long double len,int points)
+{
+	int i;
+
+	in->remesh=FALSE;
+	in->nlayers=2;
+	len/=2.0;
+
+	in->layers = malloc (in->nlayers * sizeof(struct mesh_layer));
+
+	i=0;
+	in->layers[i].len=len;
+	in->layers[i].n_points=points;
+	in->layers[i].dx=in->layers[i].len/((long double)in->layers[i].n_points);
+	in->layers[i].mul=1.1;
+	in->layers[i].left_right=FALSE;
+
+	i++;
+	in->layers[i].len=len;
+	in->layers[i].n_points=points;
+	in->layers[i].dx=in->layers[i].len/((long double)in->layers[i].n_points);
+	in->layers[i].mul=1.1;
+	in->layers[i].left_right=TRUE;
+
+	mesh_malloc_sub_mesh(sim, in);
+
+}
 void mesh_load_file(struct simulation * sim, struct mesh *in,char *file)
 {
 	int i;
@@ -421,10 +453,9 @@ long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct me
 
 }
 
-void mesh_dump(struct simulation *sim,struct device *in)
+void mesh_dump(struct simulation *sim,struct dimensions *dim)
 {
 	int x=0;
-	struct dimensions *dim=&in->dim;
 
 	for (x=0;x<dim->xmeshpoints;x++)
 	{
@@ -432,10 +463,9 @@ void mesh_dump(struct simulation *sim,struct device *in)
 	}
 }
 
-void mesh_dump_y(struct simulation *sim,struct device *in)
+void mesh_dump_y(struct simulation *sim,struct dimensions *dim)
 {
 	int y=0;
-	struct dimensions *dim=&in->dim;
 
 	for (y=0;y<dim->ymeshpoints;y++)
 	{
@@ -447,21 +477,10 @@ void mesh_dump_y(struct simulation *sim,struct device *in)
 void mesh_build(struct simulation *sim,struct device *in)
 {
 
-	//int shape=0;
-	//int pos=0;
-	//int z=0;
-	//int x=0;
-	//int y=0;
-
-	//struct newton_save_state *ns=&(in->ns);
-	//struct dimensions *dim=&in->dim;
-
-	//gdouble dpos=0.0;
-
-	in->zlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_z),'z');
-	in->xlen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_x),'x');
-	in->ylen=mesh_to_dim(sim, &(in->dim), &(in->mesh_data.meshdata_y),'y');
-
+	in->zlen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_z),'z');
+	in->xlen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_x),'x');
+	in->ylen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_y),'y');
+	//dim_cpy(&(in->dim_max),&(in->ns.dim));
 }
 
 void mesh_numerate_points(struct simulation *sim,struct device *in)
@@ -472,7 +491,7 @@ void mesh_numerate_points(struct simulation *sim,struct device *in)
 	int x=0;
 	int y=0;
 
-	struct dimensions *dim=&in->dim;
+	struct dimensions *dim=&(in->ns.dim);
 
 	gdouble dpos=0.0;
 
@@ -507,7 +526,7 @@ int i;
 int cur_i=in->imat[0][0][0];
 
 in->layer_start[cur_i]=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<dim->ymeshpoints;i++)
 {

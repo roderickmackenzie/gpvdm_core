@@ -84,22 +84,44 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 
 
 
+	buffer_malloc(&buf);
+	buf.y_mul=1e9;
+	buf.x_mul=1e9;
+	strcpy(buf.title,"Refractive index (real) coefficient");
+	strcpy(buf.type,"heat");
+	strcpy(buf.x_label,"Position");
+	strcpy(buf.y_label,"Wavelength");
+	strcpy(buf.data_label,"Density");
+	strcpy(buf.x_units,"nm");
+	strcpy(buf.y_units,"nm");
+	strcpy(buf.data_units,"m^{-3}");
+	buf.logscale_x=0;
+	buf.logscale_y=0;
+	buf.x=in->lpoints;
+	buf.y=in->points;
+	buf.z=1;
+	buffer_add_info(sim,&buf);
 
+	sprintf(temp,"#data\n");
+	buffer_add_string(&buf,temp);
 
-
-
-
-	out=fopena(in->dump_dir,"light_2d_n.dat","w");
 	for (i=0;i<in->lpoints;i++)
 	{
 		for (ii=0;ii<in->points;ii++)
 		{
-			fprintf(out,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,in->n[i][ii]);
+			sprintf(line,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,in->n[i][ii]);
+			buffer_add_string(&buf,line);
 		}
 
-	fprintf(out,"\n");
+	buffer_add_string(&buf,"\n");
 	}
-	fclose(out);
+
+	sprintf(temp,"#end\n");
+	buffer_add_string(&buf,temp);
+
+	buffer_dump_path(sim,in->dump_dir,"2d_n.dat",&buf);
+	buffer_free(&buf);
+
 
 	out=fopena(in->dump_dir,"light_lambda_sun.dat","w");
 	for (i=0;i<in->lpoints;i++)
@@ -157,7 +179,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
 
-	buffer_dump_path(sim,in->dump_dir,"light_lambda_alpha.dat",&buf);
+	buffer_dump_path(sim,in->dump_dir,"2d_alpha.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);

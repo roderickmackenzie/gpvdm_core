@@ -79,9 +79,16 @@ join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
 epitaxy_load(sim,&(in->my_epitaxy),device_file_path);
 
 mesh_obj_load(sim,&(in->mesh_data));
-mesh_build(sim,in);
+
+in->ns.dim.zmeshpoints=in->mesh_data.meshdata_z.tot_points;
+in->ns.dim.xmeshpoints=in->mesh_data.meshdata_x.tot_points;
+in->ns.dim.ymeshpoints=in->mesh_data.meshdata_y.tot_points;
 
 device_get_memory(sim,in);
+
+mesh_build(sim,in);
+
+
 mesh_numerate_points(sim,in);
 
 ///////////////////////////////

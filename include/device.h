@@ -74,6 +74,7 @@ struct dimensions
 	int xmeshpoints;
 	int ymeshpoints;
 
+
 	long double *ymesh;
 	long double *xmesh;
 	long double *zmesh;
@@ -88,7 +89,7 @@ struct dimensions
 
 struct newton_save_state
 {
-	//struct dimensions save_dim;
+	struct dimensions dim;
 
 	int last_ittr;
 	long double last_error;
@@ -110,8 +111,6 @@ struct device
 		//0D arrays
 
 		//mesh points
-		struct dimensions dim;
-		struct dimensions dim_save;
 
 		int remesh;
 		int newmeshsize;

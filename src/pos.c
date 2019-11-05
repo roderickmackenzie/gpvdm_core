@@ -185,7 +185,7 @@ long double get_p_error(struct device *in,long double *b)
 {
 gdouble tot=0.0;
 int i;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<dim->ymeshpoints;i++)
 {
@@ -214,7 +214,7 @@ printf_log(sim,"%s\n",_("Solving the initial electrostatic field."));
 
 int i;
 int y;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 int N=dim->ymeshpoints*3-2;
 

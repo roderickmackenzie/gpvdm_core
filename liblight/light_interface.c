@@ -95,7 +95,7 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 	int y=0;
 	int z=0;
 
-	struct dimensions *dim=&cell->dim;
+	struct dimensions *dim=&cell->ns.dim;
 
 	if (in->disable_transfer_to_electrical_mesh==FALSE)
 	{

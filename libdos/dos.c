@@ -51,7 +51,7 @@ int band;
 long double n_tot=0.0;
 long double n_tot_den=0.0;
 
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&(in->ns.dim);
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -81,7 +81,7 @@ int z=0;
 int band;
 long double p_tot=0.0;
 long double p_tot_den=0.0;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&(in->ns.dim);
 
 for (z=0;z<dim->zmeshpoints;z++)
 {
@@ -413,14 +413,14 @@ return in->dosn[mat].config.B;
 void load_dos(struct simulation *sim,struct device *in,char *namen, char *namep,int mat)
 {
 char path[PATH_MAX];
-struct dimensions *dim=&in->dim;
 
 join_path(3, path,sim->root_simulation_path,"cache",namen);
 load_dos_file(sim,in,&(in->dosn[mat]),path);
 
 join_path(3, path,sim->root_simulation_path,"cache",namep);
 load_dos_file(sim,in,&(in->dosp[mat]),path);
-dim->srh_bands=in->dosn[mat].srh_bands;
+in->ns.dim.srh_bands=in->dosn[mat].srh_bands;
+
 }
 
 long double get_dos_E_n(struct device *in,int band,int mat)

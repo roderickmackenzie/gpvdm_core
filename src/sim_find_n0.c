@@ -41,7 +41,7 @@ void find_n0(struct simulation *sim,struct device *in)
 int x;
 int y;
 int z;
-struct dimensions *dim=&in->dim;
+struct dimensions *dim=&in->ns.dim;
 
 printf_log(sim,"%s\n",_("Finding equilibrium conditions"));
 gdouble oldsun=light_get_sun(&(in->mylight));
