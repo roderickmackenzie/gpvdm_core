@@ -57,10 +57,12 @@
 //TRUE/FALSE
 #define TRUE 1
 #define FALSE 0
-#define LEFT 0
-#define RIGHT 1
+
 #define TOP 0
 #define BOTTOM 1
+#define RIGHT 2
+#define LEFT 3
+
 #define ELECTRON 0
 #define HOLE 1
 

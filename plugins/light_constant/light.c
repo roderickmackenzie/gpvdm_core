@@ -48,7 +48,6 @@ EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,
 	long double G=0.0;
 	struct inp_file inp;
 	char temp[PATH_MAX];
-	char file_name[PATH_MAX];
 
 	inp_init(sim,&inp);
 

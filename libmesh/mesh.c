@@ -117,7 +117,7 @@ void mesh_remesh(struct simulation *sim,struct mesh *in,struct device *dev)
 		mesh_obj_free(sim,&(dev->mesh_data));
 
 		join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
-		epitaxy_free(&(dev->my_epitaxy));
+		epitaxy_free(sim,&(dev->my_epitaxy));
 		epitaxy_load(sim,&(dev->my_epitaxy),device_file_path);
 
 		mesh_obj_load(sim,&(dev->mesh_data));

@@ -28,21 +28,24 @@
 #ifndef contact_struct_h
 #define contact_struct_h
 
+#include <shape_struct.h>
+
 struct contact
 {
 	char name[100];
 	int position;
 	int active;
-	gdouble width;
-	gdouble depth;
 	gdouble voltage;
 	long double voltage_want;
 	gdouble voltage_last;
-	gdouble start;
 	gdouble store;
 	long double np;
 	int charge_type;
 	long double area;
+
+	char shape_file_name[100];
+	struct shape shape;
+	long double Rcontact;
 };
 
 #endif

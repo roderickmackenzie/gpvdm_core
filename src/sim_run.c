@@ -321,7 +321,8 @@ if (enable_electrical==TRUE)
 		dump_1d_slice(sim,&cell,temp);
 		cache_dump(sim);
 		cache_free(sim);
-		epitaxy_free(&cell.my_epitaxy);
+		epitaxy_free(sim,&cell.my_epitaxy);
+		contacts_free(sim,&cell);
 		device_free(sim,&cell);
 		mesh_obj_free(sim,&(cell.mesh_data));
 		color_cie_load(sim);
@@ -354,7 +355,8 @@ run_electrical_dll(sim,&cell,strextract_domain(cell.simmode));
 
 cache_dump(sim);
 cache_free(sim);
-epitaxy_free(&cell.my_epitaxy);
+epitaxy_free(sim,&cell.my_epitaxy);
+contacts_free(sim,&cell);
 
 if (enable_electrical==TRUE)
 {

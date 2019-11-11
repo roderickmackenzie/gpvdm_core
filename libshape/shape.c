@@ -66,7 +66,18 @@ int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long
 	
 }
 
-void shape_free_materials(struct epitaxy *in)
+void shape_free(struct simulation *sim,struct shape *s)
+{
+	if (strcmp(s->optical_material,"none")!=0)
+	{
+		inter_free(&(s->n));
+		inter_free(&(s->alpha));
+	}
+
+	triangles_free((&(s->tri)));
+}
+
+void shape_free_materials(struct simulation *sim,struct epitaxy *in)
 {
 	int i;
 	int l;
@@ -77,19 +88,12 @@ void shape_free_materials(struct epitaxy *in)
 		for (i=0;i<in->layer[l].nshape;i++)
 		{
 			s=&in->layer[l].shapes[i];
-
-			if (strcmp(s->optical_material,"none")!=0)
-			{
-				inter_free(&(s->n));
-				inter_free(&(s->alpha));
-			}
-
-			triangles_free((&(s->tri)));
+			shape_free(sim,s);
 		}
 	}
 }
 
-struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct epi_layer *layer, char *file_name)
+struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct shape *s, char *file_name)
 {
 	char full_file_name[PATH_MAX];
 	char file_path[PATH_MAX];
@@ -100,11 +104,8 @@ struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct e
 	printf("Loading shape file %s\n",full_file_name);
 
 	struct inp_file inp;
-	struct shape *s;
 
 	inp_init(sim,&inp);
-
-	s=&(layer->shapes[layer->nshape]);
 
 	s->dos_index=0;
 
@@ -129,7 +130,6 @@ struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct e
 		triangle_load_from_file(sim,(&s->tri),temp_path);
 
 		inp_search_string(sim,&inp,s->optical_material,"#shape_optical_material");
-
 
 		inp_search_string(sim,&inp,s->dos_file,"#shape_dos");
 
@@ -164,9 +164,6 @@ struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct e
 
 		}
 
-
-		layer->nshape++;
-
 		inp_free(sim,&inp);
 	}else
 	{
@@ -197,7 +194,8 @@ void shape_load(struct simulation *sim,struct epitaxy *in)
 			{
 				if ((in->shape_file[i][ii]==',')||(ii==len-1))
 				{
-					s=shape_load_file(sim,in,&(in->layer[i]),build);
+					s=shape_load_file(sim,in,&(in->layer[i].shapes[in->layer[i].nshape]),build);
+					in->layer[i].nshape++;
 					s->y0=in->y_pos[i];
 					s->epi_index=i;
 					build[0]=0;

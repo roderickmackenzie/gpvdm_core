@@ -30,6 +30,7 @@
 #include "const.h"
 #include <cal_path.h>
 #include <shape.h>
+#include <contacts.h>
 
 /**
  * @brief Load the epitaxy in from epitaxy.inp
@@ -508,11 +509,10 @@ return -1;
  * @brief Free the epitaxy structure.
  *
  */
-void epitaxy_free(struct epitaxy *in)
+void epitaxy_free(struct simulation *sim,struct epitaxy *in)
 {
 	epitaxy_free_materials(in);
-	shape_free_materials(in);
-
+	shape_free_materials(sim,in);
 }
 
 

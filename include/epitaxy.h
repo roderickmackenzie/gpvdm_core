@@ -96,7 +96,7 @@ gdouble epitaxy_get_device_stop(struct epitaxy *in);
 gdouble epitaxy_get_device_start_i(struct epitaxy *in);
 int epitaxy_get_epitaxy_layer_using_electrical_pos(struct epitaxy *in,gdouble pos);
 void epitaxy_load_materials(struct simulation *sim,struct epitaxy *in);
-void epitaxy_free(struct epitaxy *in);
+void epitaxy_free(struct simulation *sim,struct epitaxy *in);
 void epitaxy_free_materials(struct epitaxy *in);
 void epitaxy_load_dos_files(struct simulation *sim,struct epitaxy *in, char *dos_file,char *lumo_file,char *homo_file);
 void epitaxy_load_emission(struct simulation *sim,struct epi_layer *layer);

@@ -38,7 +38,6 @@ void align_to_contact(struct simulation *sim,struct device *in)
 {
 struct dimensions *dim=&in->ns.dim;
 long double c0;
-long double c1;
 int x=0;
 int i=0;
 
@@ -46,7 +45,7 @@ int i=0;
 	{
 		for (i=0;i<in->ncontacts;i++)
 		{
-			c0=in->contacts[i].start+in->contacts[i].width;
+			c0=in->contacts[i].shape.x0+in->contacts[i].shape.dx;
 			if ((dim->xmesh[x]<c0)&&(dim->xmesh[x+1]>c0))
 			{
 				dim->xmesh[x]=c0-2e-9;
@@ -134,7 +133,6 @@ void remesh_reset(struct simulation *sim,struct device *in,gdouble voltage)
 		//srh_quick_dump("xt_corse.dat", in->ns.xt, &(in->ns.dim),0);
 		//srh_quick_dump("xpt_corse.dat", in->ns.xpt, &(in->ns.dim),0);
 
-		int x_next=0;
 		int x=in->mesh_data.meshdata_x.tot_points;
 		int stop=FALSE;
 		while (1)

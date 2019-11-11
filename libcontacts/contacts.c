@@ -32,6 +32,8 @@
 #include "contacts.h"
 #include <log.h>
 #include <dump.h>
+#include <shape.h>
+#include <shape_struct.h>
 
 int contacts_get_lcharge_type(struct simulation *sim,struct device *in)
 {
@@ -198,7 +200,7 @@ void contacts_load(struct simulation *sim,struct device *in)
 		ewe(sim,"Can't open the file contacts\n");
 	}
 
-	inp_check(sim,&inp,1.2);
+	inp_check(sim,&inp,1.3);
 	inp_reset_read(sim,&inp);
 	inp_get_string(sim,&inp);
 	sscanf(inp_get_string(sim,&inp),"%d",&(in->ncontacts));
@@ -213,12 +215,15 @@ void contacts_load(struct simulation *sim,struct device *in)
 		ewe(sim,"No contacts\n");
 	}
 
-	gdouble pos=0.0;
 	int active=FALSE;
+	long double ingress=0.0;
+
+	struct shape *s;
+
 	for (i=0;i<in->ncontacts;i++)
 	{
 
-		inp_get_string(sim,&inp);	//active contact
+		inp_get_string(sim,&inp);	//name
 		strcpy(in->contacts[i].name,inp_get_string(sim,&inp));
 
 		inp_get_string(sim,&inp);	//position
@@ -227,19 +232,12 @@ void contacts_load(struct simulation *sim,struct device *in)
 		inp_get_string(sim,&inp);	//active contact
 		in->contacts[i].active=english_to_bin(sim, inp_get_string(sim,&inp));
 
-		inp_get_string(sim,&inp);	//start
-		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].start));
-
-		inp_get_string(sim,&inp);	//width
-		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].width));
-
-		inp_get_string(sim,&inp);	//depth
-		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].depth));
-
 		inp_get_string(sim,&inp);	//voltage
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].voltage_want));
 		in->contacts[i].voltage=0.0;
 		in->contacts[i].voltage_last=in->contacts[i].voltage;
+		//printf("%Le\n",in->contacts[i].voltage_want);
+		//getchar();
 
 		inp_get_string(sim,&inp);	//np
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].np));
@@ -248,7 +246,19 @@ void contacts_load(struct simulation *sim,struct device *in)
 		inp_get_string(sim,&inp);	//charge_type
 		in->contacts[i].charge_type=english_to_bin(sim, inp_get_string(sim,&inp));
 
-		pos+=in->contacts[i].width;
+		inp_get_string(sim,&inp);	//shape_file_name
+		strcpy(in->contacts[i].shape_file_name,inp_get_string(sim,&inp));
+
+		s=shape_load_file(sim,&(in->my_epitaxy),&(in->contacts[i].shape),in->contacts[i].shape_file_name);
+
+		inp_get_string(sim,&inp);	//resistance sq
+		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].Rcontact));
+		in->contacts[i].Rcontact=fabs(in->contacts[i].Rcontact);
+
+		inp_get_string(sim,&inp);	//ingress
+		sscanf(inp_get_string(sim,&inp),"%Le",&(ingress));
+		ingress=fabs(ingress);
+
 	}
 
 	char * ver = inp_get_string(sim,&inp);
@@ -320,6 +330,21 @@ struct dimensions *dim=&in->ns.dim;
 
 }
 
+int contact_within(struct contact *c, long double x, long double z)
+{
+//	printf("%Le %Le %Le\n",c->shape.x0,(c->shape.x0+c->shape.dx),x);
+//	getchar();
+	if (x>=c->shape.x0)
+	{
+		if (x<(c->shape.x0+c->shape.dx))
+		{
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
 void contacts_update(struct simulation *sim,struct device *in)
 {
 int i;
@@ -331,6 +356,7 @@ int found=FALSE;
 gdouble value=0.0;
 struct newton_save_state *ns=&in->ns;
 struct dimensions *dim=&in->ns.dim;
+struct contact *c;
 
 if (dim->xmeshpoints==1)
 {
@@ -373,15 +399,19 @@ for (z=0;z<dim->zmeshpoints;z++)
 
 for (i=0;i<in->ncontacts;i++)
 {
+	c=&(in->contacts[i]);
 	for (z=0;z<dim->zmeshpoints;z++)
 	{
 		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			if ((dim->xmesh[x]>=in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+			
+			if (contact_within(c, dim->xmesh[x], dim->zmesh[z])==0)
 			{
-
+				//getchar();
 				if (in->contacts[i].position==TOP)
 				{
+					//printf("top %d\n",in->contacts[i].position);
+
 					if (in->n_contact_l[z][x]!=-1)
 					{
 						ewe(sim,"You have overlapping contacts\n");
@@ -391,7 +421,10 @@ for (i=0;i<in->ncontacts;i++)
 					in->n_contact_l[z][x]=i;
 					in->passivate_l[z][x]=FALSE;
 				}else
+				if (in->contacts[i].position==BOTTOM)
 				{
+					//printf("btm %d\n",in->contacts[i].position);
+
 					if (in->n_contact_r[z][x]!=-1)
 					{
 						ewe(sim,"You have overlapping contacts\n");
@@ -400,6 +433,14 @@ for (i=0;i<in->ncontacts;i++)
 					in->Vapplied_r[z][x]=in->contacts[i].voltage;
 					in->n_contact_r[z][x]=i;
 					in->passivate_r[z][x]=FALSE;
+				}else
+				if (in->contacts[i].position==LEFT)
+				{
+						ewe(sim,"I don't support left contacts yet\n");
+				}else
+				if (in->contacts[i].position==RIGHT)
+				{
+						ewe(sim,"I don't support right contacts yet\n");					
 				}
 			}
 		}
@@ -409,7 +450,7 @@ for (i=0;i<in->ncontacts;i++)
 }
 
 //contacts_dump(sim,in);
-
+//getchar();
 }
 
 gdouble contact_get_voltage_last(struct simulation *sim,struct device *in,int contact)
@@ -725,7 +766,7 @@ for (x=0;x<dim->xmeshpoints;x++)
 			{
 				if (in->contacts[i].position==TOP)
 				{
-					if ((in->ylen-dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					//if ((in->ylen-dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;
@@ -734,7 +775,7 @@ for (x=0;x<dim->xmeshpoints;x++)
 
 				if (in->contacts[i].position==BOTTOM)
 				{
-					if ((dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
+					//if ((dim->ymesh[y]<=in->contacts[i].depth)&&(dim->xmesh[x]>in->contacts[i].start)&&(dim->xmesh[x]<in->contacts[i].start+in->contacts[i].width))
 					{
 						in->mun[z][x][y]=1e-15;
 						in->mup[z][x][y]=1e-15;
@@ -765,4 +806,14 @@ for (x=0;x<dim->xmeshpoints;x++)
 	}
 }
 
+}
+
+void contacts_free(struct simulation *sim,struct device *in)
+{
+	int i;
+
+	for (i=0;i<in->ncontacts;i++)
+	{
+		shape_free(sim,&(in->contacts[i].shape));
+	}
 }

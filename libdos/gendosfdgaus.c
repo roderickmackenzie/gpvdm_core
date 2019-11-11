@@ -1243,7 +1243,7 @@ for (mat=0;mat<matnumber;mat++)
 
 
 
-epitaxy_free(&my_epitaxy);
+epitaxy_free(sim,&my_epitaxy);
 }
 
 

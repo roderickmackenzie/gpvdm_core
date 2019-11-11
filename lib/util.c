@@ -384,6 +384,15 @@ if (strcmp(temp,"bottom")==0)
 {
 	return BOTTOM;
 }else
+if (strcmp(temp,"right")==0)
+{
+	return RIGHT;
+}else
+if (strcmp(temp,"left")==0)
+{
+	return LEFT;
+}else
+
 if (strcmp(temp,"electron")==0)
 {
 	return ELECTRON;
