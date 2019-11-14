@@ -124,6 +124,10 @@
 #define dos_exp_fd 	3
 #define dos_read 	5
 
+//free dos types
+#define mb_equation 0
+#define mb_look_up_table 1
+#define mb_fd_look_up_table 2
 
 		#include <linux/limits.h>
 

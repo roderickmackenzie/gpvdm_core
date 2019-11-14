@@ -400,9 +400,19 @@ if (strcmp(temp,"electron")==0)
 if (strcmp(temp,"hole")==0)
 {
 	return HOLE;
+}else
+if (strcmp(temp,"mb_equation")==0)
+{
+	return mb_equation;
+}else
+if (strcmp(temp,"mb_look_up_table")==0)
+{
+	return mb_look_up_table;
+}else
+if (strcmp(temp,"mb_fd_look_up_table")==0)
+{
+	return mb_fd_look_up_table;
 }
-
-
 
 ewe(sim,"%s %s\n",_("I don't understand the command"),in);
 return 0;

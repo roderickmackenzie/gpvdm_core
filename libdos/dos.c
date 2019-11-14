@@ -37,10 +37,6 @@
 #include "cal_path.h"
 #include "util.h"
 
-long double max= -1000;
-long double min=1000;
-
-
 long double get_dos_filled_n(struct device *in)
 {
 int x=0;
@@ -253,6 +249,7 @@ if (get_dump_status(sim,dump_print_text)==TRUE) printf_log(sim,"%s %s\n",_("Load
 	mydos->config.Eg=buf[buf_pos++];
 	mydos->config.Xi=buf[buf_pos++];
 	mydos->config.B=buf[buf_pos++];
+	mydos->config.dos_free_carrier_stats=(int)buf[buf_pos++];
 
 	long double xsteps=mydos->xlen;
 	long double tsteps=mydos->tlen;
@@ -432,83 +429,6 @@ long double get_dos_E_p(struct device *in,int band,int mat)
 {
 return in->dosp[mat].srh_E[band];
 }
-
-long double get_n_w(struct device *in,long double top,long double T,int mat)
-{
-long double ret=(3.0/2.0)*kb*T;
-return ret;
-}
-
-long double get_p_w(struct device *in,long double top,long double T,int mat)
-{
-long double ret=(3.0/2.0)*kb*T;
-return ret;
-}
-
-long double get_dpdT_den(struct device *in,long double top,long double T,int mat)
-{
-long double ret=0.0;
-long double N=in->dosp[mat].config.Nv;
-ret= -((top*Q)/kb)*N*gexp((top*Q)/(kb*T))*gpow(T,-2.0);
-return ret;
-}
-
-long double get_dndT_den(struct device *in,long double top,long double T,int mat)
-{
-long double ret=0.0;
-long double N=in->dosn[mat].config.Nc;
-ret= -((top*Q)/kb)*N*gexp((top*Q)/(kb*T))*gpow(T,-2.0);
-return ret;
-}
-
-long double get_top_from_n(struct device *in,long double n,long double T,int mat)
-{
-long double ret=(kb*T/Q)*log((fabs(n))/in->dosn[mat].config.Nc);
-return ret;
-}
-
-
-long double get_top_from_p(struct device *in,long double p,long double T,int mat)
-{
-long double ret=(kb*T/Q)*log((fabs(p))/in->dosp[mat].config.Nv);
-//printf("ret=%Le %Le %Le %Le %Le %Le\n",ret,kb,T,Q,p,in->dosp[mat].config.Nv);
-return ret;
-}
-
-long double get_n_den(struct device *in,long double top,long double T,int mat)
-{
-long double ret=in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
-return ret;
-}
-
-long double get_p_den(struct device *in,long double top,long double T, int mat)
-{
-long double ret=in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
-return ret;
-}
-
-long double get_n_mu(struct device *in,int mat)
-{
-return in->dosn[mat].config.mu;
-}
-
-long double get_p_mu(struct device *in,int mat)
-{
-return in->dosp[mat].config.mu;
-}
-
-long double get_dn_den(struct device *in,long double top,long double T, int mat)
-{
-long double ret=(Q/(T*kb))*in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
-return ret;
-}
-
-long double get_dp_den(struct device *in,long double top,long double T, int mat)
-{
-long double ret=(Q/(T*kb))*in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
-return ret;
-}
-
 
 long double get_n_srh(struct simulation *sim,struct device *in,long double top,long double T,int trap,int r,int mat)
 {

@@ -365,7 +365,7 @@ void buffer_dump_cache(struct simulation *sim,char * file_name,struct dat_file *
 {
 	if (dumpfiles_should_dump(sim,file_name)==0)
 	{
-		if (get_dump_status(sim,dump_use_cache)==FALSE)
+		if ((get_dump_status(sim,dump_use_cache)==FALSE)||(sim->cache_len==-1))
 		{
 			buffer_dump(sim,file_name,in);
 		}else
@@ -377,7 +377,7 @@ void buffer_dump_cache(struct simulation *sim,char * file_name,struct dat_file *
 
 void buffer_add_dir(struct simulation *sim,char * file_name)
 {
-	if (get_dump_status(sim,dump_use_cache)==FALSE)
+	if ((get_dump_status(sim,dump_use_cache)==FALSE)||(sim->cache_len==-1))
 	{
 		gpvdm_mkdir(file_name);
 	}else

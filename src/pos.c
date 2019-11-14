@@ -517,6 +517,8 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 					in->Fnt[z][x][i][band]= -ns->phi[z][x][i]-in->Xi[z][x][i]+dos_srh_get_fermi_n(in,in->n[z][x][i], in->p[z][x][i],band,in->imat[z][x][i],in->Te[z][x][i]);
 					in->Fpt[z][x][i][band]= -ns->phi[z][x][i]-in->Xi[z][x][i]-in->Eg[z][x][i]-dos_srh_get_fermi_p(in,in->n[z][x][i], in->p[z][x][i],band,in->imat[z][x][i],in->Th[z][x][i]);
 
+					printf("p:%Le\n",dos_srh_get_fermi_p(in,in->n[z][x][i], in->p[z][x][i],band,in->imat[z][x][i],in->Th[z][x][i]));
+					getchar();
 					ns->xt[z][x][i][band]=ns->phi[z][x][i]+in->Fnt[z][x][i][band];
 					in->nt[z][x][i][band]=get_n_pop_srh(sim,in,ns->xt[z][x][i][band]+in->tt[z][x][i],in->Te[z][x][i],band,in->imat[z][x][i]);
 					in->dnt[z][x][i][band]=get_dn_pop_srh(sim,in,ns->xt[z][x][i][band]+in->tt[z][x][i],in->Te[z][x][i],band,in->imat[z][x][i]);

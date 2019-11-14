@@ -294,7 +294,7 @@ t=0;
 x=0;
 
 int buf_len=0;
-buf_len+=18;
+buf_len+=19;
 buf_len+=in->npoints;		//mesh
 buf_len+=tsteps;		//mesh
 buf_len+=in->srh_bands;	//mesh
@@ -322,6 +322,7 @@ buf[buf_pos++]=(gdouble)in->Nt;
 buf[buf_pos++]=(gdouble)in->Eg;
 buf[buf_pos++]=(gdouble)in->Xi;
 buf[buf_pos++]=(gdouble)in->B;
+buf[buf_pos++]=(gdouble)in->dos_free_carrier_stats;
 
 gdouble srh_pos=in->srh_start;
 gdouble srh_delta=fabs(in->srh_start)/(gdouble)(in->srh_bands);
@@ -567,15 +568,6 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 				rho=in->Nt*exp((E)/(in->Et));
 				rho2=in2->Nt*exp((E)/(in2->Et));
 
-
-				//if (rho>1e40)	rho=0.0;
-				//if (rho2>1e40)	rho2=0.0;
-
-				if ((E>in->del_start)&&(E<in->del_stop))
-				{
-					rho=1e20;
-				}
-
 			}
 
 			else
@@ -594,8 +586,6 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 				}
 
 			}
-
-
 
 
 			if (x==0)
@@ -714,7 +704,7 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 			}
 		}
 
-		if ((in->dostype==dos_exp)||(in->dostype==dos_read)||(in->dostype==dos_an))
+		if (in->dos_free_carrier_stats==mb_look_up_table)
 		{
 			if (electrons==TRUE)
 			{
@@ -726,10 +716,15 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 				sum2=in->Nc*exp((-(in->Eg+xpos)*Q)/(kb*tpos));
 			}
 
+		}else
+		{
+			sum=-1.0;
+			sum2=-1.0;
 		}
 
-		gdouble w0=sum/((sum-last_n0)/(dxr));
-		if (x==0) w0=kb*tpos/Q;
+		gdouble w0=(3.0/2.0)*sum/((sum-last_n0)/(dxr*Q));
+
+		if (x==0) w0=(3.0/2.0)*kb*tpos/Q;
 
 			buf[buf_pos++]=sum;
 			buf[buf_pos++]=w0;
@@ -908,6 +903,10 @@ inp_check(sim,&inp,1.24);
 inp_search_string(sim,&inp,temp,"#dostype");
 confige[mat].dostype=english_to_bin(sim,temp);
 configh[mat].dostype=confige[mat].dostype;
+
+inp_search_string(sim,&inp,temp,"#dos_free_carrier_stats");
+confige[mat].dos_free_carrier_stats=english_to_bin(sim,temp);
+configh[mat].dos_free_carrier_stats=confige[mat].dos_free_carrier_stats;
 
 inp_search_gdouble(sim,&inp,&(confige[mat].m),"#me");
 inp_search_gdouble(sim,&inp,&(configh[mat].m),"#mh");

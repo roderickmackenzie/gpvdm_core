@@ -35,6 +35,7 @@ struct dosconfig
 	int dos_number;
 	long double m;
 	int dostype;
+	int dos_free_carrier_stats;
 	long double Nt;
 	long double Et;
 	long double nstart;
