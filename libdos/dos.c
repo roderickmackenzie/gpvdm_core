@@ -245,6 +245,7 @@ if (get_dump_status(sim,dump_print_text)==TRUE) printf_log(sim,"%s %s\n",_("Load
 	mydos->config.srh_sigmap=buf[buf_pos++];
 	mydos->config.Nc=buf[buf_pos++];
 	mydos->config.Nv=buf[buf_pos++];
+
 	mydos->config.Nt=buf[buf_pos++];
 	mydos->config.Eg=buf[buf_pos++];
 	mydos->config.Xi=buf[buf_pos++];
@@ -313,6 +314,7 @@ if (get_dump_status(sim,dump_print_text)==TRUE) printf_log(sim,"%s %s\n",_("Load
 		mydos->t[t]=buf[buf_pos++];
 		//fprintf(rt,"%le\n",(mydos->t[t]));
 	}
+
 
 	for (srh_band=0;srh_band<(mydos->srh_bands);srh_band++)
 	{

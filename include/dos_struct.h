@@ -33,7 +33,6 @@ struct dosconfig
 	char dos_name[20];
 	char analytical_dos_file_name[20];
 	int dos_number;
-	long double m;
 	int dostype;
 	int dos_free_carrier_stats;
 	long double Nt;
@@ -52,16 +51,17 @@ struct dosconfig
 	long double detrap;
 	int srh_bands;
 	long double srh_start;
+	long double srh_stop;
+
 
 	long double srh_sigman;
 	long double srh_sigmap; 
 	long double srh_vth;
 	long double Nc;
 	long double Nv;
-	long double srh_cut;
+	long double me;
+	long double mh;
 
-	long double del_start;
-	long double del_stop;
 	long double Eg;
 	long double Xi;
 	long double epsilonr;

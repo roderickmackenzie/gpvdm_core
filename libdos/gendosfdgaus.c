@@ -229,34 +229,41 @@ int *band_i=NULL;
 
 int e=0;
 gdouble E=0.0;
-gdouble dE=fabs(in->srh_start)/((gdouble)in->Esteps);
+gdouble dE=0.0;
 gdouble rho=0.0;
-gdouble rho2=0.0;
 gdouble sum=0.0;
 gdouble f=0.0;
 gdouble last_n0=0;
 gdouble *xmesh=NULL;
+
+long double srh_pos=0.0;
+long double srh_delta=0.0;
 
 int i;
 int band_pos=0;
 int cur_band=0;
 int points_per_band=0;
 
-
+long double E_free_start=0.0;
+long double E_free_stop=2.0;
+int E_free_points=1000.0;
+long double dE_free=(E_free_stop-E_free_start)/(long double)E_free_points;
+long double sum_l=0.0;
+long double sum_r=0.0;
+long double pos=0.0;
 struct dos_an_data my_dos_an;
 
+#define dos_test_stats
 #ifdef dos_test_stats
 FILE *freetest;
 if (electrons==TRUE)
 {
-	sprintf(name,"%sfreetestn.dat",confige[mat].dos_name);
-	freetest=fopen(name,"w");
-	fclose(freetest);
+	sprintf(name,"freetestn.dat");
+	remove_file(sim,name);
 }else
 {
-	sprintf(name,"%s_freetestp.dat",configh[mat].dos_name);
-	freetest=fopen(name,"w");
-	fclose(freetest);
+	sprintf(name,"freetestp.dat");
+	remove_file(sim,name);
 }
 #endif
 
@@ -324,8 +331,6 @@ buf[buf_pos++]=(gdouble)in->Xi;
 buf[buf_pos++]=(gdouble)in->B;
 buf[buf_pos++]=(gdouble)in->dos_free_carrier_stats;
 
-gdouble srh_pos=in->srh_start;
-gdouble srh_delta=fabs(in->srh_start)/(gdouble)(in->srh_bands);
 xmesh=(gdouble *)malloc(sizeof(gdouble)*in->npoints);
 
 for (x=0;x<in->npoints;x++)
@@ -341,6 +346,10 @@ for (t=0;t<tsteps;t++)
 	tpos+=dt;
 }
 
+//Allocate where the traps are going to be in energy space
+srh_delta=fabs(in->srh_stop-in->srh_start)/(long double)(in->srh_bands);
+srh_pos=in->srh_start;
+
 for (band=0;band<in->srh_bands;band++)
 {
 	srh_pos+=srh_delta/2.0;
@@ -352,13 +361,15 @@ for (band=0;band<in->srh_bands;band++)
 
 }
 
+
+//Build the energy mesh for integration
 if (in->srh_bands>0)
 {
 	points_per_band=in->Esteps/in->srh_bands;
 }
 
-
-gdouble pos=in->srh_start;
+pos=in->srh_start;
+dE=fabs(in->srh_stop-in->srh_start)/((gdouble)in->Esteps);
 
 //FILE *test4=fopen("test4.dat","w");
 for (i=0;i<in->Esteps;i++)
@@ -497,8 +508,6 @@ if (get_dump_status(sim,dump_write_out_band_structure)==TRUE)
 int srh_band=0;
 gdouble srh_E=0.0;
 gdouble srh_f=0.0;
-gdouble f2=0.0;
-gdouble sum2=0.0;
 for (t=0;t<tsteps;t++)
 {
 
@@ -508,8 +517,6 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 	{
 		xpos=xmesh[x];
 		E=0.0;
-		sum=0.0;
-		sum2=0.0;
 
 		for (srh_band=0;srh_band<(in->srh_bands);srh_band++)
 		{
@@ -531,60 +538,19 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 			srh_E=srh_mid[srh_band];
 
 			f=1.0/(1.0+exp((E-xpos)*Q/(kb*tpos)));
-			f2=1.0/(1.0+exp((E-(-1.0*(in->Eg+xpos)))*Q/(kb*tpos)));
 
 			srh_f=1.0/(1.0+exp((srh_E-xpos)*Q/(kb*tpos)));
 
-			if (in->dostype==dos_fd)
-			{
-				if (E>0)
-				{
-					rho=(sqrt(E)/(4.0*PI*PI))*pow((2.0*in->m*m0)/(hbar*hbar),3.0/2.0);
-				}else
-				{
-					rho=0.0;
-				}
-
-			}else
-			if (in->dostype==dos_exp_fd)
-			{
-
-				if (E>0)
-				{
-					rho=2.0*(sqrt(E)/(4.0*PI*PI))*pow((2.0*in->m*m0)/(hbar*hbar),3.0/2.0);
-					rho2=2.0*(sqrt(E)/(4.0*PI*PI))*pow((2.0*in2->m*m0)/(hbar*hbar),3.0/2.0);
-				}else
-				{
-					rho=in->Nt*exp((E)/(in->Et));
-					rho2=in2->Nt*exp((E)/(in2->Et));
-				}
-				//if (rho>1e60)	rho=0.0;
-				//if (rho2>1e60)	rho2=0.0;
-
-			}else
 			if (in->dostype==dos_exp)
 			{
-
 				rho=in->Nt*exp((E)/(in->Et));
-				rho2=in2->Nt*exp((E)/(in2->Et));
-
-			}
-
-			else
+			}else
 			if ((in->dostype==dos_read)||(confige[mat].dostype==dos_an))
 			{
 				rho=srh_read[srh_band];
-
-				if (E<in->srh_cut)
-				{
-					rho=1e20;
-				}
-
-				if ((E>in->del_start)&&(E<in->del_stop))
-				{
-					rho=1e20;
-				}
-
+			}else
+			{
+				ewe(sim,"I don't understand this DoS type.\n");
 			}
 
 
@@ -609,70 +575,34 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 				}
 			}
 
-			if (E>0)
-			{
-				sum+=rho*f*dE;
-				sum2+=rho2*f2*dE;
 
+			if (electrons==TRUE)
+			{
+				srh_r1[srh_band]+=in->srh_vth*in->srh_sigman*rho*(1.0-srh_f)*dE;
+				srh_r2[srh_band]+=in->srh_vth*in->srh_sigman*in->Nc*exp((srh_E*Q)/(tpos*kb))*rho*srh_f*dE;//in->srh_vth*srh_sigman*rho*(1.0-srh_f)*dE;//
+				srh_r3[srh_band]+=in->srh_vth*in->srh_sigmap*rho*srh_f*dE;
+				srh_r4[srh_band]+=in->srh_vth*in->srh_sigmap*in->Nv*exp((-in->Eg*Q-srh_E*Q)/(tpos*kb))*rho*(1.0-srh_f)*dE;//in->srh_vth*srh_sigmap*rho*srh_f*dE;//
+				//if (srh_r1[srh_band]<1e-3)
+				//{
+				//	printf("%Lf %Le %Le %Le %Le\n",srh_mid[srh_band],srh_r1[srh_band],srh_r2[srh_band],srh_r3[srh_band],srh_r4[srh_band]);
+				//}
+				srh_n[srh_band]+=rho*srh_f*dE;
+				srh_den[srh_band]+=rho*dE;
+				srh_dE_sum[srh_band]+=dE;
 			}else
 			{
-
-				//rho=1e47;
-				if (electrons==TRUE)
-				{
-					srh_r1[srh_band]+=in->srh_vth*in->srh_sigman*rho*(1.0-srh_f)*dE;
-					srh_r2[srh_band]+=in->srh_vth*in->srh_sigman*in->Nc*exp((srh_E*Q)/(tpos*kb))*rho*srh_f*dE;//in->srh_vth*srh_sigman*rho*(1.0-srh_f)*dE;//
-					srh_r3[srh_band]+=in->srh_vth*in->srh_sigmap*rho*srh_f*dE;
-					srh_r4[srh_band]+=in->srh_vth*in->srh_sigmap*in->Nv*exp((-in->Eg*Q-srh_E*Q)/(tpos*kb))*rho*(1.0-srh_f)*dE;//in->srh_vth*srh_sigmap*rho*srh_f*dE;//
-					srh_n[srh_band]+=rho*srh_f*dE;
-					srh_den[srh_band]+=rho*dE;
-					srh_dE_sum[srh_band]+=dE;
-				}else
-				{
-					srh_r1[srh_band]+=in->srh_vth*in->srh_sigmap*rho*(1.0-srh_f)*dE;
-					srh_r2[srh_band]+=in->srh_vth*in->srh_sigmap*in->Nv*exp((srh_E*Q)/(tpos*kb))*rho*srh_f*dE;//in->srh_vth*srh_sigman*rho*(1.0-srh_f)*dE;//
-					srh_r3[srh_band]+=in->srh_vth*in->srh_sigman*rho*srh_f*dE;
-					srh_r4[srh_band]+=in->srh_vth*in->srh_sigman*in->Nc*exp((-in->Eg*Q-(srh_E*Q))/(tpos*kb))*rho*(1.0-srh_f)*dE;//in->srh_vth*srh_sigmap*rho*srh_f*dE;//
-					srh_n[srh_band]+=rho*srh_f*dE;
-					srh_den[srh_band]+=rho*dE;
-					srh_dE_sum[srh_band]+=dE;
-				}
+				srh_r1[srh_band]+=in->srh_vth*in->srh_sigmap*rho*(1.0-srh_f)*dE;
+				srh_r2[srh_band]+=in->srh_vth*in->srh_sigmap*in->Nv*exp((srh_E*Q)/(tpos*kb))*rho*srh_f*dE;//in->srh_vth*srh_sigman*rho*(1.0-srh_f)*dE;//
+				srh_r3[srh_band]+=in->srh_vth*in->srh_sigman*rho*srh_f*dE;
+				srh_r4[srh_band]+=in->srh_vth*in->srh_sigman*in->Nc*exp((-in->Eg*Q-(srh_E*Q))/(tpos*kb))*rho*(1.0-srh_f)*dE;//in->srh_vth*srh_sigmap*rho*srh_f*dE;//
+				srh_n[srh_band]+=rho*srh_f*dE;
+				srh_den[srh_band]+=rho*dE;
+				srh_dE_sum[srh_band]+=dE;
 			}
-
-
-			#ifdef test_dist
-			if (E>=0.0)
-			{
-
-
-				if (t==0)
-				if ((x%10)==0)
-				if ((e%2)==0)
-				{
-					fprintf(plotbandsfree,"%.20le %.20le\n",E,rho*f*dE);
-					if (first==FALSE) fprintf(plotbands,"%.20le %.20le\n",E,rho*f*dE);
-					first=TRUE;
-				}
-
-			}else
-			{
-
-				if (t==0)
-				if ((x%10)==0)
-				if ((e%10)==0)
-				{
-					fprintf(plotbands,"%.20le %.20le\n",E,rho*f*dE);
-				}
-
-			}
-			#endif
 
 		}
 
-		#ifdef test_dist
-		fprintf(plotbands,"\n");
-		fprintf(plotbandsfree,"\n");
-		#endif
+
 
 		if (x==0)
 		{
@@ -704,49 +634,121 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 			}
 		}
 
+		///////////Free stuff
+		sum_l=0.0;
+		sum_r=0.0;
+		long double Nc=2.0*powl((in->me*m0*kb*tpos)/(2.0*PI*hbar*hbar),3.0/2.0);
+		long double Nv=2.0*powl((in->mh*m0*kb*tpos)/(2.0*PI*hbar*hbar),3.0/2.0);
+
+		if (in->dos_free_carrier_stats==fd_look_up_table)
+		{
+			E=E_free_start;
+			sum=0.0;
+
+			gdouble w0=0.0;
+			for (e=0;e<E_free_points;e++)
+			{
+
+				if (electrons==TRUE)
+				{
+					rho=(sqrtl(E*Q)/(2.0*PI*PI))*pow((2.0*in->me*m0)/(hbar*hbar),3.0/2.0);
+				}else
+				{
+					rho=(sqrtl(E*Q)/(2.0*PI*PI))*pow((2.0*in->mh*m0)/(hbar*hbar),3.0/2.0);
+				}
+
+				f=1.0/(1.0+expl((E-xpos)*Q/(kb*tpos)));
+				sum+=rho*Q*f*dE_free;
+
+				f=1.0/(1.0+expl((E-xpos-dxr/2.0)*Q/(kb*tpos)));
+				sum_l+=rho*Q*f*dE_free;
+
+				f=1.0/(1.0+expl((E-xpos+dxr/2.0)*Q/(kb*tpos)));
+				sum_r+=rho*Q*f*dE_free;
+				E+=dE_free;
+				//if (electrons==FALSE)
+				//{
+				//	printf("%Le %Le\n",rho,in->mh);
+				//	getchar();
+				//}
+
+			}
+
+			//printf("here %Le %Le %Le \n",sum,in->Nc*exp((xpos*Q)/(kb*tpos)),xpos);//		
+			//getchar();	
+
+
+		}else
 		if (in->dos_free_carrier_stats==mb_look_up_table)
 		{
-			if (electrons==TRUE)
+			E=E_free_start;
+			sum=0.0;
+
+			gdouble w0=0.0;
+
+			for (e=0;e<E_free_points;e++)
 			{
-				sum=in->Nc*exp((xpos*Q)/(kb*tpos));
-				sum2=in->Nv*exp((-(in->Eg+xpos)*Q)/(kb*tpos));
-			}else
-			{
-				sum=in->Nv*exp((xpos*Q)/(kb*tpos));
-				sum2=in->Nc*exp((-(in->Eg+xpos)*Q)/(kb*tpos));
+
+				if (electrons==TRUE)
+				{
+					rho=(sqrtl(E*Q)/(2.0*PI*PI))*pow((2.0*in->me*m0)/(hbar*hbar),3.0/2.0);
+				}else
+				{
+					rho=(sqrtl(E*Q)/(2.0*PI*PI))*pow((2.0*in->mh*m0)/(hbar*hbar),3.0/2.0);
+				}
+
+				f=expl((xpos-E)*Q/(kb*tpos));
+				sum+=rho*Q*f*dE_free;
+
+				f=expl((xpos-E-dxr/2.0)*Q/(kb*tpos));
+				sum_l+=rho*Q*f*dE_free;
+
+				f=expl((xpos-E+dxr/2.0)*Q/(kb*tpos));
+				sum_r+=rho*Q*f*dE_free;
+				E+=dE_free;
+				//if (electrons==FALSE)
+				//{
+				//	printf("%Le %Le\n",rho,in->mh);
+				//	getchar();
+				//}
+
 			}
 
 		}else
+		if (in->dos_free_carrier_stats==mb_look_up_table_analytic)
 		{
-			sum=-1.0;
-			sum2=-1.0;
-		}
-
-		gdouble w0=(3.0/2.0)*sum/((sum-last_n0)/(dxr*Q));
-
-		if (x==0) w0=(3.0/2.0)*kb*tpos/Q;
-
-			buf[buf_pos++]=sum;
-			buf[buf_pos++]=w0;
-
-		last_n0=sum;
-
-
-		#ifdef dos_test_stats
 			if (electrons==TRUE)
 			{
-				freetest=fopen("freetestn.dat","a");
-				//fprintf(freetest,"%.20le %.20le %.20le %.20le %.20le\n",xpos,sum,in->Nc*exp((xpos*Q)/(kb*tpos)),sum2,in->Nv*exp((-(in->Eg+xpos)*Q)/(kb*tpos)));
-				fprintf(freetest,"%.20le %.20le %.20le\n",xpos,(3.0/2.0)*w0,(3.0/2.0)*kb*tpos/Q);
-				fclose(freetest);
+				sum_l=Nc*exp(((xpos-dxr/2.0)*Q)/(kb*tpos));
+				sum=Nc*exp((xpos*Q)/(kb*tpos));
+				sum_r=Nc*exp(((xpos+dxr/2.0)*Q)/(kb*tpos));
+
 			}else
 			{
-				freetest=fopen("freetestp.dat","a");
-				//fprintf(freetest,"%.20le %.20le %.20le %.20le %.20le\n",xpos,sum,in->Nv*exp((xpos*Q)/(kb*tpos)),sum2,in->Nc*exp((-(in->Eg+xpos)*Q)/(kb*tpos)));
-				fprintf(freetest,"%.20le %.20le %.20le\n",xpos,(3.0/2.0)*w0,(3.0/2.0)*kb*tpos/Q);
-				fclose(freetest);
+				sum_l=Nv*exp(((xpos-dxr/2.0)*Q)/(kb*tpos));
+				sum=Nv*exp((xpos*Q)/(kb*tpos));
+				sum_r=Nv*exp(((xpos+dxr/2.0)*Q)/(kb*tpos));
 			}
-		#endif
+		}else
+		{
+			sum=-1.0;
+		}
+
+		//if (electrons==TRUE)
+		//{
+		//	printf("%Le %Le %Lf\n",in->Nc*exp((xpos*Q)/(kb*tpos)),sum,tpos);
+		//}
+		//getchar();
+		//printf("%Le %Le\n",xpos-dxr/2.0,xpos+dxr/2.0);
+		gdouble w0=(3.0/2.0)*sum/((fabs(sum_l-sum_r))/(dxr*Q));
+
+		//printf("%Le %Le\n",w0,(3.0/2.0)*kb*tpos);
+		//getchar();
+		//if (x==0) w0=(3.0/2.0)*kb*tpos;
+
+		buf[buf_pos++]=sum;
+		buf[buf_pos++]=w0;
+
 
 		for (srh_band=0;srh_band<in->srh_bands;srh_band++)
 		{
@@ -754,9 +756,42 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 				buf[buf_pos++]=srh_r2[srh_band];
 				buf[buf_pos++]=srh_r3[srh_band];
 				buf[buf_pos++]=srh_r4[srh_band];
-				buf[buf_pos++]=srh_n[srh_band];
 
+				buf[buf_pos++]=srh_n[srh_band];
 		}
+
+		#ifdef dos_test_stats
+			if ((x%100)==0)
+			{
+				printf("%d\n",x);
+				if (electrons==TRUE)
+				{
+					freetest=fopen("freetestn.dat","a");
+					//fprintf(freetest,"%.20le %.20le %.20le %.20le\n",xpos,sum,in->Nc*exp((xpos*Q)/(kb*tpos)),in->Nv*exp((-(in->Eg+xpos)*Q)/(kb*tpos)));
+					//fprintf(freetest,"%Le %Le %Le\n",xpos,in->Nc*exp((xpos*Q)/(kb*tpos)),sum);
+
+					for (srh_band=0;srh_band<in->srh_bands;srh_band++)
+					{
+						fprintf(freetest,"%Le %Le\n",srh_mid[srh_band],srh_r2[0]);
+					}
+					fprintf(freetest,"\n");
+
+					fclose(freetest);
+				}else
+				{
+					freetest=fopen("freetestp.dat","a");
+					//fprintf(freetest,"%Le %Le %Le\n",xpos,in->Nv*exp((xpos*Q)/(kb*tpos)),sum);
+
+					for (srh_band=0;srh_band<in->srh_bands;srh_band++)
+					{
+						fprintf(freetest,"%Le %Le\n",srh_mid[srh_band],srh_n[srh_band]);
+					}
+					fprintf(freetest,"\n");
+
+					fclose(freetest);
+				}
+			}
+		#endif
 
 
 		#ifdef test_dist
@@ -766,7 +801,7 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 
 
 	}
-
+	//getchar();	
 //getchar();
 
 tpos+=dt;
@@ -908,9 +943,6 @@ inp_search_string(sim,&inp,temp,"#dos_free_carrier_stats");
 confige[mat].dos_free_carrier_stats=english_to_bin(sim,temp);
 configh[mat].dos_free_carrier_stats=confige[mat].dos_free_carrier_stats;
 
-inp_search_gdouble(sim,&inp,&(confige[mat].m),"#me");
-inp_search_gdouble(sim,&inp,&(configh[mat].m),"#mh");
-
 inp_search_gdouble(sim,&inp,&(confige[mat].Nt),"#Ntrape");
 inp_search_gdouble(sim,&inp,&(configh[mat].Nt),"#Ntraph");
 
@@ -977,8 +1009,12 @@ int bands=0;
 inp_search_int(sim,&inp,&(bands),"#srh_bands");
 confige[mat].srh_bands=bands;
 configh[mat].srh_bands=bands;
+
 inp_search_gdouble(sim,&inp,&(confige[mat].srh_start),"#srh_start");
 configh[mat].srh_start=confige[mat].srh_start;
+
+inp_search_gdouble(sim,&inp,&(confige[mat].srh_stop),"#srh_stop");
+configh[mat].srh_stop=confige[mat].srh_stop;
 
 inp_search_gdouble(sim,&inp,&(confige[mat].srh_sigman),"#srhsigman_e");
 confige[mat].srh_sigman=fabs(confige[mat].srh_sigman);
@@ -1004,17 +1040,6 @@ inp_search_gdouble(sim,&inp,&(confige[mat].Nc),"#Nc");
 
 inp_search_gdouble(sim,&inp,&(confige[mat].Nv),"#Nv");
 
-inp_search_gdouble(sim,&inp,&(confige[mat].srh_cut),"#srh_cut");
-confige[mat].srh_cut= -fabs(confige[mat].srh_cut);
-configh[mat].srh_cut=confige[mat].srh_cut;
-
-inp_search_gdouble(sim,&inp,&(confige[mat].del_start),"#lumodelstart");
-
-inp_search_gdouble(sim,&inp,&(confige[mat].del_stop),"#lumodelstop");
-
-inp_search_gdouble(sim,&inp,&(configh[mat].del_start),"#homodelstart");
-
-inp_search_gdouble(sim,&inp,&(configh[mat].del_stop),"#homodelstop");
 
 inp_search_gdouble(sim,&inp,&(confige[mat].Xi),"#Xi");
 
@@ -1068,15 +1093,24 @@ confige[mat].Nc=fabs(confige[mat].Nc);
 confige[mat].Nv=fabs(confige[mat].Nv);
 if (confige[mat].Nc<1e16) confige[mat].Nc=1e16;
 if (confige[mat].Nv<1e16) confige[mat].Nv=1e16;
-confige[mat].m=pow(confige[mat].Nc/2.0,2.0/3.0)*hp*hp/kb/300.0/m0/2.0/PI;
-configh[mat].m=pow(confige[mat].Nv/2.0,2.0/3.0)*hp*hp/kb/300.0/m0/2.0/PI;
+
+/*printf("bing %Lf\n",confige[mat].me);
+printf("%Lf\n",confige[mat].mh);
+getchar();*/
+//confige[mat].m=pow(confige[mat].Nc/2.0,2.0/3.0)*hp*hp/kb/300.0/m0/2.0/PI;
+//configh[mat].m=pow(confige[mat].Nv/2.0,2.0/3.0)*hp*hp/kb/300.0/m0/2.0/PI;
 
 //(sqrt(E)/(4.0*PI*PI))*pow((2.0*in->m*m0)/(hbar*hbar),3.0/2.0)
 
 configh[mat].Nc=confige[mat].Nc;
 configh[mat].Nv=confige[mat].Nv;
 
+//The states are defined at 300K
+confige[mat].me=(powl(confige[mat].Nc/2.0,2.0/3.0)*hbar*hbar*2.0*PI)/(m0*kb*300.0);
+confige[mat].mh=(powl(confige[mat].Nv/2.0,2.0/3.0)*hbar*hbar*2.0*PI)/(m0*kb*300.0);
 
+configh[mat].me=confige[mat].me;
+configh[mat].mh=confige[mat].mh;
 
 inp_free(sim,&inp);
 }

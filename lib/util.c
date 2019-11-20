@@ -409,9 +409,21 @@ if (strcmp(temp,"mb_look_up_table")==0)
 {
 	return mb_look_up_table;
 }else
-if (strcmp(temp,"mb_fd_look_up_table")==0)
+if (strcmp(temp,"fd_look_up_table")==0)
 {
-	return mb_fd_look_up_table;
+	return fd_look_up_table;
+}else
+if (strcmp(temp,"mb_look_up_table_analytic")==0)
+{
+	return mb_look_up_table_analytic;
+}else
+if (strcmp(temp,"ohmic")==0)
+{
+	return contact_ohmic;
+}else
+if (strcmp(temp,"schottky")==0)
+{
+	return contact_schottky;
 }
 
 ewe(sim,"%s %s\n",_("I don't understand the command"),in);

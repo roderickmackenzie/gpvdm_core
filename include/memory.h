@@ -59,9 +59,11 @@ void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *d
 void three_d_interpolate_srh(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
 void srh_quick_dump(char *file_name, long double ****in, struct dimensions *dim,int band);
 void three_d_interpolate_srh2(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
+
 //2d opps
 void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
 void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);
+void zx_copy_gdouble(struct dimensions *dim, gdouble **dst, gdouble **src);
 
 void memory_flip_1d_long_double(long double *var,int len);
 void memory_flip_1d_int(int *var,int len);

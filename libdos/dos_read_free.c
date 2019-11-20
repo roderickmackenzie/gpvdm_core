@@ -59,7 +59,10 @@ long double c11=0.0;
 int t;
 int x;
 
-	if (in->dosn[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosn[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(3.0/2.0)*kb*T;
+	}else
 	{
 		#ifdef dos_warn
 		if ((in->dosn[mat].x[0]>top)||(in->dosn[mat].x[in->dosn[mat].xlen-1]<top))
@@ -107,9 +110,6 @@ int x;
 
 		//printf(">>rod%Le %Le\n",(3.0/2.0)*kb*T,ret);
 		//getchar();
-	}else
-	{
-		ret=(3.0/2.0)*kb*T;
 	}
 
 return ret;
@@ -135,7 +135,10 @@ long double c11=0.0;
 int t;
 int x;
 
-	if (in->dosp[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosp[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(3.0/2.0)*kb*T;
+	}else
 	{
 		#ifdef dos_warn
 		if ((in->dosp[mat].x[0]>top)||(in->dosp[mat].x[in->dosp[mat].xlen-1]<top))
@@ -183,9 +186,6 @@ int x;
 
 		//printf(">>p rod%Le %Le\n",(3.0/2.0)*kb*T,ret);
 		//getchar();
-	}else
-	{
-		ret=(3.0/2.0)*kb*T;
 	}
 
 return ret;
@@ -222,7 +222,10 @@ int t=0;
 int x=0;
 
 
-	if (in->dosn[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosn[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(kb*T/Q)*log((fabs(n))/in->dosn[mat].config.Nc);
+	}else
 	{
 		if (in->dosn[mat].tlen>1)
 		{
@@ -262,9 +265,6 @@ int x=0;
 
 		ret=cll;
 
-	}else
-	{
-		ret=(kb*T/Q)*log((fabs(n))/in->dosn[mat].config.Nc);
 	}
 
 
@@ -287,7 +287,10 @@ long double c;
 int t;
 int x;
 
-	if (in->dosn[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosp[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(kb*T/Q)*log((fabs(p))/in->dosp[mat].config.Nv);
+	}else
 	{
 
 		for (t=0;t<in->dosp[mat].tlen-1;t++)
@@ -323,9 +326,6 @@ int x;
 		ret=c;
 //		printf(">>>>>> %Le %Le\n",ret ,(kb*T/Q)*log((fabs(p))/in->dosp[mat].config.Nv));
 //		getchar();
-	}else
-	{
-		ret=(kb*T/Q)*log((fabs(p))/in->dosp[mat].config.Nv);
 	}
 
 return ret;
@@ -350,7 +350,10 @@ long double get_n_den(struct device *in,long double top,long double T,int mat)
 	int x=0;
 	long double ret=0.0;
 
-	if (in->dosn[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosn[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
+	}else
 	{
 
 		#ifdef dos_warn
@@ -399,10 +402,13 @@ long double get_n_den(struct device *in,long double top,long double T,int mat)
 			//long double test=in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
 			//printf("test = %Le %Le\n",test,ret);
 			//getchar();
-		}else
-		{
-			ret=in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
+		//printf("%Lf %Lf %Lf\n",in->dosn[mat].x[x],in->dosn[mat].x[x+1],top);
+		//printf(">>%Le %Le\n",in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb)),ret);
+		//printf("%Le %Le\n",in->dosn[mat].config.Nc*gexp((Q*in->dosn[mat].x[x])/(T*kb)),in->dosn[mat].c[0][x]);
+		//getchar();
+
 		}
+	ret=in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
 	return ret;
 }
 
@@ -425,7 +431,10 @@ long double get_p_den(struct device *in,long double top,long double T, int mat)
 	int x=0;
 	long double ret=0.0;
 
-	if (in->dosp[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosp[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
+	}else
 	{
 
 		#ifdef dos_warn
@@ -474,9 +483,6 @@ long double get_p_den(struct device *in,long double top,long double T, int mat)
 			//long double test=in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
 			//printf("test h = %Le %Le\n",test,ret);
 			//getchar();
-		}else
-		{
-			ret=in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
 		}
 return ret;
 }
@@ -512,7 +518,10 @@ long double get_dn_den(struct device *in,long double top,long double T, int mat)
 
 	long double ret=0.0;
 
-	if (in->dosn[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosn[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(Q/(T*kb))*in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
+	}else
 	{
 		#ifdef dos_warn
 		if ((in->dosn[mat].x[0]>top)||(in->dosn[mat].x[in->dosn[mat].xlen-1]<top))
@@ -552,12 +561,9 @@ long double get_dn_den(struct device *in,long double top,long double T, int mat)
 		c=c0+tr*(c1-c0);
 
 		ret=c;
-		//printf(">>%Lf\n",100.0-100.0*ret/((Q/(T*kb))*in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb))));
-		//getchar();
-	}else
-	{
-		ret=(Q/(T*kb))*in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
 	}
+
+ret=(Q/(T*kb))*in->dosn[mat].config.Nc*gexp((Q*top)/(T*kb));
 return ret;
 }
 
@@ -582,7 +588,10 @@ long double get_dp_den(struct device *in,long double top,long double T, int mat)
 
 	long double ret=0.0;
 
-	if (in->dosp[mat].config.dos_free_carrier_stats==mb_look_up_table)
+	if (in->dosp[mat].config.dos_free_carrier_stats==mb_equation)
+	{
+		ret=(Q/(T*kb))*in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
+	}else
 	{
 		#ifdef dos_warn
 		if ((in->dosp[mat].x[0]>top)||(in->dosp[mat].x[in->dosp[mat].xlen-1]<top))
@@ -625,9 +634,6 @@ long double get_dp_den(struct device *in,long double top,long double T, int mat)
 
 		//printf(">>%Le %Le\n",ret,(Q/(T*kb))*in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb)));
 		//getchar();
-	}else
-	{
-		ret=(Q/(T*kb))*in->dosp[mat].config.Nv*gexp((Q*top)/(T*kb));
 	}
 return ret;
 }

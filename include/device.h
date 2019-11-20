@@ -98,6 +98,9 @@ struct newton_save_state
 	long double ***x;
 	long double ***xp;
 
+	long double **x_contact;
+	long double **xp_contact;
+
 	long double ****xt;
 	long double ****xpt;
 
@@ -135,6 +138,7 @@ struct device
 		//2D arrays
 		gdouble **Vapplied_r;
 		gdouble **Vapplied_l;
+
 
 		int **passivate_r;
 		int **passivate_l;
@@ -400,8 +404,6 @@ struct device
 	gdouble L;
 	gdouble C;
 
-	int interfaceleft;
-	int interfaceright;
 	gdouble electron_affinity_left;
 	gdouble electron_affinity_right;
 	gdouble phibleft;
@@ -538,6 +540,11 @@ struct device
 	struct newton_save_state ns;
 	struct newton_save_state ns_save;
 
+	int contact_shift_l;
+	int contact_shift_r;
+
+	int interfaceleft;
+	int interfaceright;
 };
 
 void device_init(struct device *in);

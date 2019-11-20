@@ -46,6 +46,9 @@ struct contact
 	char shape_file_name[100];
 	struct shape shape;
 	long double Rcontact;
+	int type;
+	long double ve0;
+	long double vh0;
 };
 
 #endif

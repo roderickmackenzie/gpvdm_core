@@ -267,6 +267,8 @@ if (config.Vstop<config.Vstart)
 	up=FALSE;
 }
 
+FILE *rod=fopen("left.dat","w");
+fclose(rod);
 	do
 	{
 		Vapplied=V;
@@ -301,6 +303,10 @@ if (config.Vstop<config.Vstart)
 		stop_start(sim,in);
 		dump_dynamic_add_data(sim,&store,in,Vexternal);
 		dump_contacts_add_data(sim,in,&contact_store);
+
+		rod=fopen("left.dat","a");
+		fprintf(rod,"%Le %Le\n",V,in->Jnleft[0][0]);
+		fclose(rod);
 
 		if (get_dump_status(sim,dump_print_converge)==TRUE)
 		{

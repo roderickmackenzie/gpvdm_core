@@ -259,6 +259,17 @@ void contacts_load(struct simulation *sim,struct device *in)
 		sscanf(inp_get_string(sim,&inp),"%Le",&(ingress));
 		ingress=fabs(ingress);
 
+		inp_get_string(sim,&inp);	//contact type
+		in->contacts[i].type=english_to_bin(sim, inp_get_string(sim,&inp));
+
+		inp_get_string(sim,&inp);	//ve0
+		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].ve0));
+		in->contacts[i].ve0=fabs(in->contacts[i].ve0);
+
+		inp_get_string(sim,&inp);	//ve0
+		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].vh0));
+		in->contacts[i].vh0=fabs(in->contacts[i].vh0);
+
 	}
 
 	char * ver = inp_get_string(sim,&inp);
@@ -366,12 +377,15 @@ if (dim->xmeshpoints==1)
 		in->passivate_l[z][0]=FALSE;
 		for (i=0;i<in->ncontacts;i++)
 		{
-			if ((in->contacts[i].position==TOP)&&(in->contacts[i].active==TRUE))
+			c=&(in->contacts[i]);
+			if ((c->position==TOP)&&(c->active==TRUE))
 			{
-				in->Vapplied_l[z][0]=in->contacts[i].voltage;
+				in->Vapplied_l[z][0]=c->voltage;
+				in->n_contact_l[z][0]=i;
 			}else
 			{
-				in->Vapplied_r[z][0]=in->contacts[i].voltage;
+				in->Vapplied_r[z][0]=c->voltage;
+				in->n_contact_r[z][0]=i;
 			}
 		}
 	}
@@ -404,11 +418,11 @@ for (i=0;i<in->ncontacts;i++)
 	{
 		for (x=0;x<dim->xmeshpoints;x++)
 		{
-			
+
 			if (contact_within(c, dim->xmesh[x], dim->zmesh[z])==0)
 			{
-				//getchar();
-				if (in->contacts[i].position==TOP)
+
+				if (c->position==TOP)
 				{
 					//printf("top %d\n",in->contacts[i].position);
 
@@ -417,11 +431,11 @@ for (i=0;i<in->ncontacts;i++)
 						ewe(sim,"You have overlapping contacts\n");
 					}
 
-					in->Vapplied_l[z][x]=in->contacts[i].voltage;
+					in->Vapplied_l[z][x]=c->voltage;
 					in->n_contact_l[z][x]=i;
 					in->passivate_l[z][x]=FALSE;
 				}else
-				if (in->contacts[i].position==BOTTOM)
+				if (c->position==BOTTOM)
 				{
 					//printf("btm %d\n",in->contacts[i].position);
 
@@ -434,11 +448,11 @@ for (i=0;i<in->ncontacts;i++)
 					in->n_contact_r[z][x]=i;
 					in->passivate_r[z][x]=FALSE;
 				}else
-				if (in->contacts[i].position==LEFT)
+				if (c->position==LEFT)
 				{
 						ewe(sim,"I don't support left contacts yet\n");
 				}else
-				if (in->contacts[i].position==RIGHT)
+				if (c->position==RIGHT)
 				{
 						ewe(sim,"I don't support right contacts yet\n");					
 				}

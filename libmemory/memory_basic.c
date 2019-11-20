@@ -149,6 +149,22 @@ int z=0;
 
 }
 
+void zx_copy_gdouble(struct dimensions *dim, gdouble **dst, gdouble **src)
+{
+int x=0;
+int y=0;
+int z=0;
+
+	for (z = 0; z < dim->zmeshpoints; z++)
+	{
+		for (x = 0; x < dim->xmeshpoints; x++)
+		{
+			dst[z][x]=src[z][x];
+		}
+	}
+
+}
+
 void srh_copy_gdouble(struct dimensions *dim, gdouble ****dst, gdouble ****src)
 {
 int x=0;

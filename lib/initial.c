@@ -212,6 +212,10 @@ for (z=0;z<dim->zmeshpoints;z++)
 		in->r_holes[z][x]=0.0;
 
 		in->Vr[z][x]=0.0;
+
+		ns->x_contact[z][x]=0.0;
+		ns->xp_contact[z][x]=0.0;
+
 	}
 }
 
@@ -386,11 +390,15 @@ for (z=0;z<dim->zmeshpoints;z++)
 
 		in->Vr[z][x]=delta_phi;
 
+		ns->x_contact[z][x]=Ef-(-in->Xi[z][x][0]-in->Vl[z][x]);
+		ns->xp_contact[z][x]=(-in->Xi[z][x][0]-in->Vl[z][x]-in->Eg[z][x][0])-Ef;
 	}
 }
 
 //printf_log(sim,"Rp = %Le\n",Rp);
 //printf_log(sim,"Rn = %Le\n",Rn);
+
+
 
 if (guess==TRUE)
 {
@@ -399,6 +407,7 @@ if (guess==TRUE)
 	{
 		for (x=0;x<dim->xmeshpoints;x++)
 		{
+
 			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				phi_ramp=delta_phi*(dim->ymesh[y]/dim->ymesh[dim->ymeshpoints-1]);

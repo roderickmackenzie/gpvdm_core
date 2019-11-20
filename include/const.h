@@ -127,7 +127,12 @@
 //free dos types
 #define mb_equation 0
 #define mb_look_up_table 1
-#define mb_fd_look_up_table 2
+#define fd_look_up_table 2
+#define mb_look_up_table_analytic 3
+
+//contact types
+#define contact_ohmic 0
+#define contact_schottky 1
 
 		#include <linux/limits.h>
 
