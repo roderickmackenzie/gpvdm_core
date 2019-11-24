@@ -39,7 +39,7 @@
 
 #define RAY_MAX 5000
 
-void light_update_ray_mat(struct simulation *sim,struct epitaxy *my_epitaxy,struct image *my_image,double lambda);
+void light_update_ray_mat(struct simulation *sim,struct image *my_image,double lambda,struct epitaxy *my_epitaxy);
 void image_init(struct image *in);
 int between(double v, double x0, double x1);
 void add_triangle(struct image *in, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int object_uid,int edge);
@@ -59,10 +59,10 @@ int pnpoly(struct image *in, struct vec *xy,int id);
 void get_refractive(struct simulation *sim,struct image *in,double *alpha,double *n0,double *n1,struct ray *my_ray);
 int propergate_next_ray(struct simulation *sim,struct image *in);
 double get_eff(struct image *in);
-void light_setup_ray(struct simulation *sim,struct device *cell,struct image *my_image,struct epitaxy *my_epitaxy);
+void ray_build_scene(struct simulation *sim,struct device *cell,struct image *my_image,struct epitaxy *my_epitaxy);
 void ray_free(struct simulation *sim,struct device *in,struct image *my_image);
 void ray_read_config(struct simulation *sim,struct image *my_image);
-void ray_solve(struct simulation *sim,struct device *in, int l);
+void ray_solve(struct simulation *sim,struct device *in, double x0, double y0, double z0,int l,double ext_mul);
 void ray_solve_all(struct simulation *sim,struct device *in);
 void dump_extraction_efficiency(struct simulation *sim,struct device *dev,struct image *in);
 void dump_ang_escape(struct simulation *sim,struct image *in);
@@ -80,8 +80,9 @@ void ray_object_sub_y(struct simulation *sim,struct image *in,struct object *obj
 void ray_object_add_y(struct simulation *sim,struct image *in,struct object *obj,double y);
 void photon_extract_eff_reset(struct simulation *sim,struct epitaxy *epi,struct image *in);
 void photon_extract_eff_norm(struct simulation *sim,struct epitaxy *epi,struct image *in);
+void ray_add_shape_to_scene(struct simulation *sim,struct image *my_image,struct shape *s,double y_stop);
 
-struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int sim_edge);
+struct object *add_box(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz,int object_type);
 struct object *add_pyramid(struct image *in,double x0,double y0,double z0,double dx,double dy,double dz);
 struct object *add_dome(struct image *in,double x0,double y0,double z0,double dx0,double dy0,double dz0);
 
@@ -93,8 +94,11 @@ void dump_ray_to_file(struct simulation *sim,struct image *in,struct ray *my_ray
 
 void ray_object_init(struct object *obj);
 void ray_object_free(struct object *obj);
-void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int edge);
+void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int object_type);
 void ray_object_cal_min_max(struct object *obj);
 void triangles_init(struct triangles *tri);
+void triangles_set_object_type(struct triangles *in,int object_type);
+struct object *add_plane(struct image *in,double x0,double y0,double z0,double dx,double dz,int object_type);
+void dump_rendered_image(struct simulation *sim,struct image *in);
 
 #endif

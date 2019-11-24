@@ -82,7 +82,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->Fi);
+	buffer_add_3d_data(sim,&buf,dim,  in->Fi);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -106,7 +106,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->Ec);
+	buffer_add_3d_data(sim,&buf,dim,  in->Ec);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -130,7 +130,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->Ev);
+	buffer_add_3d_data(sim,&buf,dim,  in->Ev);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -154,7 +154,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->n);
+	buffer_add_3d_data(sim,&buf,dim,  in->n);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -178,7 +178,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in,  in->p);
+	buffer_add_3d_data(sim,&buf,dim,  in->p);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 }

@@ -1,5 +1,5 @@
 inc=-I../include/
-OBJS=memory.o memory_basic.o
+OBJS=memory.o memory_basic.o zxy_long_double.o
 
 COMPILE_FLAG=@COMPILE_FLAG@
 LINK_FLAG=@LINK_FLAG@

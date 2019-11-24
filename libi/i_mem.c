@@ -50,9 +50,9 @@ static char* unused_pchar __attribute__((unused));
 */
 void inter_init(struct simulation *sim,struct istruct* in)
 {
-in->len=0;
-in->max_len=100;
-inter_alloc(in,in->max_len);
+	in->len=0;
+	in->max_len=100;
+	inter_alloc(in,in->max_len);
 }
 
 
@@ -63,19 +63,19 @@ inter_alloc(in,in->max_len);
 */
 void inter_copy(struct istruct* in,struct istruct* orig,int alloc)
 {
-int i;
-in->len=orig->len;
+	int i;
+	in->len=orig->len;
 
-if (alloc==TRUE)
-{
-inter_alloc(in,orig->len);
-}
+	if (alloc==TRUE)
+	{
+		inter_alloc(in,orig->len);
+	}
 
-for  (i=0;i<orig->len;i++)
-{
-	in->x[i]=orig->x[i];
-	in->data[i]=orig->data[i];
-}
+	for  (i=0;i<orig->len;i++)
+	{
+		in->x[i]=orig->x[i];
+		in->data[i]=orig->data[i];
+	}
 
 
 }
@@ -85,24 +85,24 @@ for  (i=0;i<orig->len;i++)
 */
 void inter_free(struct istruct* in)
 {
-in->len=0;
-in->max_len=0;
-free(in->x);
-free(in->data);
+	in->len=0;
+	in->max_len=0;
+	free(in->x);
+	free(in->data);
 }
 
 
 void inter_append(struct istruct* in,long double x,long double y)
 {
-in->x[in->len]=x;
-in->data[in->len]=y;
-in->len++;
+	in->x[in->len]=x;
+	in->data[in->len]=y;
+	in->len++;
 
-if ((in->max_len-in->len)<10)
-{
-	in->max_len+=100;
-	inter_realloc(in,in->max_len);
-}
+	if ((in->max_len-in->len)<10)
+	{
+		in->max_len+=100;
+		inter_realloc(in,in->max_len);
+	}
 
 }
 
@@ -113,8 +113,8 @@ if ((in->max_len-in->len)<10)
 */
 void inter_realloc(struct istruct* in,int len)
 {
-in->x=(long double *)realloc (in->x,len*sizeof(long double));
-in->data=(long double *)realloc (in->data,len*sizeof(long double));
+	in->x=(long double *)realloc (in->x,len*sizeof(long double));
+	in->data=(long double *)realloc (in->data,len*sizeof(long double));
 }
 
 /**Allocate a new 1D istruct

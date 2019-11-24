@@ -132,6 +132,15 @@ void triangles_cpy(struct triangles *out,struct triangles *in)
 	out->len=in->len;
 }
 
+void triangles_set_object_type(struct triangles *in,int object_type)
+{
+int i;
+	for (i=0;i<in->len;i++)
+	{
+		in->data[i].object_type=object_type;
+	}
+
+}
 void triangles_find_min(struct vec *out,struct triangles *in)
 {
 	int i;
@@ -318,7 +327,7 @@ void triangles_print(struct triangles *in)
 }
 
 
-void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int edge)
+void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int object_type)
 {
 
 	obj->data[obj->len].xy0.x=x0;
@@ -333,7 +342,7 @@ void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0
 	obj->data[obj->len].xy2.y=y2;
 	obj->data[obj->len].xy2.z=z2;
 
-	obj->data[obj->len].edge=edge;
+	obj->data[obj->len].object_type=object_type;
 	obj->data[obj->len].object_uid=uid;
 	obj->len++;
 	if (obj->len>=obj->max_len)

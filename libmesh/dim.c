@@ -137,6 +137,33 @@ void dim_alloc_xyz(struct dimensions *dim,char xyz)
 
 }
 
+void dim_alloc_gen_untiy_mesh_x(struct dimensions *dim)
+{
+
+	int x=0;
+	long double xpos=0.0;
+	long double dx=1.0/dim->xmeshpoints;
+
+	for (x=0;x<dim->xmeshpoints;x++)
+	{
+		dim->xmesh[x]=xpos;
+		xpos+=dx;
+	}
+}
+
+void dim_alloc_gen_untiy_mesh_z(struct dimensions *dim)
+{
+	int z=0;
+	long double zpos=0.0;
+	long double dz=1.0/dim->zmeshpoints;
+
+	for (z=0;z<dim->zmeshpoints;z++)
+	{
+		dim->zmesh[z]=zpos;
+		zpos+=dz;
+	}
+}
+
 void dim_alloc(struct dimensions *dim)
 {
 	dim_alloc_xyz(dim,'x');

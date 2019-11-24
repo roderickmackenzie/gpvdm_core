@@ -94,9 +94,9 @@ printf_log(sim,"init: mesh\n");
 		for (ii=0;ii<in->points;ii++)
 		{
 
-			in->alpha[i][ii]=inter_get_noend(&(my_epitaxy->mat[in->layer[ii]]),in->l[i]);
+			in->alpha[i][ii]=inter_get_noend(&(my_epitaxy->layer[in->layer[ii]].alpha),in->l[i]);
 			in->alpha0[i][ii]=in->alpha[i][ii];
-			in->n[i][ii]=inter_get_noend(&(my_epitaxy->mat_n[in->layer[ii]]),in->l[i]);
+			in->n[i][ii]=inter_get_noend(&(my_epitaxy->layer[in->layer[ii]].n),in->l[i]);
 
 		}
 	}

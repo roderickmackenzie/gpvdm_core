@@ -228,7 +228,6 @@ if (enable_electrical==TRUE)
 			for (y=0;y<dim->ymeshpoints;y++)
 			{
 				cell.ns.phi[z][x][y]=0.0;
-				cell.R[z][x][y]=0.0;
 				cell.n[z][x][y]=0.0;
 			}
 		}

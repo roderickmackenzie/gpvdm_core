@@ -34,7 +34,7 @@
 #include <dos_struct.h>
 #include <contact_struct.h>
 #include <perovskite_struct.h>
-
+#include <dim.h>
 
 struct mesh_layer
 {
@@ -68,24 +68,6 @@ struct solver_cache
 	int enabled;
 };
 
-struct dimensions
-{
-	int zmeshpoints;
-	int xmeshpoints;
-	int ymeshpoints;
-
-
-	long double *ymesh;
-	long double *xmesh;
-	long double *zmesh;
-
-	long double *dymesh;
-	long double *dxmesh;
-	long double *dzmesh;
-
-	int srh_bands;
-
-};
 
 struct newton_save_state
 {
@@ -200,7 +182,6 @@ struct device
 		gdouble ***Te;
 		gdouble ***Th;
 
-		gdouble ***R;
 		gdouble ***Fi;
 
 		int ***imat_epitaxy;
@@ -228,6 +209,8 @@ struct device
 		gdouble ***Rp;
 		gdouble ***Rn_srh;
 		gdouble ***Rp_srh;
+		gdouble ***Rnet;
+
 		gdouble ***kl;
 		gdouble ***ke;
 		gdouble ***kh;

@@ -20,33 +20,33 @@
 // 
 // 
 
-/** @file triangle.h
-@brief triangle structure
+/** @file dim.h
+	@brief Dimention file
 */
-#ifndef triangle_h
-#define triangle_h
 
-#include <vec.h>
+#ifndef dim_h
+#define dim_h
 
-#define RAY_SIM_EDGE	0
-#define RAY_VIEWPOINT	1
-#define RAY_OBJECT		2
-
-struct triangle
+struct dimensions
 {
-	struct vec xy0;
-	struct vec xy1;
-	struct vec xy2;
-	int object_uid;
-	int tri_uid;
-	int object_type;
+	int zmeshpoints;
+	int xmeshpoints;
+	int ymeshpoints;
+
+
+	long double *ymesh;
+	long double *xmesh;
+	long double *zmesh;
+
+	long double *dymesh;
+	long double *dxmesh;
+	long double *dzmesh;
+
+	int srh_bands;
+
 };
 
-struct triangles
-{
-	struct triangle *data;
-	int max_len;
-	int len;
-};
+void dim_alloc_gen_untiy_mesh_x(struct dimensions *dim);
+void dim_alloc_gen_untiy_mesh_z(struct dimensions *dim);
 
 #endif

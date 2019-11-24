@@ -792,3 +792,46 @@ void remove_dir(struct simulation *sim,char* dir_name)
 	remove_dir_ittr(sim,dir_name,-1);
 	
 }
+
+/**This is a version of the standard fgets, but it will also accept a 0x0d as a new line.
+@param buf output buffer
+@param len max length of buffer
+@param file file handle
+*/
+int gpvdm_fgets(char *buf,int len,FILE *file)
+{
+	char dat;
+	int pos=0;
+
+	if (feof(file))
+	{
+		return -1;
+	}
+
+	do
+	{
+		dat=(char)fgetc(file);
+		if (feof(file))
+		{
+			break;
+		}
+
+		if ((dat=='\n')||(dat=='\r')||(dat==0x0d))
+		{
+			break;
+		}
+
+		buf[pos]=dat;
+
+		pos++;
+		
+		if (pos>len)
+		{
+			break;
+		}
+		
+	}while(1);
+	buf[pos]=0;
+
+	return pos;
+}

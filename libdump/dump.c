@@ -166,7 +166,7 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_add_3d_device_data(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data)
+void buffer_add_3d_data(struct simulation *sim,struct dat_file *buf,struct dimensions *dim,gdouble ***data)
 {
 int x=0;
 int y=0;
@@ -175,8 +175,6 @@ int z=0;
 gdouble xpos=0.0;
 gdouble ypos=0.0;
 gdouble zpos=0.0;
-struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->ns.dim;
 
 char string[200];
 if (get_dump_status(sim,dump_write_headers)==TRUE)
@@ -227,6 +225,40 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 	sprintf(string,"#end\n");
 	buffer_add_string(buf,string);
 }
+
+}
+
+void buffer_add_zx_data(struct simulation *sim,struct dat_file *buf,struct dimensions *dim,gdouble **data)
+{
+int x=0;
+int z=0;
+
+gdouble xpos=0.0;
+gdouble zpos=0.0;
+
+char string[200];
+
+	if (get_dump_status(sim,dump_write_headers)==TRUE)
+	{
+		sprintf(string,"#data\n");
+		buffer_add_string(buf,string);
+	}
+
+
+	for (z=0;z<dim->zmeshpoints;z++)
+	{
+		for (x=0;x<dim->xmeshpoints;x++)
+		{
+			sprintf(string,"%Le %Le %Le \n",dim->zmesh[z],dim->xmesh[x],data[z][x]);
+			buffer_add_string(buf,string);
+		}
+	}
+
+	if (get_dump_status(sim,dump_write_headers)==TRUE)
+	{
+		sprintf(string,"#end\n");
+		buffer_add_string(buf,string);
+	}
 
 }
 

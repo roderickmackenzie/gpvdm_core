@@ -53,6 +53,7 @@ int i;
 char temp[100];
 
 char device_epitaxy[100];
+char device_file_path[PATH_MAX];
 
 struct inp_file inp;
 inp_init(sim,&inp);
@@ -72,7 +73,6 @@ inp_free(sim,&inp);
 
 /////////////////////////////////////////
 
-char device_file_path[1000];
 
 join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
 

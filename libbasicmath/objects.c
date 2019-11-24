@@ -48,11 +48,14 @@ void ray_object_init(struct object *obj)
 {
 	//btm
 	triangles_init(&(obj->tri));
-
+	obj->epi_layer=-1;
+	obj->s=NULL;
 }
 
 void ray_object_free(struct object *obj)
 {
 	triangles_free(&(obj->tri));
+	obj->epi_layer=-1;
+	obj->s=NULL;
 }
 

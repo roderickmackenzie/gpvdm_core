@@ -79,7 +79,7 @@ void device_init(struct device *in)
 	in->Tl= NULL;
 	in->Te= NULL;
 	in->Th= NULL;
-	in->R= NULL;
+
 	in->Fi= NULL;
 	in->Fi0_top = NULL;
 	in->imat= NULL;
@@ -107,6 +107,7 @@ void device_init(struct device *in)
 
 	in->Rn= NULL;
 	in->Rp= NULL;
+	in->Rnet= NULL;
 	in->kl= NULL;
 	in->ke= NULL;
 	in->kh= NULL;

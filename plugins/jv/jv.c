@@ -44,6 +44,8 @@
 #include "measure.h"
 #include <light_fun.h>
 #include <cache.h>
+#include <ray_fun.h>
+
 
 static int unused __attribute__((unused));
 
@@ -198,7 +200,8 @@ if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
 	}
 }
 
-
+//ray_solve_all(sim,in);
+//exit(0);
 //sim_externalv(in,in->Vapplied);
 
 //contacts_dump(sim,in);

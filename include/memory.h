@@ -37,7 +37,7 @@ void free_zx_gdouble(struct dimensions *dim, gdouble * (**var));
 void free_srh_bands(struct dimensions *dim, gdouble * (**** in_var));
 void malloc_srh_bands(struct dimensions *dim, gdouble * (****var));
 
-void malloc_3d_gdouble(struct dimensions *dim, gdouble * (***var));
+void zxy_malloc_gdouble(struct dimensions *dim, gdouble * (***var));
 void free_3d_gdouble(struct dimensions *dim, gdouble * (***in_var));
 
 void malloc_3d_int(struct dimensions *dim, int * (***var));
@@ -59,6 +59,9 @@ void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *d
 void three_d_interpolate_srh(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
 void srh_quick_dump(char *file_name, long double ****in, struct dimensions *dim,int band);
 void three_d_interpolate_srh2(long double ****out, long double ****in, struct dimensions *dim_out, struct dimensions *dim_in,int band);
+long double zxy_min_gdouble(struct dimensions *dim, gdouble ***var);
+long double zxy_max_gdouble(struct dimensions *dim, gdouble ***var);
+void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long double * *** data,char *file_name);
 
 //2d opps
 void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);

@@ -77,7 +77,7 @@ long double J_light=0.0;
 	{
 		if (in->my_epitaxy.layer[i].electrical_layer==TRUE)
 		{
-			n0=in->my_epitaxy.layer[i].n;
+			n0=in->my_epitaxy.layer[i].n_ideality;
 			J0=in->my_epitaxy.layer[i].J0;
 			break;
 		}

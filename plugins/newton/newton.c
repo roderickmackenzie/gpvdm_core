@@ -781,7 +781,7 @@ if (in->interfaceright==TRUE)
 					//printf("%Le %Le\n",Jnl,vl_e*(nl0-nl));
 
 					dJnldphi_l= 0.0;//vl_e*(-dnl);
-					dJnldphi_c= 0.0;//-vl_e*(dnc);
+					dJnldphi_c= 0.0;//vl_e*(dnc);
 
 					Jpl=vl_h*(pc-pl);
 					dJpldxipl_l= vl_h*(-dpl);
@@ -789,7 +789,7 @@ if (in->interfaceright==TRUE)
 					//printf("%Le %Le\n",Jnl,vl_e*(nl0-nl));
 
 					dJpldphi_l= 0.0;//-vl_h*(-dpl);//vl_e*(-dnl);
-					dJpldphi_c= 0.0;//vl_h*(dpc);
+					dJpldphi_c= 0.0;//-vl_h*(dpc);
 
 					dylh=0.0;
 
@@ -812,15 +812,15 @@ if (in->interfaceright==TRUE)
 					//printf("%Le %Le\n",Jnl,vr_e*(nl0-nl));
 
 					dJnrdphi_r= 0.0;//vr_e*(-dnl);
-					dJnrdphi_c= 0.0;//-vr_e*(dnc);
+					dJnrdphi_c= 0.0;//vr_e*(dnc);
 
 					Jpr=vr_e*(pc-pr);
 					dJprdxipr_r= vr_h*(-dpr);
 					dJprdxipr_c= vr_h*(dpc);
 					//printf("%Le %Le\n",Jnl,vr_e*(nl0-nl));
 
-					dJprdphi_r= 0.0;//vr_e*(-dnl);
-					dJprdphi_c= 0.0;//-vr_e*(dnc);
+					dJprdphi_r= 0.0;//vr_e*(-dpl);
+					dJprdphi_c= 0.0;//-vr_e*(dpc);
 
 					dyrh=0.0;
 				}

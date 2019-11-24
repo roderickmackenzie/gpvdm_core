@@ -42,6 +42,8 @@ gdouble min_pos_error=1e-4;
 void pos_dump(struct simulation *sim,struct device *in)
 {
 struct newton_save_state *ns=&(in->ns);
+struct dimensions *dim=&(ns->dim);
+
 if (get_dump_status(sim,dump_first_guess)==TRUE)
 {
 	struct stat st = {0};
@@ -73,7 +75,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, in->Fi);
+	buffer_add_3d_data(sim,&buf,dim, in->Fi);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -90,7 +92,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, in->Ec);
+	buffer_add_3d_data(sim,&buf,dim, in->Ec);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -107,7 +109,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, in->Ev);
+	buffer_add_3d_data(sim,&buf,dim, in->Ev);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -125,7 +127,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, in->n);
+	buffer_add_3d_data(sim,&buf,dim, in->n);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -143,7 +145,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, in->p);
+	buffer_add_3d_data(sim,&buf,dim, in->p);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -160,7 +162,7 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	buf.logscale_x=0;
 	buf.logscale_y=0;
 	buffer_add_info(sim,&buf);
-	buffer_add_3d_device_data(sim,&buf,in, ns->phi);
+	buffer_add_3d_data(sim,&buf,dim, ns->phi);
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 

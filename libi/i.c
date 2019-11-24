@@ -1209,42 +1209,7 @@ free(xtemp);
 free(dtemp);
 }
 
-/**This is a version of the standard fgets, but it will also accept a 0x0d as a new line.
-@param buf output buffer
-@param len max length of buffer
-@param file file handle
-*/
-char *fgets_safe(char *buf,int len,FILE *file)
-{
-	char dat;
-	int pos=0;
-	do
-	{
-		dat=(char)fgetc(file);
-		if (feof(file))
-		{
-			break;
-		}
 
-		if ((dat=='\n')||(dat=='\r')||(dat==0x0d))
-		{
-			break;
-		}
-
-		buf[pos]=dat;
-
-		pos++;
-		
-		if (pos>len)
-		{
-			break;
-		}
-		
-	}while(1);
-	buf[pos]=0;
-
-	return 0;
-}
 
 int inter_search_token(struct simulation *sim,long double *value,char *token,char *name)
 {
@@ -1262,7 +1227,7 @@ if (file == NULL)
 do
 {
 	temp[0]=0;
-	unused_pchar=fgets_safe(temp, 1000, file);
+	gpvdm_fgets(temp, 1000, file);
 
 	if (strcmp_begin(temp,token)==0)
 	{
@@ -1311,7 +1276,7 @@ char *line=inp_get_string(sim,&data);
 while(line!=NULL)
 {
 	//
-	//unused_pchar=fgets_safe(temp, 1000, file);
+	//unused_pchar=gpvdm_fgets(temp, 1000, file);
 	if ((line[0]!='#')&&(line[0]!='\n')&&(line[0]!='\r')&&(line[0]!=0)&&(line[0]!=0x0D))
 	{
 		sscanf(line,"%Le %Le",&(x),&(y));

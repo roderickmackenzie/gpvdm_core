@@ -83,4 +83,5 @@ void get_meter_dim(char *unit,long double *mul,long double max_val);
 void write_zip_buffer(struct simulation *sim,char *outfile,long double *buf,int buf_len);
 int read_zip_buffer(struct simulation *sim,char *file_name,long double **buf);
 int hashget(long double *x,int N,long double find);
+int gpvdm_fgets(char *buf,int len,FILE *file);
 #endif

@@ -60,11 +60,13 @@ struct epi_layer
 	long double shunt;
 	long double series;
 	long double C;
-	long double n;
+	long double n_ideality;
 	long double J0;
 
 	int electrical_layer;
 
+	struct istruct alpha;
+	struct istruct n;
 };
 
 struct epitaxy
@@ -82,8 +84,6 @@ struct epitaxy
 	char shape_file[20][100];
 	long double rgb[20][3];
 
-	struct istruct *mat;
-	struct istruct *mat_n;
 };
 
 void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file);

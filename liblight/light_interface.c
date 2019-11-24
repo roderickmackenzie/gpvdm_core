@@ -127,8 +127,8 @@ void light_solve_and_update(struct simulation *sim,struct device *cell,struct li
 		gdouble ***Gn;
 		gdouble ***Gp;
 
-		malloc_3d_gdouble(dim, &Gn);
-		malloc_3d_gdouble(dim, &Gp);
+		zxy_malloc_gdouble(dim, &Gn);
+		zxy_malloc_gdouble(dim, &Gp);
 
 		for (z=0;z<dim->zmeshpoints;z++)
 		{

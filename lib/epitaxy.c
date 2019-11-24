@@ -60,7 +60,7 @@ void epitaxy_load_electrical_file(struct simulation *sim,char *file_name, struct
 
 		inp_search_gdouble(sim,&inp,&(layer->C),"#electrical_C");
 
-		inp_search_gdouble(sim,&inp,&(layer->n),"#electrical_n");
+		inp_search_gdouble(sim,&inp,&(layer->n_ideality),"#electrical_n");
 
 		inp_search_gdouble(sim,&inp,&(layer->J0),"#electrical_J0");
 
@@ -71,7 +71,7 @@ void epitaxy_load_electrical_file(struct simulation *sim,char *file_name, struct
 		layer->shunt=0.0;
 		layer->series=0.0;
 		layer->C=0.0;
-		layer->n=0.0;
+		layer->n_ideality=0.0;
 		layer->J0=0.0;
 	}
 }
@@ -309,6 +309,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 	inp_free(sim,&inp);
 
 	epitaxy_load_materials(sim,in);
+
 
 	shape_load(sim,in);
 }

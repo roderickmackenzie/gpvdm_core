@@ -30,6 +30,8 @@
 #include <i.h>
 #include <sim_struct.h>
 #include <triangle.h>
+#include <dim.h>
+#include <shape_struct.h>
 
 #define WAIT 0
 #define READY 1
@@ -63,7 +65,7 @@ struct object
 	struct triangles tri;
 	struct vec min;
 	struct vec max;
-
+	struct shape* s;		//This is a poinnter to the origonal shape which generated the object
 };
 
 struct image
@@ -105,6 +107,12 @@ struct image
 	double ray_lambda_stop;
 	int ray_auto_wavelength_range;
 
+	//viewpoint
+	struct dimensions viewpoint_dim;
+	int viewpoint_enabled;
+	double viewpoint_size;
+	double viewpoint_dz;
+	long double **viewpoint_image;
 };
 
 

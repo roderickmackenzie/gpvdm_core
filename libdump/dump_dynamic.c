@@ -116,7 +116,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 
 	inter_init(sim,&(store->band_bend));
 
-	malloc_3d_gdouble(dim,&(store->band_snapshot));
+	zxy_malloc_gdouble(dim,&(store->band_snapshot));
 	for (z=0;z<dim->zmeshpoints;z++)
 	{
 		for (x=0;x<dim->xmeshpoints;x++)
