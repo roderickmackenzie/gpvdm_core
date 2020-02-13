@@ -26,15 +26,16 @@
 #include "sim.h"
 #include "dump.h"
 #include <dos.h>
+#include <contacts.h>
 
 void update_y_array(struct simulation *sim,struct device *in,int z,int x)
 {
 int y=0;
 int band=0;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
-	for (y=0;y<dim->ymeshpoints;y++)
+	for (y=0;y<dim->ylen;y++)
 	{
 		in->Fn[z][x][y]=ns->x[z][x][y]-ns->phi[z][x][y];
 		in->Fp[z][x][y]= -ns->xp[z][x][y]-ns->phi[z][x][y];
@@ -51,9 +52,6 @@ struct dimensions *dim=&in->ns.dim;
 
 		in->wn[z][x][y]=get_n_w(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
 		in->wp[z][x][y]=get_p_w(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
-
-		//in->mun[z][x][y]=get_n_mu(in,in->imat[z][x][y]);
-		//in->mup[z][x][y]=get_p_mu(in,in->imat[z][x][y]);
 
 		if (in->ntrapnewton)
 		{
@@ -105,28 +103,28 @@ struct dimensions *dim=&in->ns.dim;
 }
 
 
-void init_mat_arrays(struct device *in)
+void update_material_arrays(struct simulation *sim,struct device *in)
 {
 int x=0;
 int y=0;
 int z=0;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (z=0;z<dim->zlen;z++)
 	{
 
-		for (x=0;x<dim->xmeshpoints;x++)
+		for (x=0;x<dim->xlen;x++)
 		{
 
-			for (y=0;y<dim->ymeshpoints;y++)
+			for (y=0;y<dim->ylen;y++)
 			{
 				in->Tl[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
 				in->Te[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
 				in->Th[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
 				in->ex[z][x][y]=0.0;
 				in->Hex[z][x][y]=0.0;
-				//if ((i>in->ymeshpoints/2)&&(i<in->ymeshpoints/2+10)) in->Hex[z][x][y]=1e9;
+				//if ((i>in->ylen/2)&&(i<in->ylen/2+10)) in->Hex[z][x][y]=1e9;
 				in->epsilonr[z][x][y]=get_dos_epsilonr(in,in->imat[z][x][y]);
 
 				in->Eg[z][x][y]=get_dos_Eg(in,in->imat[z][x][y]);
@@ -173,5 +171,7 @@ struct dimensions *dim=&in->ns.dim;
 			}
 		}
 	}
+
+	contacts_ingress(sim,in);
 }
 

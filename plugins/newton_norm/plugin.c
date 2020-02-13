@@ -40,8 +40,8 @@ EXPORT void dll_solver_realloc(struct simulation *sim,struct device *in)
 dllinternal_solver_realloc(sim,in,1);
 }
 
-EXPORT void dll_solver_free_memory(struct device *in)
+EXPORT void dll_solver_free_memory(struct simulation *sim,struct device *in)
 {
-dllinternal_solver_free_memory(in);
+dllinternal_solver_free_memory(sim,in);
 }
 

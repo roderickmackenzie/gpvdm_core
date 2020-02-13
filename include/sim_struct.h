@@ -40,7 +40,6 @@
 	#include <sys/stat.h>
 	#include <fcntl.h>
 	#include <unistd.h>
-	#include <semaphore.h>
 
 #include <dirent.h>
 #include <i_struct.h>
@@ -85,7 +84,7 @@ struct simulation
 	char tmp_path[PATH_MAX];
 
 
-	//Matrix solver
+	//Matrix solver	-	external dll
 	int last_col;
 	int last_nz;
 	double *x;
@@ -96,7 +95,22 @@ struct simulation
 	double *Tx;
 	int x_matrix_offset;
 
-	//complex solver
+	//Complex matrix solver - external dll
+	int c_last_col;
+	int c_last_nz;
+	double *c_x;
+	double *c_xz;
+	int *c_Ap;
+	int *c_Ai;
+	double *c_Ax;
+	double *c_Az;
+	double *c_b;
+	double *c_bz;
+	double *c_Tx;
+	double *c_Txz;
+
+
+	//complex solver internal
 	int complex_last_col;
 	int complex_last_nz;
 	double *complex_x;
@@ -106,13 +120,17 @@ struct simulation
 	double *complex_Ax;
 	double *complex_Az;
 
-	//Matrix solver dlls
+	//Matrix solver dll	- external
 	void (*dll_matrix_init)();
 	void (*dll_matrix_solve)();
-	void (*dll_matrix_dump)();
-	void (*dll_set_interface)();
 	void (*dll_matrix_solver_free)();
 	void *dll_matrix_handle;
+
+	//Complex matrix solver dll	- internal
+	void (*dll_complex_matrix_init)();
+	void (*dll_complex_matrix_solve)();
+	void (*dll_complex_matrix_solver_free)();
+	void *dll_complex_matrix_handle;
 
 	//Solve dlls
 	int (*dll_solve_cur)();
@@ -159,16 +177,10 @@ struct simulation
 
 	struct lock lock_data;
 
-	int fd_ext_mem;
-	caddr_t fd_ext_memptr;
-	caddr_t fd_ext_memptr_size;
-
-	sem_t* sem_data_for_slave;
-	sem_t* sem_data_for_master;
-	char backing_file[100];
-	char backing_file_size[100];
-	int fd_ext_block_size;
-	int fd_ext_mem_size;
+		int fd_ext_solver;
+		int ext_solver_buf_size;
+		double *ext_solver_buf;
+		char ext_solver_pipe_name[PATH_MAX];
 };
 
 #endif

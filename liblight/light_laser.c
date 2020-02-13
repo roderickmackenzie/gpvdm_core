@@ -1,33 +1,33 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file light_laser.c
 	@brief Deals with lasers for the light model.
 */
 
 #include <unistd.h>
-#include "const.h"
+#include "gpvdm_const.h"
 #include "light.h"
 #include "device.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "dump.h"
 #include "config.h"
 #include "inp.h"
@@ -39,13 +39,14 @@
 
 static int unused __attribute__((unused));
 
-int light_load_laser(struct simulation *sim, struct light *in,char *name)
+int light_load_laser(struct simulation *sim, struct light *li,char *name)
 {
-	char pwd[1000];
+	char pwd[PATH_MAX];
 	char file_name[255];
 	struct inp_file inp;
 	int ret=0;
 	long double laser_photon_efficiency=0.0;
+	struct dim_light *dim=&(li->dim);
 
 	if (getcwd(pwd,1000)==NULL)
 	{
@@ -60,27 +61,27 @@ int light_load_laser(struct simulation *sim, struct light *in,char *name)
 		inp_load_from_path(sim,&inp,get_input_path(sim),file_name);
 		inp_check(sim,&inp,1.0);
 
-		inp_search_gdouble(sim,&inp,&in->laser_wavelength,"#laserwavelength");
-		in->laser_pos=(int)((in->laser_wavelength-in->lstart)/in->dl);
+		inp_search_gdouble(sim,&inp,&li->laser_wavelength,"#laserwavelength");
+		li->laser_pos=(int)((li->laser_wavelength-li->lstart)/dim->dl);
 
-		inp_search_gdouble(sim,&inp,&in->spotx,"#spotx");
-		in->spotx=gfabs(in->spotx);
+		inp_search_gdouble(sim,&inp,&li->spotx,"#spotx");
+		li->spotx=gfabs(li->spotx);
 
-		inp_search_gdouble(sim,&inp,&in->spoty,"#spoty");
-		in->spoty=gfabs(in->spoty);
+		inp_search_gdouble(sim,&inp,&li->spoty,"#spoty");
+		li->spoty=gfabs(li->spoty);
 
-		inp_search_gdouble(sim,&inp,&in->pulseJ,"#pulseJ");
-		in->pulseJ=gfabs(in->pulseJ);
+		inp_search_gdouble(sim,&inp,&li->pulseJ,"#pulseJ");
+		li->pulseJ=gfabs(li->pulseJ);
 
 		inp_search_gdouble(sim,&inp,&laser_photon_efficiency,"#laser_photon_efficiency");
 
-		//printf("%Le\n",in->pulseJ);
+		//printf("%Le\n",li->pulseJ);
 
-		in->pulseJ=in->pulseJ*gfabs(laser_photon_efficiency);
+		li->pulseJ=li->pulseJ*gfabs(laser_photon_efficiency);
 
-		//printf("%Le\n",in->pulseJ);
+		//printf("%Le\n",li->pulseJ);
 		//getchar();
-		inp_search_gdouble(sim,&inp,&in->pulse_width,"#laser_pulse_width");
+		inp_search_gdouble(sim,&inp,&li->pulse_width,"#laser_pulse_width");
 
 		inp_free(sim,&inp);
 		printf_log(sim,"Loaded laser\n");

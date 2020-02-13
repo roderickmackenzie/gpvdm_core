@@ -1,61 +1,54 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 #include <stdio.h>
 #include <ray.h>
-#include <const.h>
+#include <gpvdm_const.h>
 #include <math.h>
 #include <stdlib.h>
 #include <cal_path.h>
 #include <log.h>
 #include <ray_fun.h>
+#include <util.h>
 #include <triangle.h>
 #include <triangle_io.h>
 
-/** @file objects.c
-	@brief Basic object manipulation
+
+/** @file ray_search_intersect.c
+	@brief Ray tracing for the optical model, this should really be split out into it's own library.
 */
 
-void ray_object_cal_min_max(struct object *obj)
+void objects_dump(struct simulation *sim,struct device *dev)
 {
-	triangles_find_min(&(obj->min),&(obj->tri));
-	triangles_find_max(&(obj->max),&(obj->tri));
+int o=0;
 
-	//vec_print(&(obj->min));
-	//vec_print(&(obj->max));
-	//getchar();
-}
+struct object *obj;
 
-void ray_object_init(struct object *obj)
-{
-	//btm
-	triangles_init(&(obj->tri));
-	obj->epi_layer=-1;
-	obj->s=NULL;
-}
+	for (o=0;o<dev->objects;o++)
+	{
+		obj=&(dev->obj[o]);
+		printf("%d:%s %d",o,obj->name,obj->tri.len);
+		printf("\t(%le,%le,%le)",obj->min.x,obj->min.y,obj->min.z);
+		printf("\t(%le,%le,%le)\n",obj->max.x,obj->max.y,obj->max.z);
+	}
 
-void ray_object_free(struct object *obj)
-{
-	triangles_free(&(obj->tri));
-	obj->epi_layer=-1;
-	obj->s=NULL;
 }
 

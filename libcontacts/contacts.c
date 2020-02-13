@@ -27,7 +27,7 @@
 #include "epitaxy.h"
 #include "inp.h"
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include <cal_path.h>
 #include "contacts.h"
 #include <log.h>
@@ -111,7 +111,7 @@ char temp[400];
 static long double dV=0.1;
 int up=TRUE;
 int changed=FALSE;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 
 	strcpy(text,"Ramping voltage: ");
 
@@ -250,6 +250,10 @@ void contacts_load(struct simulation *sim,struct device *in)
 		strcpy(in->contacts[i].shape_file_name,inp_get_string(sim,&inp));
 
 		s=shape_load_file(sim,&(in->my_epitaxy),&(in->contacts[i].shape),in->contacts[i].shape_file_name);
+		s->nx=1;
+		s->nz=1;
+		s->dz=in->zlen;
+		strcpy(s->name,in->contacts[i].name);
 
 		inp_get_string(sim,&inp);	//resistance sq
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].Rcontact));
@@ -270,6 +274,10 @@ void contacts_load(struct simulation *sim,struct device *in)
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].vh0));
 		in->contacts[i].vh0=fabs(in->contacts[i].vh0);
 
+		if (in->contacts[i].position==LEFT)
+		{
+			s->dx=ingress;
+		}
 	}
 
 	char * ver = inp_get_string(sim,&inp);
@@ -283,27 +291,29 @@ void contacts_load(struct simulation *sim,struct device *in)
 	contacts_update(sim,in);
 	contact_set_flip_current(sim,in);
 
-	in->lcharge=contacts_get_lcharge(sim,in);
-	in->rcharge=contacts_get_rcharge(sim,in);
-
-
 	contacts_cal_area(sim,in);
-	//contacts_dump(sim,in);
-	//getchar();
+
 }
 
 void contacts_force_to_zero(struct simulation *sim,struct device *in)
 {
+int y;
 int x;
 int z;
 struct dimensions *dim=&in->ns.dim;
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (z=0;z<dim->zlen;z++)
 {
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (x=0;x<dim->xlen;x++)
 	{
-		in->Vapplied_l[z][x]=0.0;
-		in->Vapplied_r[z][x]=0.0;
+			in->Vapplied_y0[z][x]=0.0;
+			in->Vapplied_y1[z][x]=0.0;
+	}
+
+	for (y=0;y<dim->ylen;y++)
+	{
+			in->Vapplied_x0[z][y]=0.0;
+			in->Vapplied_x1[z][y]=0.0;
 	}
 
 }
@@ -313,8 +323,12 @@ for (x=0;x<dim->xmeshpoints;x++)
 
 void contacts_dump(struct simulation *sim,struct device *in)
 {
-int i;
-struct dimensions *dim=&in->ns.dim;
+	int i;
+	int y=0;
+	int x=0;
+	int z=0;
+
+	struct dimensions *dim=&in->ns.dim;
 
 	if (get_dump_status(sim,dump_print_text)==TRUE)
 	{
@@ -323,28 +337,34 @@ struct dimensions *dim=&in->ns.dim;
 			printf_log(sim,"%-10s\tV=%Le\tA=%Le\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].area);
 		}
 
-
-		//printf("%Le\n",in->flip_current);
 	}
 
-	int z=0;
-	int x=0;
 
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	printf("top-btm\n");
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			printf("%d %.2Le %.2Lf %.2Lf (%.2Lf %.2Lf %Le %Le %Le %Le)\n",x,dim->xmesh[x],in->Vapplied_l[z][x],in->Vapplied_r[z][x],in->Vl[z][x],in->Vr[z][x],in->l_electrons[z][x],in->l_holes[z][x],in->r_electrons[z][x],in->r_holes[z][x]);
+			printf("%d %d\n",in->n_contact_y0[z][x],in->n_contact_y1[z][x]);
+
+			//printf("%d %.2Le %.2Lf %.2Lf (%.2Lf %.2Lf %Le %Le %Le %Le)\n",x,dim->xmesh[x],in->Vapplied_y0[z][x],in->Vapplied_y1[z][x],in->V_y0[z][x],in->V_y1[z][x],in->electrons_y0[z][x],in->holes_y0[z][x],in->electrons_y1[z][x],in->holes_y1[z][x]);
 		}
 	}
 
+	printf("left-right\n");
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (y = 0; y < dim->ylen; y++)
+		{
+			printf("%d %d\n",in->n_contact_x0[z][y],in->n_contact_x1[z][y]);
+			//printf("%d %.2Le %.2Lf %.2Lf (%.2Lf %.2Lf %Le %Le %Le %Le)\n",y,dim->ymesh[y],in->Vapplied_x0[z][y],in->Vapplied_x1[z][y],in->V_x0[z][y],in->V_x1[z][y],in->electrons_x0[z][y],in->holes_x0[z][y],in->electrons_x1[z][y],in->holes_x1[z][y]);
+		}
+	}
 }
 
-int contact_within(struct contact *c, long double x, long double z)
+int contact_within_zx(struct contact *c, long double z,long double x)
 {
-//	printf("%Le %Le %Le\n",c->shape.x0,(c->shape.x0+c->shape.dx),x);
-//	getchar();
 	if (x>=c->shape.x0)
 	{
 		if (x<(c->shape.x0+c->shape.dx))
@@ -356,36 +376,55 @@ int contact_within(struct contact *c, long double x, long double z)
 	return -1;
 }
 
+int contact_within_zy(struct contact *c, long double z, long double y)
+{
+
+	if (y>=c->shape.y0)
+	{
+		if (y<(c->shape.y0+c->shape.dy))
+		{
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
 void contacts_update(struct simulation *sim,struct device *in)
 {
 int i;
+int y;
 int x;
 int z;
 int n;
 int found=FALSE;
 
 gdouble value=0.0;
-struct newton_save_state *ns=&in->ns;
+struct newton_state *ns=&in->ns;
 struct dimensions *dim=&in->ns.dim;
 struct contact *c;
 
-if (dim->xmeshpoints==1)
+if (in->Vapplied_y0==NULL) return;
+
+if (dim->xlen==1)
 {
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (z=0;z<dim->zlen;z++)
 	{
-		in->passivate_r[z][0]=FALSE;
-		in->passivate_l[z][0]=FALSE;
+
+		in->passivate_y0[z][0]=FALSE;
+		in->passivate_y1[z][0]=FALSE;
+
 		for (i=0;i<in->ncontacts;i++)
 		{
 			c=&(in->contacts[i]);
 			if ((c->position==TOP)&&(c->active==TRUE))
 			{
-				in->Vapplied_l[z][0]=c->voltage;
-				in->n_contact_l[z][0]=i;
+				in->Vapplied_y0[z][0]=c->voltage;
+				in->n_contact_y0[z][0]=i;
 			}else
 			{
-				in->Vapplied_r[z][0]=c->voltage;
-				in->n_contact_r[z][0]=i;
+				in->Vapplied_y1[z][0]=c->voltage;
+				in->n_contact_y1[z][0]=i;
 			}
 		}
 	}
@@ -396,72 +435,128 @@ if (dim->xmeshpoints==1)
 }
 
 //Reset contacts
-for (z=0;z<dim->zmeshpoints;z++)
+for (z=0;z<dim->zlen;z++)
 {
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
-		in->Vapplied_l[z][x]=0.0;
-		in->Vapplied_r[z][x]=0.0;
+		in->Vapplied_y0[z][x]=0.0;
+		in->Vapplied_y1[z][x]=0.0;
 
-		in->n_contact_r[z][x]=-1;
-		in->n_contact_l[z][x]=-1;
+		in->n_contact_y0[z][x]=-1;
+		in->n_contact_y1[z][x]=-1;
 
-		in->passivate_r[z][x]=TRUE;
-		in->passivate_l[z][x]=TRUE;
+		in->passivate_y0[z][x]=TRUE;
+		in->passivate_y1[z][x]=TRUE;
 	}
+
+	for (y=0;y<dim->ylen;y++)
+	{
+		in->Vapplied_x0[z][y]=0.0;
+		in->Vapplied_x1[z][y]=0.0;
+
+		in->n_contact_x0[z][y]=-1;
+		in->n_contact_x1[z][y]=-1;
+
+		in->passivate_x0[z][y]=TRUE;
+		in->passivate_x1[z][y]=TRUE;
+	}
+
 }
 
-for (i=0;i<in->ncontacts;i++)
-{
-	c=&(in->contacts[i]);
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (i=0;i<in->ncontacts;i++)
 	{
-		for (x=0;x<dim->xmeshpoints;x++)
+		c=&(in->contacts[i]);
+		if (c->position==TOP)
 		{
-
-			if (contact_within(c, dim->xmesh[x], dim->zmesh[z])==0)
+			for (z=0;z<dim->zlen;z++)
 			{
-
-				if (c->position==TOP)
+				for (x=0;x<dim->xlen;x++)
 				{
-					//printf("top %d\n",in->contacts[i].position);
 
-					if (in->n_contact_l[z][x]!=-1)
+					if (contact_within_zx(c, dim->zmesh[z],dim->xmesh[x])==0)
 					{
-						ewe(sim,"You have overlapping contacts\n");
+
+						if (in->n_contact_y0[z][x]!=-1)
+						{
+							ewe(sim,"You have overlapping contacts\n");
+						}
+
+						in->Vapplied_y0[z][x]=c->voltage;
+						in->n_contact_y0[z][x]=i;
+						in->passivate_y0[z][x]=FALSE;
 					}
-
-					in->Vapplied_l[z][x]=c->voltage;
-					in->n_contact_l[z][x]=i;
-					in->passivate_l[z][x]=FALSE;
-				}else
-				if (c->position==BOTTOM)
+				}
+			}
+		}else
+		if (c->position==BOTTOM)
+		{
+			//printf("btm %d\n",in->contacts[i].position);
+			for (z=0;z<dim->zlen;z++)
+			{
+				for (x=0;x<dim->xlen;x++)
 				{
-					//printf("btm %d\n",in->contacts[i].position);
 
-					if (in->n_contact_r[z][x]!=-1)
+					if (contact_within_zx(c, dim->zmesh[z],dim->xmesh[x])==0)
 					{
-						ewe(sim,"You have overlapping contacts\n");
-					}
 
-					in->Vapplied_r[z][x]=in->contacts[i].voltage;
-					in->n_contact_r[z][x]=i;
-					in->passivate_r[z][x]=FALSE;
-				}else
-				if (c->position==LEFT)
+						if (in->n_contact_y1[z][x]!=-1)
+						{
+							ewe(sim,"You have overlapping contacts\n");
+						}
+
+						in->Vapplied_y1[z][x]=c->voltage;
+						in->n_contact_y1[z][x]=i;
+						in->passivate_y1[z][x]=FALSE;
+					}
+				}
+			}
+		}else
+		if (c->position==LEFT)
+		{
+			for (z=0;z<dim->zlen;z++)
+			{
+				for (y=0;y<dim->ylen;y++)
 				{
-						ewe(sim,"I don't support left contacts yet\n");
-				}else
-				if (c->position==RIGHT)
+
+
+					if (contact_within_zy(c, dim->zmesh[z], dim->ymesh[y]+in->my_epitaxy.device_start)==0)
+					{
+
+						if (in->n_contact_x0[z][y]!=-1)
+						{
+							ewe(sim,"You have overlapping contacts\n");
+						}
+
+						in->Vapplied_x0[z][y]=c->voltage;
+						in->n_contact_x0[z][y]=i;
+						in->passivate_x0[z][y]=FALSE;
+					}
+				}
+			}
+		}else
+		if (c->position==RIGHT)
+		{
+			for (z=0;z<dim->zlen;z++)
+			{
+				for (y=0;y<dim->ylen;y++)
 				{
-						ewe(sim,"I don't support right contacts yet\n");					
+
+					if (contact_within_zy(c, dim->zmesh[z], dim->ymesh[y]+in->my_epitaxy.device_start)==0)
+					{
+
+						if (in->n_contact_x1[z][y]!=-1)
+						{
+							ewe(sim,"You have overlapping contacts\n");
+						}
+
+						in->Vapplied_x1[z][y]=c->voltage;
+						in->n_contact_x1[z][y]=i;
+						in->passivate_x1[z][y]=FALSE;
+					}
 				}
 			}
 		}
 	}
-
-
-}
 
 //contacts_dump(sim,in);
 //getchar();
@@ -599,13 +694,13 @@ long double tot=0.0;
 long double count=0.0;
 struct dimensions *dim=&in->ns.dim;
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			if (in->n_contact_l[z][x]>=0)
+			if (in->n_contact_y0[z][x]>=0)
 			{
-				tot+=in->Jpleft[z][x]+in->Jnleft[z][x];
+				tot+=in->Jp_y0[z][x]+in->Jn_y0[z][x];
 				count=count+1.0;						//this will need updating for meshes which change
 			}
 		}
@@ -614,7 +709,7 @@ for (x=0;x<dim->xmeshpoints;x++)
 tot=tot/count;
 tot*=in->flip_current;
 
-return tot*Q;
+return tot;
 }
 
 long double contacts_get_Jright(struct device *in)
@@ -627,13 +722,13 @@ long double tot=0.0;
 long double count=0.0;
 struct dimensions *dim=&in->ns.dim;
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			if (in->n_contact_r[z][x]>=0)
+			if (in->n_contact_y1[z][x]>=0)
 			{
-				tot+=in->Jpright[z][x]+in->Jnright[z][x];
+				tot+=in->Jp_y1[z][x]+in->Jn_y1[z][x];
 				count=count+1.0;
 			}
 		}
@@ -643,7 +738,7 @@ tot=tot/count;
 
 tot*=in->flip_current;
 
-return tot*Q;
+return tot;
 }
 
 int contacts_get_active_contact_left_right(struct device *in)
@@ -673,6 +768,8 @@ int i;
 int x;
 int z;
 
+if (in->n_contact_y1==NULL) return;
+
 struct dimensions *dim=&in->ns.dim;
 
 for (i=0;i<in->ncontacts;i++)
@@ -680,20 +777,20 @@ for (i=0;i<in->ncontacts;i++)
 	in->contacts[i].area=0.0;
 }
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			i=in->n_contact_r[z][x];
+			i=in->n_contact_y1[z][x];
 			if (i!=-1)
 			{
-				in->contacts[i].area+=dim->dxmesh[x]*dim->dzmesh[z];
+				in->contacts[i].area+=dim->dx[x]*dim->dz[z];
 			}
 
-			i=in->n_contact_l[z][x];
+			i=in->n_contact_y0[z][x];
 			if (i!=-1)
 			{
-				in->contacts[i].area+=dim->dxmesh[x]*dim->dzmesh[z];
+				in->contacts[i].area+=dim->dx[x]*dim->dz[z];
 			}
 
 		}
@@ -708,11 +805,11 @@ int x;
 int z;
 struct dimensions *dim=&in->ns.dim;
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			printf("%d %Le %Le\n",in->n_contact_l[z][x],in->Jpleft[z][x],in->Jnleft[z][x]);
+			printf("%d %Le %Le\n",in->n_contact_y0[z][x],in->Jp_y0[z][x],in->Jn_y0[z][x]);
 		}
 }
 
@@ -730,21 +827,21 @@ long double count=0.0;
 struct dimensions *dim=&in->ns.dim;
 
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
 			for (i=0;i<in->ncontacts;i++)
 			{
-				if (in->n_contact_r[z][x]==n)
+				if (in->n_contact_y1[z][x]==n)
 				{
-					tot+=in->Jpright[z][x]+in->Jnright[z][x];
+					tot+=in->Jp_y1[z][x]+in->Jn_y1[z][x];
 					count=count+1.0;						//this will need updating for meshes which change
 				}
 
-				if (in->n_contact_l[z][x]==n)
+				if (in->n_contact_y0[z][x]==n)
 				{
-					tot+=in->Jpleft[z][x]+in->Jnleft[z][x];
+					tot+=in->Jp_y0[z][x]+in->Jn_y0[z][x];
 					count=count+1.0;						//this will need updating for meshes which change
 				}
 			}
@@ -755,7 +852,7 @@ tot=tot/count;
 
 tot*=in->flip_current;
 
-return tot*Q;
+return tot;
 }
 
 void contacts_passivate(struct simulation *sim,struct device *in)
@@ -765,15 +862,15 @@ int x;
 int y;
 int z;
 return;
-struct newton_save_state *ns=&in->ns;
+struct newton_state *ns=&in->ns;
 struct dimensions *dim=&in->ns.dim;
 
 //passivate under each contact
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-	for (y=0;y<dim->ymeshpoints;y++)
+	for (y=0;y<dim->ylen;y++)
 	{
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
 
 			for (i=0;i<in->ncontacts;i++)
@@ -800,18 +897,18 @@ for (x=0;x<dim->xmeshpoints;x++)
 	}
 }
 
-for (x=0;x<dim->xmeshpoints;x++)
+for (x=0;x<dim->xlen;x++)
 {
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (z=0;z<dim->zlen;z++)
 	{
-		i=in->n_contact_r[z][x];
+		i=in->n_contact_y1[z][x];
 		if (i==-1)
 		{
-			in->mun[z][x][dim->ymeshpoints-1]=1e-15;
-			in->mup[z][x][dim->ymeshpoints-1]=1e-15;
+			in->mun[z][x][dim->ylen-1]=1e-15;
+			in->mup[z][x][dim->ylen-1]=1e-15;
 		}
 
-		i=in->n_contact_l[z][x];
+		i=in->n_contact_y0[z][x];
 		if (i==-1)
 		{
 			in->mun[z][x][0]=1e-15;
@@ -830,4 +927,49 @@ void contacts_free(struct simulation *sim,struct device *in)
 	{
 		shape_free(sim,&(in->contacts[i].shape));
 	}
+}
+
+void contacts_ingress(struct simulation *sim,struct device *in)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	int c=0;
+	struct newton_state *ns=&(in->ns);
+	struct dimensions *dim=&in->ns.dim;
+	struct shape *s;
+	long double x_pos=0.0;
+	long double y_pos=0.0;
+	long double z_pos=0.0;
+
+	for (z=0;z<dim->zlen;z++)
+	{
+		z_pos=dim->zmesh[z];
+		for (x=0;x<dim->xlen;x++)
+		{
+			x_pos=dim->xmesh[x];
+			for (y=0;y<dim->ylen;y++)
+			{
+				y_pos=dim->ymesh[y];
+				for (c=0;c<in->ncontacts;c++)
+				{
+					if (in->contacts[c].position==LEFT)		//I should not need this line if I fix up the other contacts
+					{
+						s=&(in->contacts[c].shape);
+						if (shape_in_shape(sim,s,z_pos,x_pos,y_pos+in->my_epitaxy.device_start)==0)
+						{
+							in->mun[z][x][y]=1.0;
+							in->mup[z][x][y]=1.0;
+						}
+					}
+
+				}
+
+				//printf("%d %d %Le\n",x,y,in->mun[z][x][y]);
+			}
+		}
+
+	}
+
+//getchar();
 }

@@ -40,7 +40,6 @@
 #include <server.h>
 #include <light_interface.h>
 #include <dump.h>
-#include <complex_solver.h>
 #include <inp.h>
 #include <gui_hooks.h>
 #include <timer.h>
@@ -223,7 +222,7 @@ sim.server.cpus=1;
 sim.server.readconfig=TRUE;
 
 
-
+color_cie_init(&sim);
 color_cie_load(&sim);
 
 if (scanarg( argv,argc,"--outputpath")==TRUE)

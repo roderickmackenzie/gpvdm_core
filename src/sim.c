@@ -36,6 +36,8 @@ void sim_init(struct simulation *sim)
 	sim->converge= NULL;
 	sim->tconverge= NULL;
 	sim->log_level= -1;
+
+	//Matrix solver -	external dll
 	sim->last_col=0;
 	sim->last_nz=0;
 	sim->x=NULL;
@@ -44,6 +46,20 @@ void sim_init(struct simulation *sim)
 	sim->Ax=NULL;
 	sim->b=NULL;
 	sim->Tx=NULL;
+
+	//Complex matrix solver -	external dll
+	sim->c_last_col=0;
+	sim->c_last_nz=0;
+	sim->c_x=NULL;
+	sim->c_xz=NULL;
+	sim->c_Ap=NULL;
+	sim->c_Ai=NULL;
+	sim->c_Ax=NULL;
+	sim->c_Az=NULL;
+	sim->c_b=NULL;
+	sim->c_bz=NULL;
+	sim->c_Tx=NULL;
+	sim->c_Txz=NULL;
 
 	//complex solver
 	sim->complex_last_col=0;
@@ -55,11 +71,22 @@ void sim_init(struct simulation *sim)
 	sim->complex_Ax=NULL;
 	sim->complex_Az=NULL;
 
+	//newton solver dll
 	sim->dll_solve_cur=NULL;
 	sim->dll_solver_realloc=NULL;
 	sim->dll_solver_free_memory=NULL;
 	sim->dll_solver_handle=NULL;
 	strcpy(sim->force_sim_mode,"");
+
+	//matrix solver dll
+	sim->dll_matrix_handle=NULL;
+	sim->dll_matrix_solve=NULL;
+	sim->dll_matrix_solver_free=NULL;
+
+	//complex matrix solver dll
+	sim->dll_complex_matrix_handle=NULL;
+	sim->dll_complex_matrix_solve=NULL;
+	sim->dll_complex_matrix_solver_free=NULL;
 
 	//fit vars
 	sim->last_total_error=-1.0;
@@ -94,11 +121,8 @@ void sim_init(struct simulation *sim)
 	sim->errors_logged=0;
 	strcpy(sim->server.dbus_finish_signal,"");
 
-	sim->fd_ext_mem=-1;
-	sim->fd_ext_memptr=NULL;
-	sim->sem_data_for_slave=NULL;
-	sim->sem_data_for_master=NULL;
-	strcpy(sim->backing_file,"");
-	sim->fd_ext_block_size=-1;
+	sim->fd_ext_solver=-1;
+	sim->ext_solver_buf_size=-1;
+	sim->ext_solver_buf=NULL;
 }
 

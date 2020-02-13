@@ -124,11 +124,11 @@ struct dat_file buf;
 buffer_init(&buf);
 
 struct dynamic_store store;
+
 dump_dynamic_init(sim,&store,in);
 
 struct contacts_vti_store contact_store;
 dump_contacts_init(sim,in,&contact_store);
-
 
 
 
@@ -187,7 +187,7 @@ inter_init(sim,&lj);
 state_cache_enable(sim,in);
 
 
-if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
+if ((dim->zlen>1) || (dim->xlen>1))
 {
 	contact_set_wanted_active_contact_voltage(sim,in,config.Vstart);
 	//contact_set_active_contact_voltage(sim,in,config.Vstart);
@@ -207,6 +207,7 @@ if ((dim->zmeshpoints>1) || (dim->xmeshpoints>1))
 //contacts_dump(sim,in);
 //printf("wait a\n");
 //getchar();
+
 remesh_reset(sim,in,Vapplied);
 //if (in->remesh==TRUE)
 //{
@@ -256,8 +257,8 @@ long double cal_step=0;
 
 long double n_steps=0.0;
 char send_data[200];
-
-struct newton_save_state *ns=&(in->ns);
+long double V_simple_last=-1.0;
+struct newton_state *ns=&(in->ns);
 
 n_steps=get_step_n(config.Vstep,config.jv_step_mul,config.Vstart);
 n_steps+=get_step_n(config.Vstep,config.jv_step_mul,config.Vstop);
@@ -270,7 +271,7 @@ if (config.Vstop<config.Vstart)
 	up=FALSE;
 }
 
-FILE *rod=fopen("left.dat","w");
+FILE *rod=fopen("test.dat","w");
 fclose(rod);
 	do
 	{
@@ -295,7 +296,6 @@ fclose(rod);
 			inter_append(&ivexternal,Vexternal,get_equiv_I(sim,in));
 
 		}
-
 		ittr++;
 		inter_append(&charge,Vexternal,get_extracted_np(in));
 		inter_append(&charge_tot,Vexternal,get_np_tot(in));
@@ -305,15 +305,23 @@ fclose(rod);
 		plot_now(sim,in,"jv.plot");
 		stop_start(sim,in);
 		dump_dynamic_add_data(sim,&store,in,Vexternal);
+
+
 		dump_contacts_add_data(sim,in,&contact_store);
+		//rod=fopen("test.dat","a");
+		//fprintf(rod,"%Le %Le %Le %Le\n",V,(in->Jn[0][0][1]+in->Jp[0][0][1]+in->Jn[0][0][dim->ylen-2]+in->Jp[0][0][dim->ylen-2])/2.0,get_avg_gen(in),get_avg_recom(in));
+		//fclose(rod);
 
-		rod=fopen("left.dat","a");
-		fprintf(rod,"%Le %Le\n",V,in->Jnleft[0][0]);
-		fclose(rod);
+		//if ((V_simple_last<0.0)&&(V>=0.0))
+		//{
+		//	dump_1d_slice(sim,in,"./voc");
+		//	//getchar();
+		//}
 
+		V_simple_last=V;
 		if (get_dump_status(sim,dump_print_converge)==TRUE)
 		{
-		printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,ns->last_error);
+			printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,ns->last_error);
 		}
 
 		if (first==FALSE)
@@ -375,23 +383,22 @@ fclose(rod);
 		}
 
 
-
-
 		Jlast=J;
 		Vlast=Vexternal;
 		Pdenlast=Pden;
 		first=FALSE;
-
-		dump_write_to_disk(sim,in);
+		if (config.dump_verbocity==dump_verbosity_everything)
+		{
+			dump_write_to_disk(sim,in);
+		}
 
 		long double optical_power_m2=calculate_photon_power_m2(sim,in);
 		inter_append(&lv,Vexternal,optical_power_m2);
-		//printf("%Le %Le\n",pl_get_light_energy(),in->my_image.extract_eff[lam]);
+
 		inter_append(&lj,J,optical_power_m2);
 		//printf("%Le %le\n",get_avg_recom(in),in->my_image.avg_extract_eff);
 
 		jv_voltage_step(sim,in,&V,&Vstep);
-
 		if (config.jv_step_mul>1.0)
 		{
 			cal_step=get_step_n(config.Vstep,config.jv_step_mul,V);//roundl(log(1.0+(fabs(V)/config.Vstep)*log(config.jv_step_mul))/log(config.jv_step_mul));
@@ -458,7 +465,8 @@ if (get_dump_status(sim,dump_print_text)==TRUE)
 long double added=0.0;
 added=get_tot_photons_abs(in);
 printf("photon density= %Le\n", added);
-
+printf("%Le %Le",in->Pmax,light_get_sun(&(in->mylight)));
+//getchar();
 if (dumpfiles_should_dump(sim,"sim_info.dat")==0)
 {
 	FILE *out;
@@ -715,6 +723,9 @@ void jv_load_config(struct simulation *sim,struct jv* in,struct device *dev, cha
 	inp_search_gdouble(sim,&inp,&(in->jv_Rcontact),"#jv_Rcontact");
 	in->jv_single_point=inp_search_english(sim,&inp,"#jv_single_point");
 	in->jv_light_efficiency=gfabs(in->jv_light_efficiency);
+
+	in->dump_verbocity=inp_search_english(sim,&inp,"#dump_verbosity");
+
 	inp_free(sim,&inp);
 
 }

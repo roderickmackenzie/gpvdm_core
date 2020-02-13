@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file newton_tricks.c
 	@brief A collection of helper functions for the newton solver.
@@ -121,12 +121,6 @@ gdouble Vapplied=0.0;
 in->kl_in_newton=FALSE;
 solver_realloc(sim,in);
 
-/*if (state_find_vector(sim,in,NULL)==TRUE)
-{
-	//printf("bing!\n<");
-	solve_all(sim,in);
-}*/
-//getchar();
 newton_push_state(in);
 
 in->min_cur_error=1e-8;
@@ -142,7 +136,6 @@ while (changed==TRUE)
 	changed=contacts_itterate_to_desired_voltage(sim,in,temp);
 
 	solve_all(sim,in);
-	//save_state(sim,in);
 	sprintf(send_data,"text:%s",temp);
 	gui_send_data(sim,gui_sub,send_data);
 
@@ -209,18 +202,10 @@ int ittr=0;
 int cont=TRUE;
 struct dimensions *dim=&in->ns.dim;
 
-if (state_search_and_load(sim,in)==TRUE)
-{
-	in->newton_only_fill_matrix=TRUE;
-	solve_cur(sim,in,z,x);
-	in->newton_only_fill_matrix=FALSE;
-	return;
-}
 
-
-for (z=0;z<dim->zmeshpoints;z++)
+for (z=0;z<dim->zlen;z++)
 {
-//	for (x=0;x<in->xmeshpoints;x++)
+//	for (x=0;x<in->xlen;x++)
 //	{
 
 		if (in->newton_enable_external_thermal==FALSE)
@@ -232,7 +217,7 @@ for (z=0;z<dim->zmeshpoints;z++)
 			do
 			{
 				solve_cur(sim,in,z,x);
-		
+
 				//plot_now(sim,"thermal.plot");
 				//getchar();
 				solve_thermal(sim,in);
@@ -247,9 +232,12 @@ for (z=0;z<dim->zmeshpoints;z++)
 			}while(cont==TRUE);
 		}
 //	}
+	if (in->circuit_simulation==TRUE)
+	{
+		break;
+	}
 }
 
-save_state(sim,in);
 
 }
 

@@ -26,23 +26,19 @@
 */
 #ifndef perovskite_struct_h
 #define perovskite_struct_h
+#include <matrix.h>
 
 struct perovskite
 {
 	int perovskite_enabled;
 	long double perovskite_dt;
 	int perovskite_steps;
-	int N;
 
 	int ystart;
 	int ystop;
 	int ylen;
 
-	int M;
-	int *Ti;
-	int *Tj;
-	long double *Tx;
-	long double *b;
+	struct matrix mx;
 
 	long double error;
 };

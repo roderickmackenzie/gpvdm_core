@@ -29,6 +29,7 @@
 #include <sim_struct.h>
 #include <device.h>
 
+void color_cie_init(struct simulation *sim);
 void color_cie_load(struct simulation *sim);
 void color_cie_free(struct simulation *sim);
 void wavelength_to_rgb(int *r,int *g,int *b,double wavelength);

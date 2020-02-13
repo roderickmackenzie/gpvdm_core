@@ -28,9 +28,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "device.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "dump.h"
 #include "config.h"
 #include "inp.h"
@@ -130,7 +130,6 @@ void epitaxy_load_emission(struct simulation *sim,struct epi_layer *layer)
 	sprintf(temp_file,"emission_input_%d.dat",layer->layer_number);
 	buffer_dump_path(sim,"",temp_file,&buf);
 	buffer_free(&buf);
-	printf("e\n");
 
 }
 
@@ -185,7 +184,7 @@ void epitaxy_load_materials(struct simulation *sim,struct epitaxy *in)
 
 		inp_search_string(sim,&inp,default_file_alpha,"#mat_default_file_alpha");
 		inp_search_string(sim,&inp,default_file_n,"#mat_default_file_n");
-		inp_get_array_gdouble(sim,in->rgb[i],&inp,"#red_green_blue");
+		inp_get_array_gdouble(sim,in->layer[i].rgb,&inp,"#red_green_blue");
 		inp_free(sim,&inp);
 
 		join_path(3, file_path,get_materials_path(sim),in->mat_file[i],"alpha.gmat");

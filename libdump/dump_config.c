@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dump_config.c
 @brief read the dump config file
@@ -42,7 +42,7 @@ void dump_load_config(struct simulation* sim,struct device *in)
 
 	inp_load_from_path(sim,&inp,get_input_path(sim),"dump.inp");
 
-	inp_check(sim,&inp,1.55);
+	inp_check(sim,&inp,1.57);
 
 	dump=inp_search_english(sim,&inp,"#plot");
 	set_dump_status(sim,dump_plot,dump);
@@ -52,9 +52,6 @@ void dump_load_config(struct simulation* sim,struct device *in)
 
 	dump=inp_search_english(sim,&inp,"#dump_dynamic");
 	set_dump_status(sim,dump_dynamic, dump);
-
-	dump=inp_search_english(sim,&inp,"#dump_fx");
-	set_dump_status(sim,dump_fx, dump);
 
 	in->stop_start=inp_search_english(sim,&inp,"#startstop");
 
@@ -83,21 +80,21 @@ void dump_load_config(struct simulation* sim,struct device *in)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_xpos>=dim->xmeshpoints) in->dump_energy_slice_xpos=0;
+	if (in->dump_energy_slice_xpos>=dim->xlen) in->dump_energy_slice_xpos=0;
 
 	inp_search_int(sim,&inp,&(in->dump_energy_slice_ypos),"#dump_energy_slice_ypos");
 	if (in->dump_energy_slice_xpos<0)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_ypos>=dim->ymeshpoints) in->dump_energy_slice_ypos=0;
+	if (in->dump_energy_slice_ypos>=dim->ylen) in->dump_energy_slice_ypos=0;
 
 	inp_search_int(sim,&inp,&(in->dump_energy_slice_zpos),"#dump_energy_slice_zpos");
 	if (in->dump_energy_slice_xpos<0)
 	{
 			set_dump_status(sim,dump_energy_slice_switch, FALSE);
 	}
-	if (in->dump_energy_slice_zpos>=dim->zmeshpoints) in->dump_energy_slice_zpos=0;
+	if (in->dump_energy_slice_zpos>=dim->zlen) in->dump_energy_slice_zpos=0;
 
 
 	set_dump_status(sim,dump_1d_slices, TRUE);

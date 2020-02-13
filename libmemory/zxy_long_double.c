@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <lang.h>
-#include <complex_solver.h>
 #include "sim.h"
 #include "dump.h"
 #include "mesh.h"
@@ -37,27 +36,27 @@
 #include "memory.h"
 
 
-
-void zxy_malloc_gdouble(struct dimensions *dim, gdouble * (***var))
+void malloc_zxy_gdouble(struct dimensions *dim, gdouble * (***var))
 {
 	int x=0;
 	int y=0;
 	int z=0;
 
 
-	*var = (gdouble ***) malloc(dim->zmeshpoints * sizeof(gdouble **));
+	*var = (gdouble ***) malloc(dim->zlen * sizeof(gdouble **));
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		(*var)[z] = (gdouble **) malloc(dim->xmeshpoints * sizeof(gdouble*));
-		for (x = 0; x < dim->xmeshpoints; x++)
+		(*var)[z] = (gdouble **) malloc(dim->xlen * sizeof(gdouble*));
+		for (x = 0; x < dim->xlen; x++)
 		{
-			(*var)[z][x] = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
-			memset((*var)[z][x], 0, dim->ymeshpoints * sizeof(gdouble));
+			(*var)[z][x] = (gdouble *) malloc(dim->ylen * sizeof(gdouble));
+			memset((*var)[z][x], 0, dim->ylen * sizeof(gdouble));
 		}
 	}
 
 }
+
 
 long double zxy_min_gdouble(struct dimensions *dim, gdouble ***var)
 {
@@ -67,11 +66,11 @@ long double zxy_min_gdouble(struct dimensions *dim, gdouble ***var)
 
 	long double min=var[0][0][0];
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				if (var[z][x][y]<min)
 				{
@@ -92,11 +91,11 @@ long double zxy_max_gdouble(struct dimensions *dim, gdouble ***var)
 
 	long double max=var[0][0][0];
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				if (var[z][x][y]>max)
 				{
@@ -108,17 +107,39 @@ long double zxy_max_gdouble(struct dimensions *dim, gdouble ***var)
 
 return max;
 }
-void three_d_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val)
+
+long double zx_y_max_gdouble(struct dimensions *dim, gdouble ***var,int y)
+{
+	int x=0;
+	int z=0;
+
+	long double max=var[0][0][0];
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			if (var[z][x][y]>max)
+			{
+				max=var[z][x][y];
+			}
+		}
+	}
+
+return max;
+}
+
+void zxy_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				var[z][x][y]=val;
 			}
@@ -135,11 +156,11 @@ int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				var[z][x][y]-=sub[z][x][y];
 			}
@@ -155,11 +176,11 @@ int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				dst[z][x][y]=src[z][x][y];
 			}
@@ -175,11 +196,11 @@ int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				var[z][x][y]+=add[z][x][y];
 			}
@@ -189,17 +210,17 @@ int z=0;
 
 }
 
-void three_d_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val)
+void zxy_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val)
 {
 int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				src[z][x][y]*=val;
 			}
@@ -207,6 +228,56 @@ int z=0;
 		}
 	}
 
+}
+
+void zxy_div_gdouble(struct dimensions *dim, gdouble ***src, gdouble val)
+{
+int x=0;
+int y=0;
+int z=0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				src[z][x][y]/=val;
+			}
+
+		}
+	}
+
+}
+
+long double three_d_avg_raw(struct device *in, long double ***src)
+{
+int x=0;
+int y=0;
+int z=0;
+long double sum=0.0;
+long double ret=0.0;
+
+long double count=0.0;
+struct dimensions *dim=&(in->ns.dim);
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+
+				sum+=src[z][x][y];
+				count+=1.0;
+//				printf("%Le %Le %Le %Le %Le %Le\n",dim->dx[x],dim->dy[y],dim->dz[z],in->zlen,in->xlen,in->ylen);
+			}
+
+		}
+	}
+
+ret=sum/count;
+return ret;
 }
 
 long double three_d_avg(struct device *in, long double ***src)
@@ -223,16 +294,15 @@ long double dz=0.0;
 
 struct dimensions *dim=&(in->ns.dim);
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
-				if (y==0)
 
-				sum+=src[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
-//				printf("%Le %Le %Le %Le %Le %Le\n",dim->dxmesh[x],dim->dymesh[y],dim->dzmesh[z],in->zlen,in->xlen,in->ylen);
+				sum+=src[z][x][y]*dim->dx[x]*dim->dy[y]*dim->dz[z];
+//				printf("%Le %Le %Le %Le %Le %Le\n",dim->dx[x],dim->dy[y],dim->dz[z],in->zlen,in->xlen,in->ylen);
 			}
 
 		}
@@ -243,6 +313,7 @@ ret=sum/(in->zlen*in->xlen*in->ylen);
 return ret;
 }
 
+
 void three_d_printf(struct dimensions *dim, long double ***src)
 {
 int x=0;
@@ -250,11 +321,11 @@ int y=0;
 int z=0;
 long double sum=0.0;
 long double ret=0.0;
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				printf("%Le\n",src[z][x][y]);
 			}
@@ -273,13 +344,13 @@ int z=0;
 long double sum=0.0;
 long double ret=0.0;
 struct dimensions *dim=&(in->ns.dim);
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
-				sum+=fabsl(src[z][x][y])*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
+				sum+=fabsl(src[z][x][y])*dim->dx[x]*dim->dy[y]*dim->dz[z];
 			}
 
 		}
@@ -296,13 +367,13 @@ int y=0;
 int z=0;
 long double sum=0.0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
-				sum+=src[z][x][y]*dim->dxmesh[x]*dim->dymesh[y]*dim->dzmesh[z];
+				sum+=src[z][x][y]*dim->dx[x]*dim->dy[y]*dim->dz[z];
 			}
 
 		}
@@ -311,7 +382,29 @@ long double sum=0.0;
 return sum;
 }
 
-void free_3d_gdouble(struct dimensions *dim, gdouble * (***in_var))
+long double zxy_sum_gdouble(struct dimensions *dim, long double ***src)
+{
+int x=0;
+int y=0;
+int z=0;
+long double sum=0.0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				sum+=src[z][x][y];
+			}
+
+		}
+	}
+
+return sum;
+}
+
+void free_zxy_gdouble(struct dimensions *dim, gdouble * (***in_var))
 {
 	int x=0;
 	int y=0;
@@ -323,10 +416,10 @@ void free_3d_gdouble(struct dimensions *dim, gdouble * (***in_var))
 		return;
 	}
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
 
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
 			free(var[z][x]);
 		}
@@ -367,16 +460,16 @@ long double xr;
 long double c;
 
 	z=0;
-	for (x = 0; x < dim_out->xmeshpoints; x++)
+	for (x = 0; x < dim_out->xlen; x++)
 	{
 
 		x_out=dim_out->xmesh[x];
-		xi=hashget(dim_in->xmesh,dim_in->xmeshpoints,x_out);
+		xi=hashget(dim_in->xmesh,dim_in->xlen,x_out);
 
-		for (y = 0; y < dim_out->ymeshpoints; y++)
+		for (y = 0; y < dim_out->ylen; y++)
 		{
 			y_out=dim_out->ymesh[y];
-			yi=hashget(dim_in->ymesh,dim_in->ymeshpoints,y_out);
+			yi=hashget(dim_in->ymesh,dim_in->ylen,y_out);
 
 			y00=dim_in->ymesh[yi];
 			y01=dim_in->ymesh[yi+1];
@@ -400,6 +493,40 @@ long double c;
 
 }
 
+void zx_y_quick_dump(char *file_name, long double ***in, struct dimensions *dim)
+{
+int x=0;
+int y=0;
+int z=0;
+	FILE *out;
+char full_name[200];
+
+	for (y = 0; y < dim->ylen; y++)
+	{
+		sprintf(full_name,"%s.%d.dat",file_name,y);
+		out=fopen(full_name,"w");
+
+		for (z = 0; z < dim->zlen; z++)
+		{
+
+			for (x = 0; x < dim->xlen; x++)
+			{
+
+
+					fprintf(out,"%Le %Le %Le\n",dim->zmesh[z],dim->xmesh[x],in[z][x][y]);
+				//}
+
+
+			}
+			fprintf(out,"\n");
+			//fprintf(out,"\n\n");
+		}
+	fclose(out);
+
+	}
+
+}
+
 void three_d_quick_dump(char *file_name, long double ***in, struct dimensions *dim)
 {
 int x=0;
@@ -407,19 +534,21 @@ int y=0;
 int z=0;
 	FILE *out=fopen(file_name,"w");
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
 
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
 
-			for (y = 0; y < dim->ymeshpoints; y++)
-			{
-				fprintf(out,"%Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],in[z][x][y]);
-			}
+			//for (y = 0; y < dim->ylen; y++)
+			//{
+				fprintf(out,"%Le %Le %Le\n",dim->zmesh[z],dim->xmesh[x],in[z][x][2]);
+			//}
 
-			fprintf(out,"\n");
+
 		}
+		fprintf(out,"\n");
+		//fprintf(out,"\n\n");
 	}
 
 fclose(out);
@@ -442,9 +571,9 @@ void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long do
 	long double ***dat=*data;
 	struct dat_file d;
 	dat_file_load_info(sim,&d,file_name);
-	if ((d.x!=dim->xmeshpoints)||(d.y!=dim->ymeshpoints)||(d.z!=dim->zmeshpoints))
+	if ((d.x!=dim->xlen)||(d.y!=dim->ylen)||(d.z!=dim->zlen))
 	{
-		ewe(sim,"not matching dim\n");
+		ewe(sim,"not matching dim should be (%d,%d,%d)\n",d.x,d.y,d.z);
 	}
 
 	//zxy_malloc_gdouble(dim, data);
@@ -453,17 +582,17 @@ void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long do
 
 	if (d.y>1)
 	{
-		items_per_line++;	
+		items_per_line++;
 	}
 
 	if (d.x>1)
 	{
-		items_per_line++;	
+		items_per_line++;
 	}
 
 	if (d.z>1)
 	{
-		items_per_line++;	
+		items_per_line++;
 	}
 
 	file=fopen(file_name,"r");
@@ -498,15 +627,15 @@ void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long do
 				}
 
 				y++;
-				if (y>=dim->ymeshpoints)
+				if (y>=dim->ylen)
 				{
 					y=0;
 					x++;
-					if (x>=dim->xmeshpoints)
+					if (x>=dim->xlen)
 					{
 						x=0;
 						z++;
-						if (z>=dim->zmeshpoints)
+						if (z>=dim->zlen)
 						{
 							z=0;
 						}
@@ -526,4 +655,42 @@ void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long do
 
 	}while(!feof(file));
 	fclose(file);
+}
+
+void flip_zxy_long_double_y(struct simulation *sim, struct dimensions *dim,long double *** data)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	long double ***temp;
+
+	malloc_zxy_gdouble(dim, &temp);
+
+	for (z=0;z<dim->zlen;z++)
+	{
+
+		for (x=0;x<dim->xlen;x++)
+		{
+
+			for (y=0;y<dim->ylen;y++)
+			{
+				temp[z][x][y]=data[z][x][y];
+			}
+
+		}
+	}
+
+	for (z=0;z<dim->zlen;z++)
+	{
+		for (x=0;x<dim->xlen;x++)
+		{
+			for (y=0;y<dim->ylen;y++)
+			{
+				data[z][x][dim->ylen-y-1]=temp[z][x][y];
+			}
+		}
+	}
+
+
+	free_zxy_gdouble(dim, &temp);
 }

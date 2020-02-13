@@ -27,7 +27,7 @@
 
 #include <string.h>
 #include <log.h>
-#include <const.h>
+#include <gpvdm_const.h>
 #include "newton.h"
 #include <dll_export.h>
 #include <util.h>
@@ -39,7 +39,7 @@
 #include <sim.h>
 #include <solver_interface.h>
 #include <contacts.h>
-
+#include <circuit.h>
 
 
 
@@ -51,115 +51,30 @@ int x=0;
 int x_max=0;
 int band=0;
 struct dimensions *dim=&in->ns.dim;
-
-	if (x_in==-1)
-	{
-		x=0;
-		x_max=dim->xmeshpoints;
-	}else
-	{
-		x=x_in;
-		x_max=x_in;
-	}
-
-//contacts_update(sim,in);
-//contacts_dump(sim,in);
-
-long double n0=1.0;
-long double J0=1.0;
-
-long double J=0.0;
-long double V=0.0;
-long double J_light=0.0;
+struct circuit *cir=&(in->cir);
 
 
-	for (i=0;i<in->my_epitaxy.layers;i++)
-	{
-		if (in->my_epitaxy.layer[i].electrical_layer==TRUE)
+		/*
+		long double n0=1.0;
+		long double J0=1.0;
+
+		long double J=0.0;
+		long double V=0.0;
+		long double J_light=0.0;
+
+		J_light=0.0;
+
+		for (i=0;i<dim->ylen;i++)
 		{
-			n0=in->my_epitaxy.layer[i].n_ideality;
-			J0=in->my_epitaxy.layer[i].J0;
-			break;
-		}
-	}
-
-
-
-do
-{
-
-	J_light=0.0;
-
-	for (i=0;i<dim->ymeshpoints;i++)
-	{
-		J_light+=(in->Gn[z][x][i]+in->Gp[z][x][i])*dim->dymesh[i]/2.0;
-	}
-
-	//printf(">>not light>>%Le\n",in->Gn[z][x][0]);
-	//getchar();
-	V=in->Vapplied_l[z][x]-in->Vapplied_r[z][x];
-	J=(J0/Q)*(expl(((Q*V)/(n0*kb*in->Tl[z][x][0])))-1.0)-J_light;
-
-	//printf("%Le %Le %Le %Le\n",n0,J0,J,V);
-
-
-	for (i=0;i<dim->ymeshpoints;i++)
-	{
-
-
-		if (i==0)
-		{
-			in->Jnleft[z][x]=J;
-			in->Jpleft[z][x]=0.0;
+			J_light+=(in->Gn[z][x][i]+in->Gp[z][x][i])*dim->dy[i]/2.0;
 		}
 
-		if (i==dim->ymeshpoints-1)
-		{
-			in->Jnright[z][x]=0.0;
-			in->Jpright[z][x]=J;
-		}
+		V=in->Vapplied_y0[z][x]-in->Vapplied_y1[z][x];
+		J=(J0/Q)*(expl(((Q*V)/(n0*kb*in->Tl[z][x][0])))-1.0)-J_light;
+		*/
 
-		in->Jn[z][x][i]=0.0;
-		in->Jp[z][x][i]=0.0;
-
-		in->Jn_x[z][x][i]=0.0;
-		in->Jp_x[z][x][i]=0.0;
-
-
-		in->nrelax[z][x][i]=0.0;
-		in->ntrap_to_p[z][x][i]=0.0;
-		in->prelax[z][x][i]=0.0;
-		in->ptrap_to_n[z][x][i]=0.0;
-
-
-		for (band=0;band<dim->srh_bands;band++)
-		{
-
-			in->nt_r1[z][x][i][band]=0.0;
-			in->nt_r2[z][x][i][band]=0.0;
-			in->nt_r3[z][x][i][band]=0.0;
-			in->nt_r4[z][x][i][band]=0.0;
-
-			in->pt_r1[z][x][i][band]=0.0;
-			in->pt_r2[z][x][i][band]=0.0;
-			in->pt_r3[z][x][i][band]=0.0;
-			in->pt_r4[z][x][i][band]=0.0;
-
-		}
-
-		in->Rn[z][x][i]=0.0;
-		in->Rp[z][x][i]=0.0;
-
-		in->Rn_srh[z][x][i]=0.0;
-		in->Rp_srh[z][x][i]=0.0;
-
-	}
-
-	x++;
-
-}while(x<x_max);
-
-
+	circuit_solve(sim,cir,in);
+	circuit_transfer_to_electrical_mesh(sim,cir,in);
 
 }
 
@@ -167,7 +82,7 @@ void dllinternal_solver_realloc(struct simulation *sim,struct device *in,int dim
 {
 }
 
-void dllinternal_solver_free_memory(struct device *in)
+void dllinternal_solver_free_memory(struct simulation *sim,struct device *in)
 {
 }
 
@@ -176,7 +91,7 @@ int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x
 
 	fill_matrix(sim,in,z,x);
 
-	struct newton_save_state *ns=&(in->ns);
+	struct newton_state *ns=&(in->ns);
 
 	ns->last_error=0.0;//error;
 	ns->last_ittr=0.0;

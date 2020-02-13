@@ -51,27 +51,23 @@ join_path(2,temp,get_output_path(sim),"equilibrium");
 dump_1d_slice(sim,in,temp);
 
 printf_log(sim,"Ef=%Le\n",in->Fi[0][0][0]);
-printf_log(sim,"%s = %Le\n", _("Holes on left contact"),in->l_holes[0][0]);
-printf_log(sim,"%s = %Le\n",_("Electrons on left contact"), in->l_electrons[0][0]);
+printf_log(sim,"%s = %Le\n", _("Holes on left contact"),in->holes_y0[0][0]);
+printf_log(sim,"%s = %Le\n",_("Electrons on left contact"), in->electrons_y0[0][0]);
 
-printf_log(sim,"%s = %Le\n",_("Holes on right contact"), in->r_holes[0][0]);
-printf_log(sim,"%s = %Le\n",_("Electrons on right contact"), in->r_electrons[0][0]);
+printf_log(sim,"%s = %Le\n",_("Holes on right contact"), in->holes_y1[0][0]);
+printf_log(sim,"%s = %Le\n",_("Electrons on right contact"), in->electrons_y1[0][0]);
 
 FILE *out=fopena(get_output_path(sim),"sim_info.dat","w");
 fprintf (out,"#left_holes\n");
-fprintf (out,"%Le\n", in->l_holes[0][0]);
+fprintf (out,"%Le\n", in->holes_y0[0][0]);
 fprintf (out,"#left_electrons\n");
-fprintf (out,"%Le\n", in->l_electrons[0][0]);
+fprintf (out,"%Le\n", in->electrons_y0[0][0]);
 fprintf (out,"#right_holes\n");
-fprintf (out,"%Le\n", in->r_holes[0][0]);
+fprintf (out,"%Le\n", in->holes_y1[0][0]);
 fprintf (out,"#right_electrons\n");
-fprintf (out,"%Le\n", in->r_electrons[0][0]);
+fprintf (out,"%Le\n", in->electrons_y1[0][0]);
 fprintf (out,"#Vbi\n");
 fprintf (out,"%Le\n", in->vbi);
-fprintf (out,"#electron_affinity_left\n");
-fprintf (out,"%Le\n", in->electron_affinity_left);
-fprintf (out,"#electron_affinity_right\n");
-fprintf (out,"%Le\n", in->electron_affinity_right);
 fprintf (out,"#end\n");
 fclose(out);
 //}

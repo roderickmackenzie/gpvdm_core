@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 
 /** @file device.c
@@ -33,20 +33,26 @@
 #include <mesh.h>
 #include <ray_fun.h>
 #include <newton_tricks.h>
+#include <memory.h>
+#include <circuit.h>
+#include <shape.h>
 
 static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
 
-void device_init(struct device *in)
+void device_init(struct simulation *sim,struct device *in)
 {
 	in->remesh= -1;
 	in->newmeshsize= -1;
-	in->Jnleft=NULL;
-	in->Jnright=NULL;
-	in->Jpleft=NULL;
-	in->Jpright=NULL;
-	in->n_contact_r=NULL;
-	in->n_contact_l=NULL;
+	in->Jn_y0=NULL;
+	in->Jn_y1=NULL;
+	in->Jp_y0=NULL;
+	in->Jp_y1=NULL;
+
+	in->n_contact_y0=NULL;
+	in->n_contact_y1=NULL;
+	in->n_contact_x0=NULL;
+	in->n_contact_x1=NULL;
 
 	in->Nad= NULL;
 	in->G= NULL;
@@ -81,9 +87,16 @@ void device_init(struct device *in)
 	in->Th= NULL;
 
 	in->Fi= NULL;
-	in->Fi0_top = NULL;
+
+	in->Fi0_y0 = NULL;
+	in->Fi0_y1 = NULL;
+	in->Fi0_x0 = NULL;
+	in->Fi0_x1 = NULL;
+
 	in->imat= NULL;
 	in->imat_epitaxy= NULL;
+	in->mask= NULL;
+
 	in->Jn= NULL;
 	in->Jp= NULL;
 
@@ -93,12 +106,16 @@ void device_init(struct device *in)
 	in->Jp_diffusion= NULL;
 	in->Jp_drift= NULL;
 
-	in->Vapplied_r=NULL;
-	in->Vapplied_l=NULL;
+	in->Vapplied_y0=NULL;
+	in->Vapplied_y1=NULL;
+	in->Vapplied_x0=NULL;
+	in->Vapplied_x1=NULL;
 
-	in->Vl= NULL;
+	in->V_y0= NULL;
+	in->V_y1= NULL;
+	in->V_x0= NULL;
+	in->V_x1= NULL;
 
-	in->Vr= NULL;
 	in->t= NULL;
 	in->tp= NULL;
 	in->kf= NULL;
@@ -149,13 +166,7 @@ void device_init(struct device *in)
 	in->ylen= -1.0;
 	in->zlen= -1.0;
 
-	in->N= -1;
-	in->M= -1;
-	in->Ti= NULL;
-	in->Tj= NULL;
-	in->Tx= NULL;
-	in->b= NULL;
-	in->Tdebug= NULL;
+	matrix_init(&(in->mx));
 
 //math
 	in->max_electrical_itt= -1;
@@ -168,6 +179,7 @@ void device_init(struct device *in)
 	in->Pmax_voltage= -1.0;
 	in->pos_max_ittr= -1;
 	strcpy(in->solver_name,"");
+	strcpy(in->complex_solver_name,"");
 	strcpy(in->newton_name,"");
 
 	in->flip_current=1.0;
@@ -247,14 +259,6 @@ void device_init(struct device *in)
 	in->L= -1.0;
 
 
-	in->interfaceleft= -1;
-	in->interfaceright= -1;
-	in->phibleft= -1.0;
-	in->phibright= -1.0;
-	in->vl_e= -1.0;
-	in->vl_h= -1.0;
-	in->vr_e= -1.0;
-	in->vr_h= -1.0;
 	in->stop_start= -1;
 	in->externalv= -1.0;
 	in->Ilast= -1.0;
@@ -267,17 +271,20 @@ void device_init(struct device *in)
 	in->prelax= NULL;
 	in->ptrap_to_n= NULL;
 
+	in->electrons_y0= NULL;
+	in->holes_y0= NULL;
+	in->electrons_y1= NULL;
+	in->holes_y1= NULL;
 
+	in->electrons_x0= NULL;
+	in->holes_x0= NULL;
+	in->electrons_x1= NULL;
+	in->holes_x1= NULL;
 
-	in->lcharge= -1.0;
-	in->rcharge= -1.0;
-
-	in->l_electrons= NULL;
-	in->l_holes= NULL;
-	in->r_electrons= NULL;
-	in->r_holes= NULL;
-	in->passivate_r = NULL;
-	in->passivate_l = NULL;
+	in->passivate_y0 = NULL;
+	in->passivate_y1 = NULL;
+	in->passivate_x0 = NULL;
+	in->passivate_x1 = NULL;
 
 
 	in->dumpitdos= -1;
@@ -365,13 +372,22 @@ void device_init(struct device *in)
 
 	in->dynamic_mesh=-1;
 
-	newton_save_state_init(&(in->ns));
-	newton_save_state_init(&(in->ns_save));
+	newton_state_init(&(in->ns));
+	newton_state_init(&(in->ns_save));
 
 	//dim_init(&(in->dim_max));
 	mesh_obj_init(&(in->mesh_data));
 	mesh_obj_init(&(in->mesh_data_save));
 
+
+	circuit_init(&(in->cir));
+	in->circuit_simulation=FALSE;
+
+	in->obj=NULL;
+	in->objects=0;
+	in->triangles=0;
+
+	shape_init(sim,&(in->big_box));
 }
 
 

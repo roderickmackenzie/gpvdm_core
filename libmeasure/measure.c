@@ -24,10 +24,10 @@
 */
 
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "light.h"
 #include "device.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include <dump.h>
 #include "config.h"
 #include "inp.h"

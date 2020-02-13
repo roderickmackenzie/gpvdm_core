@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file simplex_init.c
 @brief Init the simplex code
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <simplex.h>
-#include <const.h>
+#include <gpvdm_const.h>
 
 void multimin_init(struct multimin *data)
 {
@@ -61,7 +61,7 @@ void multimin_malloc(struct multimin *data)
 	int d=0;
 
 	data->p=malloc(sizeof(double)*data->nsimplex);
-	
+
 	for (s=0;s<data->nsimplex;s++)
 	{
 		data->p[s]=malloc(sizeof(double)*data->ndim);
@@ -88,7 +88,7 @@ void multimin_init_simplex(struct multimin *data)
 		return;
 	}
 	//data->p=malloc(sizeof(double)*data->nsimplex);
-	
+
 	for (s=0;s<data->nsimplex;s++)
 	{
 

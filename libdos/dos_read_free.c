@@ -36,6 +36,8 @@
 #include "log.h"
 #include "cal_path.h"
 #include "util.h"
+#include <memory.h>
+
 
 
 long double get_n_w(struct device *in,long double top,long double T,int mat)

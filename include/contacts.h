@@ -61,4 +61,6 @@ void contacts_detailed_dump(struct device *in);
 void contact_set_wanted_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage);
 void contacts_free(struct simulation *sim,struct device *in);
 int contact_within(struct contact *c, long double x, long double z);
+void contacts_ingress(struct simulation *sim,struct device *in);
+int contact_within_zx(struct contact *c, long double z, long double x);
 #endif

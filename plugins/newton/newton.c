@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <log.h>
-#include <const.h>
+#include <gpvdm_const.h>
 #include "newton.h"
 #include <dll_export.h>
 #include <util.h>
@@ -38,7 +38,8 @@
 #include <sim.h>
 #include <solver_interface.h>
 #include <contacts.h>
-
+#include <memory.h>
+#include <newton_tricks.h>
 
 static gdouble Jnl=0.0;
 static gdouble Jnr=0.0;
@@ -117,15 +118,16 @@ int i;
 int band=0;
 long double Vapplied=0.0;
 long double clamp_temp=300.0;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
+struct matrix *mx=&in->mx;
 
 gdouble update=0.0;
 
-	for (i=0;i<dim->ymeshpoints;i++)
+	for (i=0;i<dim->ylen;i++)
 	{
 
-		update=(gdouble)in->b[i];
+		update=(gdouble)mx->b[i];
 		if (clamp==TRUE)
 		{
 			ns->phi[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -134,19 +136,8 @@ gdouble update=0.0;
 			ns->phi[z][x][i]+=update;
 		}
 
-		if (i==0)
-		{
-			if (in->contact_shift_l!=0)
-			{
-				update=(gdouble)(in->b[dim->ymeshpoints*(1)]);
-				ns->x_contact[z][x]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
 
-				update=(gdouble)(in->b[dim->ymeshpoints*(1)+1]);
-				ns->xp_contact[z][x]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
-			}
-		}
-
-		update=(gdouble)(in->b[in->contact_shift_l+dim->ymeshpoints*(1)+i]);
+		update=(gdouble)(mx->b[dim->ylen*(1)+i]);
 		if (clamp==TRUE)
 		{
 			ns->x[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -156,7 +147,7 @@ gdouble update=0.0;
 		}
 
 
-		update=(gdouble)(in->b[in->contact_shift_l+dim->ymeshpoints*(1+1)+i]);
+		update=(gdouble)(mx->b[dim->ylen*(1+1)+i]);
 		if (clamp==TRUE)
 		{
 			ns->xp[z][x][i]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -171,7 +162,7 @@ gdouble update=0.0;
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				update=(gdouble)(in->b[in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i]);
+				update=(gdouble)(mx->b[dim->ylen*(1+1+1+band)+i]);
 				if (clamp==TRUE)
 				{
 					ns->xt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -187,7 +178,7 @@ gdouble update=0.0;
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				update=(gdouble)(in->b[in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]);
+				update=(gdouble)(mx->b[dim->ylen*(1+1+1+dim->srh_bands+band)+i]);
 				if (clamp==TRUE)
 				{
 					ns->xpt[z][x][i][band]+=update/(1.0+gfabs(update/in->electrical_clamp/(clamp_temp*kb/Q)));
@@ -209,9 +200,11 @@ update_y_array(sim,in,z,x);
 
 void fill_matrix(struct simulation *sim,struct device *in,int z,int x)
 {
-//gdouble offset= -0.5;
+
+struct matrix *mx=&(in->mx);
 int band=0;
 update_y_array(sim,in,z,x);
+
 //FILE *file_j =fopen("myj.dat","w");
 //getchar();
 gdouble phil;
@@ -291,8 +284,8 @@ gdouble dt=0.0;
 //gdouble kl1=0.0;
 
 gdouble one=0.0;
-gdouble one0_l=0.0;
-gdouble one0_r=0.0;
+//gdouble one0_l=0.0;
+//gdouble one0_r=0.0;
 
 
 
@@ -317,12 +310,12 @@ gdouble nceq=0.0;
 gdouble pceq=0.0;
 gdouble Rfree=0.0;
 
-gdouble nc0_l=0.0;
+//gdouble nc0_l=0.0;
 //gdouble dnc0_l=0.0;
 //gdouble pc0_l=0.0;
 //gdouble dpc0_l=0.0;
 
-gdouble nc0_r=0.0;
+//gdouble nc0_r=0.0;
 //gdouble dnc0_r=0.0;
 //gdouble pc0_r=0.0;
 //gdouble dpc0_r=0.0;
@@ -373,39 +366,37 @@ long double vr_e=-1.0;
 long double vr_h=-1.0;
 
 
-long double nl0=-1.0;
-long double pl0=-1.0;
+//long double nl0=-1.0;
+//long double pl0=-1.0;
 
-long double p_sh=-1.0;
-long double dp_sh=-1.0;
+//long double p_sh=-1.0;
+//long double dp_sh=-1.0;
 
-long double Jnl_sh=-1.0;
-long double dJnlsh=-1.0;
-long double dJnlsh_c=-1.0;
+//long double Jnl_sh=-1.0;
+//long double dJnlsh=-1.0;
+//long double dJnlsh_c=-1.0;
 
-long double Jpl_sh=-1.0;
-long double dJplsh=-1.0;
-long double dJplsh_c=-1.0;
+//long double Jpl_sh=-1.0;
+//long double dJplsh=-1.0;
+//long double dJplsh_c=-1.0;
 
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
-int contact_left=in->contacts[in->n_contact_l[z][x]].type;
-int contact_right=in->contacts[in->n_contact_r[z][x]].type;
+int contact_left=in->contacts[in->n_contact_y0[z][x]].type;
+int contact_right=in->contacts[in->n_contact_y1[z][x]].type;
 
-	if (in->interfaceleft==TRUE)
-	{
-		ns->phi[z][x][0]=in->Vapplied_l[z][x];
-	}
+long double	dJdxic_imag=0.0;
+long double dJpdxipc_imag=0.0;
 
+	//if (in->interfaceleft==TRUE)
+	//{
+	//	ns->phi[z][x][0]=in->Vapplied_y0[z][x];
+	//}
 
-if (in->interfaceright==TRUE)
-{
-	ns->phi[z][x][dim->ymeshpoints-1]=in->Vr[z][x]-in->Vapplied_r[z][x];
-}
 
 		pos=0;
-		for (i=0;i<dim->ymeshpoints;i++)
+		for (i=0;i<dim->ylen;i++)
 		{
 
 			//printf("density=%Le\n",get_dos_ion_density(in,in->imat[z][x][i]));
@@ -414,7 +405,7 @@ if (in->interfaceright==TRUE)
 			if (i==0)
 			{
 
-				phil=in->Vapplied_l[z][x];
+				phil=in->Vapplied_y0[z][x];
 
 				yl=dim->ymesh[0]-(dim->ymesh[1]-dim->ymesh[0]);
 				//printf("%Le\n",yl);
@@ -431,7 +422,7 @@ if (in->interfaceright==TRUE)
 				tnl=in->Xi[z][x][0];
 				one=xnl+tnl;
 
-				vl_e=in->contacts[in->n_contact_l[z][x]].ve0;
+				vl_e=in->contacts[in->n_contact_y0[z][x]].ve0;
 				nl=get_n_den(in,one,Tel,in->imat[z][x][i]);
 				dnl=get_dn_den(in,one,Tel,in->imat[z][x][i]);
 				wnl=get_n_w(in,one,Tel,in->imat[z][x][i]);
@@ -445,7 +436,7 @@ if (in->interfaceright==TRUE)
 				tpl=(in->Xi[z][x][0]+in->Eg[z][x][0]);
 				one=xpl-tpl;
 
-				vl_h=in->contacts[in->n_contact_l[z][x]].vh0;
+				vl_h=in->contacts[in->n_contact_y0[z][x]].vh0;
 				pl=get_p_den(in,one,Thl,in->imat[z][x][i]);
 				dpl=get_dp_den(in,one,Thl,in->imat[z][x][i]);
 				wpl=get_p_w(in,one,Thl,in->imat[z][x][i]);
@@ -491,14 +482,14 @@ if (in->interfaceright==TRUE)
 			Ecc=(-in->Xi[z][x][i]-ns->phi[z][x][i]);
 			Evc=(-in->Xi[z][x][i]-ns->phi[z][x][i]-in->Eg[z][x][i]);
 
-			if (i==(dim->ymeshpoints-1))
+			if (i==(dim->ylen-1))
 			{
 
 //				Dexr=in->Dex[i];
 //				exr=0.0;
-				//phir=in->Vr;
+				//phir=in->V_y1;
 
-				phir=(in->Vr[z][x]+in->Vapplied_r[z][x]);
+				phir=(in->V_y1[z][x]+in->Vapplied_y1[z][x]);
 
 
 
@@ -512,25 +503,25 @@ if (in->interfaceright==TRUE)
 				Evr= -in->Xi[z][x][i]-phir-in->Eg[z][x][i];
 
 
-				xnr=(in->Vr[z][x]+in->Fi[z][x][i]);
+				xnr=(in->V_y1[z][x]+in->Fi[z][x][i]);
 				tnr=(in->Xi[z][x][i]);
 
 
 				one=xnr+tnr;
 
-				vr_e=in->contacts[in->n_contact_r[z][x]].ve0;
+				vr_e=in->contacts[in->n_contact_y1[z][x]].ve0;
 				nr=get_n_den(in,one,Ter,in->imat[z][x][i]);
 				dnr=get_dn_den(in,one,Ter,in->imat[z][x][i]);
 				wnr=get_n_w(in,one,Ter,in->imat[z][x][i]);
 
 
 
-				xpr= -(in->Vr[z][x]+in->Fi[z][x][i]);
+				xpr= -(in->V_y1[z][x]+in->Fi[z][x][i]);
 				tpr=(in->Xi[z][x][i]+in->Eg[z][x][i]);
 
 				one=xpr-tpr;
 
-				vr_h=in->contacts[in->n_contact_r[z][x]].vh0;
+				vr_h=in->contacts[in->n_contact_y1[z][x]].vh0;
 				pr=get_p_den(in,one,Thr,in->imat[z][x][i]);
 				dpr=get_dp_den(in,one,Thr,in->imat[z][x][i]);
 				wpr=get_p_w(in,one,Thr,in->imat[z][x][i]);
@@ -679,19 +670,14 @@ if (in->interfaceright==TRUE)
 	dphidxic=Q*(dnc);
 	dphidxipc= -Q*(dpc);
 
-	if (((in->interfaceleft==TRUE)&&(i==0))||((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)))
-	{
-		dphidxic=0.0;
-		dphidxipc=0.0;
-	}
 
 	if (in->ntrapnewton==TRUE)
 	{
 		for (band=0;band<dim->srh_bands;band++)
 		{
 			in->newton_dphidntrap[band]=Q*(in->dnt[z][x][i][band]);
-			if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidntrap[band]=0.0;
-			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)) in->newton_dphidntrap[band]=0.0;
+			//if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidntrap[band]=0.0;
+			//if ((in->interfaceright==TRUE)&&(i==dim->ylen-1)) in->newton_dphidntrap[band]=0.0;
 		}
 	}
 
@@ -700,8 +686,8 @@ if (in->interfaceright==TRUE)
 		for (band=0;band<dim->srh_bands;band++)
 		{
 			in->newton_dphidptrap[band]= -Q*(in->dpt[z][x][i][band]);
-			if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidptrap[band]=0.0;
-			if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1)) in->newton_dphidptrap[band]=0.0;
+			//if ((in->interfaceleft==TRUE)&&(i==0)) in->newton_dphidptrap[band]=0.0;
+			//if ((in->interfaceright==TRUE)&&(i==dim->ylen-1)) in->newton_dphidptrap[band]=0.0;
 
 			//dphidxipc+= -Q*(in->dpt[i]);
 		}
@@ -795,12 +781,12 @@ if (in->interfaceright==TRUE)
 
 				}
 
-				in->Jnleft[z][x]=Jnl;
-				in->Jpleft[z][x]=Jpl;
+				in->Jn_y0[z][x]=Q*Jnl;
+				in->Jp_y0[z][x]=Q*Jpl;
 
 			}
 
-			if (i==dim->ymeshpoints-1)
+			if (i==dim->ylen-1)
 			{
 				//printf("%d\n",contact_right);
 				//getchar();
@@ -825,8 +811,8 @@ if (in->interfaceright==TRUE)
 					dyrh=0.0;
 				}
 
-				in->Jnright[z][x]=Jnr;
-				in->Jpright[z][x]=Jpr;
+				in->Jn_y1[z][x]=Q*Jnr;
+				in->Jp_y1[z][x]=Q*Jpr;
 			}
 
 			in->Jn[z][x][i]=Q*(Jnl+Jnr)/2.0;
@@ -858,16 +844,16 @@ if (in->interfaceright==TRUE)
 				dJpdxipc+=Bfree*(nc*dpc);
 				dJpdxic+=Bfree*(dnc*pc);
 
-				if ((in->interfaceleft==TRUE)&&(i==0))
-				{
-				}else
-				if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
-				{
-				}else
-				{
+				//if ((in->interfaceleft==TRUE)&&(i==0))
+				//{
+				//}else
+				//if ((in->interfaceright==TRUE)&&(i==dim->ylen-1))
+				//{
+				//}else
+				//{
 					dJdphic+= -Bfree*(dnc*pc);
 					dJpdphic+=Bfree*(nc*dpc);
-				}
+				//}
 
 			}
 
@@ -891,7 +877,7 @@ if (in->interfaceright==TRUE)
 
 			}
 
-			if (i==dim->ymeshpoints-1)
+			if (i==dim->ylen-1)
 			{
 				dJdxic_rightc=dJnrdxir_c;
 				dJpdxipc_rightc=dJprdxipr_c;
@@ -1003,163 +989,134 @@ if (in->interfaceright==TRUE)
 
 			if (i!=0)
 			{
-				in->Ti[pos]=i;
-				in->Tj[pos]=i-1;
-				in->Tx[pos]=dphil_d;
+				mx->Ti[pos]=i;
+				mx->Tj[pos]=i-1;
+				mx->Tx[pos]=dphil_d;
 
 				pos++;
 				//electron
-				in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-				in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i-1;
-				in->Tx[pos]=dJdxil;
+				mx->Ti[pos]=dim->ylen*(1)+i;
+				mx->Tj[pos]=dim->ylen*(1)+i-1;
+				mx->Tx[pos]=dJdxil;
 				pos++;
 
-				in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-				in->Tj[pos]=i-1;
-				in->Tx[pos]=dJdphil;
+				mx->Ti[pos]=dim->ylen*(1)+i;
+				mx->Tj[pos]=i-1;
+				mx->Tx[pos]=dJdphil;
 				pos++;
 
 				//hole
-				in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-				in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i-1;
-				in->Tx[pos]=dJpdxipl;
+				mx->Ti[pos]=dim->ylen*(1+1)+i;
+				mx->Tj[pos]=dim->ylen*(1+1)+i-1;
+				mx->Tx[pos]=dJpdxipl;
 				pos++;
 
-				in->Ti[pos]=in->contact_shift_l+i+dim->ymeshpoints*(1+1);
-				in->Tj[pos]=i-1;
-				in->Tx[pos]=dJpdphil;
+				mx->Ti[pos]=i+dim->ylen*(1+1);
+				mx->Tj[pos]=i-1;
+				mx->Tx[pos]=dJpdphil;
 				pos++;
 
 			}
 
 
 			//phi
-			in->Ti[pos]=i;
-			in->Tj[pos]=i;
-			in->Tx[pos]=dphic_d;
+			mx->Ti[pos]=i;
+			mx->Tj[pos]=i;
+			mx->Tx[pos]=dphic_d;
 			pos++;
 
-			in->Ti[pos]=i;
-			in->Tj[pos]=in->contact_shift_l+i+dim->ymeshpoints*(1);
-			in->Tx[pos]=dphidxic;
+			mx->Ti[pos]=i;
+			mx->Tj[pos]=i+dim->ylen*(1);
+			mx->Tx[pos]=dphidxic;
 			//strcpy(in->Tdebug[pos],"dphidxic");
 			pos++;
 
-			in->Ti[pos]=i;
-			in->Tj[pos]=in->contact_shift_l+i+dim->ymeshpoints*(1+1);
-			in->Tx[pos]=dphidxipc;
+			mx->Ti[pos]=i;
+			mx->Tj[pos]=i+dim->ylen*(1+1);
+			mx->Tx[pos]=dphidxipc;
 			//strcpy(in->Tdebug[pos],"dphidxipc");
 			pos++;
 
 
 			//electron
 
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-			in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-			in->Tx[pos]=dJdxic;
+			mx->Ti[pos]=dim->ylen*(1)+i;
+			mx->Tj[pos]=dim->ylen*(1)+i;
+			mx->Tx[pos]=dJdxic;
+			if (mx->complex_matrix==TRUE)
+			{
+				mx->Txz[pos]=dJdxic_imag;
+			}
 			//strcpy(in->Tdebug[pos],"dJdxic");
 			pos++;
 
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-			in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-			in->Tx[pos]=dJdxipc;
+
+			mx->Ti[pos]=dim->ylen*(1)+i;
+			mx->Tj[pos]=dim->ylen*(1+1)+i;
+			mx->Tx[pos]=dJdxipc;
 			pos++;
 
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-			in->Tj[pos]=i;
-			in->Tx[pos]=dJdphic;
+			mx->Ti[pos]=dim->ylen*(1)+i;
+			mx->Tj[pos]=i;
+			mx->Tx[pos]=dJdphic;
 			pos++;
 
 
 
 			//hole
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-			in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-			in->Tx[pos]=dJpdxipc;
-			pos++;
-
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-			in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-			in->Tx[pos]=dJpdxic;
-			pos++;
-
-			in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-			in->Tj[pos]=i;
-			in->Tx[pos]=dJpdphic;
-			pos++;
-
-
-			/*if (contact_left==contact_schottky)
+			mx->Ti[pos]=dim->ylen*(1+1)+i;
+			mx->Tj[pos]=dim->ylen*(1+1)+i;
+			mx->Tx[pos]=dJpdxipc;
+			if (mx->complex_matrix==TRUE)
 			{
-				if (i==0)
-				{
-					in->Ti[pos]=dim->ymeshpoints*(1);
-					in->Tj[pos]=dim->ymeshpoints*(1);
-					in->Tx[pos]=dJnlsh;
-					pos++;
-
-					in->Ti[pos]=dim->ymeshpoints*(1);
-					in->Tj[pos]=2+dim->ymeshpoints*(1);
-					in->Tx[pos]=dJnlsh_c;
-					pos++;
-
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1);
-					in->Tj[pos]=dim->ymeshpoints*(1);
-					in->Tx[pos]=dJdxil;
-					pos++;
+				mx->Txz[pos]=dJpdxipc_imag;
+			}
+			pos++;
 
 
-					//holes
-					in->Ti[pos]=1+dim->ymeshpoints*(1);
-					in->Tj[pos]=1+dim->ymeshpoints*(1);
-					in->Tx[pos]=dJplsh;
-					pos++;
+			mx->Ti[pos]=dim->ylen*(1+1)+i;
+			mx->Tj[pos]=dim->ylen*(1)+i;
+			mx->Tx[pos]=dJpdxic;
+			pos++;
 
-					in->Ti[pos]=1+dim->ymeshpoints*(1);
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(2);
-					in->Tx[pos]=dJplsh_c;
-					pos++;
+			mx->Ti[pos]=dim->ylen*(1+1)+i;
+			mx->Tj[pos]=i;
+			mx->Tx[pos]=dJpdphic;
+			pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(2);
-					in->Tj[pos]=1+dim->ymeshpoints*(1);
-					in->Tx[pos]=dJpdxipl;
-					pos++;
-
-				}
-			}*/
 
 			if (in->ntrapnewton==TRUE)
 			{
 				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tx[pos]=in->newton_dntrapdntrap[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tx[pos]=in->newton_dntrapdntrap[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*1+i;
-					in->Tx[pos]=in->newton_dntrapdn[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tj[pos]=dim->ylen*1+i;
+					mx->Tx[pos]=in->newton_dntrapdn[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-					in->Tx[pos]=in->newton_dntrapdp[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tj[pos]=dim->ylen*(1+1)+i;
+					mx->Tx[pos]=in->newton_dntrapdp[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tx[pos]=in->newton_dJdtrapn[band];
+					mx->Ti[pos]=dim->ylen*(1)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tx[pos]=in->newton_dJdtrapn[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tx[pos]=in->newton_dJpdtrapn[band];
+					mx->Ti[pos]=dim->ylen*(1+1)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tx[pos]=in->newton_dJpdtrapn[band];
 					pos++;
 
-					in->Ti[pos]=i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i;
-					in->Tx[pos]=in->newton_dphidntrap[band];
+					mx->Ti[pos]=i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+band)+i;
+					mx->Tx[pos]=in->newton_dphidntrap[band];
 					pos++;
 
 				}
@@ -1171,70 +1128,70 @@ if (in->interfaceright==TRUE)
 			{
 				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tx[pos]=in->newton_dptrapdptrap[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tx[pos]=in->newton_dptrapdptrap[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-					in->Tx[pos]=in->newton_dptrapdp[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tj[pos]=dim->ylen*(1+1)+i;
+					mx->Tx[pos]=in->newton_dptrapdp[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-					in->Tx[pos]=in->newton_dptrapdn[band];
+					mx->Ti[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tj[pos]=dim->ylen*(1)+i;
+					mx->Tx[pos]=in->newton_dptrapdn[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tx[pos]=in->newton_dJpdtrapp[band];
+					mx->Ti[pos]=dim->ylen*(1+1)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tx[pos]=in->newton_dJpdtrapp[band];
 					pos++;
 
-					in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tx[pos]=in->newton_dJdtrapp[band];
+					mx->Ti[pos]=dim->ylen*(1)+i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tx[pos]=in->newton_dJdtrapp[band];
 					pos++;
 
-					in->Ti[pos]=i;
-					in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i;
-					in->Tx[pos]=in->newton_dphidptrap[band];
+					mx->Ti[pos]=i;
+					mx->Tj[pos]=dim->ylen*(1+1+1+dim->srh_bands+band)+i;
+					mx->Tx[pos]=in->newton_dphidptrap[band];
 					pos++;
 				}
 
 			}
 
-			if (i!=(dim->ymeshpoints-1))
+			if (i!=(dim->ylen-1))
 			{
 
 
 				//phi
-				in->Ti[pos]=i;
-				in->Tj[pos]=i+1;
-				in->Tx[pos]=dphir_d;
+				mx->Ti[pos]=i;
+				mx->Tj[pos]=i+1;
+				mx->Tx[pos]=dphir_d;
 				pos++;
 
 
 				//electron
-				in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i;
-				in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1)+i+1;
-				in->Tx[pos]=dJdxir;
+				mx->Ti[pos]=dim->ylen*(1)+i;
+				mx->Tj[pos]=dim->ylen*(1)+i+1;
+				mx->Tx[pos]=dJdxir;
 				pos++;
 
-				in->Ti[pos]=in->contact_shift_l+i+dim->ymeshpoints*(1);
-				in->Tj[pos]=i+1;
-				in->Tx[pos]=dJdphir;
+				mx->Ti[pos]=i+dim->ylen*(1);
+				mx->Tj[pos]=i+1;
+				mx->Tx[pos]=dJdphir;
 				pos++;
 
 				//hole
-				in->Ti[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i;
-				in->Tj[pos]=in->contact_shift_l+dim->ymeshpoints*(1+1)+i+1;
-				in->Tx[pos]=dJpdxipr;
+				mx->Ti[pos]=dim->ylen*(1+1)+i;
+				mx->Tj[pos]=dim->ylen*(1+1)+i+1;
+				mx->Tx[pos]=dJpdxipr;
 				pos++;
 
-				in->Ti[pos]=in->contact_shift_l+i+dim->ymeshpoints*(1+1);
-				in->Tj[pos]=i+1;
-				in->Tx[pos]=dJpdphir;
+				mx->Ti[pos]=i+dim->ylen*(1+1);
+				mx->Tj[pos]=i+1;
+				mx->Tx[pos]=dJpdphir;
 				pos++;
 
 
@@ -1254,18 +1211,8 @@ if (in->interfaceright==TRUE)
 
 			//build+= -(-Q*in->Nad[i]);
 
-			in->b[i]=build;
+			mx->b[i]=build;
 
-			////***********//////
-			/*if (contact_left==contact_schottky)
-			{
-				if (i==0)
-				{
-					in->b[dim->ymeshpoints*(1)]=-(Jnl_sh-Jnl);
-					in->b[dim->ymeshpoints*(1)+1]=-(Jpl_sh-Jpl);
-				}
-			}*/
-			////***********//////
 
 			//Electron
 			build=0.0;
@@ -1274,7 +1221,14 @@ if (in->interfaceright==TRUE)
 
 			//getchar();
 			build-=Gn;
-			in->b[in->contact_shift_l+dim->ymeshpoints*(1)+i]=build;
+			mx->b[dim->ylen*(1)+i]=build;
+
+			if (mx->complex_matrix==TRUE)
+			{
+				build=0.0;
+				build-=in->omega*Gn*0.05;
+				mx->bz[dim->ylen*(1)+i] = build;
+			}
 
 			//hole
 			build=0.0;
@@ -1283,13 +1237,20 @@ if (in->interfaceright==TRUE)
 			build-= -Gp;
 
 
-			in->b[in->contact_shift_l+dim->ymeshpoints*(1+1)+i]=build;
+			mx->b[dim->ylen*(1+1)+i]=build;
+
+			if (mx->complex_matrix==TRUE)
+			{
+				build=0.0;
+				build-=-in->omega*Gp*0.05;
+				mx->bz[dim->ylen*(1+1)+i] = build;
+			}
 
 			if (in->ntrapnewton==TRUE)
 			{
 				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->b[in->contact_shift_l+dim->ymeshpoints*(1+1+1+band)+i]= -(in->newton_dntrap[band]);
+					mx->b[dim->ylen*(1+1+1+band)+i]= -(in->newton_dntrap[band]);
 				}
 			}
 
@@ -1297,16 +1258,16 @@ if (in->interfaceright==TRUE)
 			{
 				for (band=0;band<dim->srh_bands;band++)
 				{
-					in->b[in->contact_shift_l+dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]= -(in->newton_dptrap[band]);
+					mx->b[dim->ylen*(1+1+1+dim->srh_bands+band)+i]= -(in->newton_dptrap[band]);
 				}
 
 			}
 
 		}
 
-if (pos>in->N)
+if (pos>mx->nz)
 {
-	ewe(sim,"Error %d %d %d\n",pos,in->N,in->kl_in_newton);
+	ewe(sim,"Error %d %d %d\n",pos,mx->nz,in->kl_in_newton);
 }
 
 }
@@ -1326,27 +1287,28 @@ gdouble ttp=0.0;
 gdouble i0=0.0;
 int band=0;
 struct dimensions *dim=&in->ns.dim;
+struct matrix *mx = &(in->mx);
 
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
-		if ((in->interfaceleft==TRUE)&&(i==0))
-		{
-		}else
-		if ((in->interfaceright==TRUE)&&(i==dim->ymeshpoints-1))
-		{
-		}else
-		{
-			phi+=gfabs(in->b[i]);
-		}
+		//if ((in->interfaceleft==TRUE)&&(i==0))
+		//{
+		//}else
+		//if ((in->interfaceright==TRUE)&&(i==dim->ylen-1))
+		//{
+		//}else
+		//{
+			phi+=gfabs(mx->b[i]);
+		//}
 
-		n+=gfabs(in->b[dim->ymeshpoints*(1)+i]);
-		p+=+gfabs(in->b[dim->ymeshpoints*(1+1)+i]);
+		n+=gfabs(mx->b[dim->ylen*(1)+i]);
+		p+=+gfabs(mx->b[dim->ylen*(1+1)+i]);
 
 		if (in->ntrapnewton==TRUE)
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				ttn+=gfabs(in->b[dim->ymeshpoints*(1+1+1+band)+i]);
+				ttn+=gfabs(mx->b[dim->ylen*(1+1+1+band)+i]);
 			}
 		}
 
@@ -1354,7 +1316,7 @@ for (i=0;i<dim->ymeshpoints;i++)
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				ttp+=gfabs(in->b[dim->ymeshpoints*(1+1+1+dim->srh_bands+band)+i]);
+				ttp+=gfabs(mx->b[dim->ylen*(1+1+1+dim->srh_bands+band)+i]);
 			}
 		}
 
@@ -1379,51 +1341,42 @@ int i=0;
 int N=0;
 int M=0;
 struct dimensions *dim=&in->ns.dim;
-
-int contact_left=in->contacts[0].type;
-//int contact_right=in->contacts[1].type;
-
-in->contact_shift_l=0;
-
-/*if (contact_left==contact_schottky)
-{
-	in->contact_shift_l=2;
-}*/
+//struct matrix *mx=&(in->mx);
 
 
-N=dim->ymeshpoints*3-2;	//Possion main
+//in->contact_shift_l=0;
 
-N+=(in->contact_shift_l*3);		//Schottky equations for left contact
 
-N+=dim->ymeshpoints*3-2;	//Je main
-N+=dim->ymeshpoints*3-2;	//Jh main
+N=dim->ylen*3-2;	//Possion main
 
-N+=dim->ymeshpoints*3-2;	//dJe/phi
-N+=dim->ymeshpoints*3-2;	//dJh/phi
+N+=dim->ylen*3-2;	//Je main
+N+=dim->ylen*3-2;	//Jh main
 
-N+=dim->ymeshpoints;		//dphi/dn
-N+=dim->ymeshpoints;		//dphi/dh
+N+=dim->ylen*3-2;	//dJe/phi
+N+=dim->ylen*3-2;	//dJh/phi
 
-N+=dim->ymeshpoints;		//dJndp
-N+=dim->ymeshpoints;		//dJpdn
+N+=dim->ylen;		//dphi/dn
+N+=dim->ylen;		//dphi/dh
 
-M=dim->ymeshpoints;			//Pos
-M+=in->contact_shift_l;		//Schottky equations for left contact
-M+=dim->ymeshpoints;		//Je
-M+=dim->ymeshpoints;		//Jh
+N+=dim->ylen;		//dJndp
+N+=dim->ylen;		//dJpdn
+
+M=dim->ylen;			//Pos
+M+=dim->ylen;		//Je
+M+=dim->ylen;		//Jh
 
 if (in->ntrapnewton==TRUE)
 {
 	for (i=0;i<dim->srh_bands;i++)
 	{
-		N+=dim->ymeshpoints;		//dntrapdn
-		N+=dim->ymeshpoints;		//dntrapdntrap
-		N+=dim->ymeshpoints;		//dntrapdp
-		N+=dim->ymeshpoints;		//dJndtrapn
-		N+=dim->ymeshpoints;		//dJpdtrapn
-		N+=dim->ymeshpoints;		//dphidntrap
+		N+=dim->ylen;		//dntrapdn
+		N+=dim->ylen;		//dntrapdntrap
+		N+=dim->ylen;		//dntrapdp
+		N+=dim->ylen;		//dJndtrapn
+		N+=dim->ylen;		//dJpdtrapn
+		N+=dim->ylen;		//dphidntrap
 
-		M+=dim->ymeshpoints;		//nt
+		M+=dim->ylen;		//nt
 	}
 
 }
@@ -1432,14 +1385,14 @@ if (in->ptrapnewton==TRUE)
 {
 	for (i=0;i<dim->srh_bands;i++)
 	{
-		N+=dim->ymeshpoints;		//dptrapdp
-		N+=dim->ymeshpoints;		//dptrapdptrap
-		N+=dim->ymeshpoints;		//dptrapdn
-		N+=dim->ymeshpoints;		//dJpdtrapp
-		N+=dim->ymeshpoints;		//dJdtrapp
-		N+=dim->ymeshpoints;		//dphidptrap
+		N+=dim->ylen;		//dptrapdp
+		N+=dim->ylen;		//dptrapdptrap
+		N+=dim->ylen;		//dptrapdn
+		N+=dim->ylen;		//dJpdtrapp
+		N+=dim->ylen;		//dJdtrapp
+		N+=dim->ylen;		//dphidptrap
 
-		M+=dim->ymeshpoints;		//pt
+		M+=dim->ylen;		//pt
 	}
 }
 
@@ -1453,23 +1406,27 @@ void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int di
 int N=0;
 int M=0;
 struct dimensions *dim=&in->ns.dim;
+struct matrix *mx=&(in->mx);
 gdouble *dtemp=NULL;
-int *itemp=NULL;
+
+
 
 solver_cal_memory(in,&N,&M);
 
+//printf("realloc %d %d\n",mx->nz,N);
+//getchar();
 
 int alloc=FALSE;
-if ((in->N==0)||(in->M==0))
+if ((mx->nz==0)||(mx->M==0))
 {
-	in->N=N;
-	in->M=M;
+	mx->nz=N;
+	mx->M=M;
 	alloc=TRUE;
 }else
-if ((N!=in->N)||(M!=in->M))
+if ((N!=mx->nz)||(M!=mx->M))
 {
-	in->N=N;
-	in->M=M;
+	mx->nz=N;
+	mx->M=M;
 	alloc=TRUE;
 }
 
@@ -1477,52 +1434,7 @@ if ((N!=in->N)||(M!=in->M))
 if (alloc==TRUE)
 {
 
-	itemp = realloc(in->Ti,in->N*sizeof(int));
-	if (itemp==NULL)
-	{
-		ewe(sim,"in->Ti - memory error\n");
-	}else
-	{
-		in->Ti=itemp;
-	}
-
-	itemp = realloc(in->Tj,in->N*sizeof(int));
-	if (itemp==NULL)
-	{
-		ewe(sim,"in->Tj - memory error\n");
-	}else
-	{
-		in->Tj=itemp;
-	}
-
-	dtemp = realloc(in->Tx,in->N*sizeof(gdouble));
-	if (dtemp==NULL)
-	{
-		ewe(sim,"in->Tx - memory error\n");
-	}else
-	{
-		in->Tx=dtemp;
-	}
-
-	//int i=0;
-	//in->Tdebug = (char**)malloc(in->N*sizeof(char*));
-
-	//for (i=0;i<in->N;i++)
-	//{
-	//	in->Tdebug[i]= (char*)malloc(20*sizeof(char));
-	//	strcpy(in->Tdebug[i],"");
-	//}
-
-
-	dtemp = realloc(in->b,in->M*sizeof(gdouble));
-
-	if (dtemp==NULL)
-	{
-		ewe(sim,"in->b - memory error\n");
-	}else
-	{
-		in->b=dtemp;
-	}
+	matrix_realloc(sim,mx);
 
 	if (dim->srh_bands>0)
 	{
@@ -1680,7 +1592,7 @@ if (alloc==TRUE)
 
 }
 
-void dllinternal_solver_free_memory(struct device *in)
+void dllinternal_solver_free_memory(struct simulation *sim,struct device *in)
 {
 //int i=0;
 struct dimensions *dim=&in->ns.dim;
@@ -1706,12 +1618,8 @@ if (dim->srh_bands>0)
 
 }
 
-free(in->Ti);
-free(in->Tj);
-free(in->Tx);
-free(in->b);
 
-//for (i=0;i<in->N;i++)
+//for (i=0;i<mx->nz;i++)
 //{
 //	free(in->Tdebug[i]);
 //}
@@ -1736,11 +1644,8 @@ in->newton_dphidptrap=NULL;
 in->newton_ntlast=NULL;
 in->newton_ptlast=NULL;
 
-in->Ti=NULL;
-in->Tj=NULL;
-in->Tx=NULL;
-in->b=NULL;
-in->Tdebug=NULL;
+matrix_free(sim,&(in->mx));
+//in->Tdebug=NULL;
 
 }
 
@@ -1749,7 +1654,8 @@ int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x
 gdouble error=0.0;
 int ittr=0;
 char temp[PATH_MAX];
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
+struct matrix *mx=&(in->mx);
 
 //if (get_dump_status(sim,dump_print_newtonerror)==TRUE)
 //{
@@ -1767,6 +1673,9 @@ int stop=FALSE;
 int thermalrun=0;
 gdouble check[10];
 int cpos=0;
+mx->use_cache=in->cache.enabled;
+
+matrix_cache_reset(sim,mx);
 	do
 	{
 		fill_matrix(sim,in,z,x);
@@ -1779,19 +1688,32 @@ int cpos=0;
 
 		//dump_for_plot(in);
 		//plot_now(in,"plot");
-			//solver_dump_matrix(in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
+			//solver_dump_matrix(in->M,mx->nz,in->Ti,in->Tj, in->Tx,mx->b);
 		//getchar();
 
 		if (in->stop==TRUE)
 		{
 			break;
 		}
+		//matrix_solve(sim,mx);
 
-		solver(sim,in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
+		if (matrix_solve(sim,mx)==0)
+		{
+			//printf("found in cache %s\n",mx->cache_file_path);
+			//getchar();
+			newton_state_load(sim,ns,mx->cache_file_path);
+			newton_state_update_device(sim,in, ns);
+			//getchar();
+			return 0;
+		}/*else
+		{
+			printf("state not foudn %s\n",mx->cache_file_path);
+			getchar();
+		}*/
 
 		update_solver_vars(sim,in,z,x,TRUE);
 
-		//solver_dump_matrix(in->M,in->N,in->Ti,in->Tj, in->Tx,in->b);
+		//solver_dump_matrix(in->M,mx->nz,in->Ti,in->Tj, in->Tx,mx->b);
 		//getchar();
 
 
@@ -1881,7 +1803,12 @@ if (get_dump_status(sim,dump_newton)==TRUE)
 }
 //plot_now(sim,in,"plot");
 //getchar();
-in->odes+=in->M;
+in->odes+=mx->M;
+
+if (mx->use_cache==TRUE)
+{
+	newton_state_save(sim,mx->cache_file_path,ns);
+}
 //getchar();
 
 return 0;

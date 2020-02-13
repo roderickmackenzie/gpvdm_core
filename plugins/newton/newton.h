@@ -40,7 +40,7 @@ void fill_matrix(struct simulation *sim,struct device *in,int z,int x);
 gdouble get_cur_error(struct simulation *sim,struct device *in);
 gdouble get_abs_error(struct device *in);
 void solver_cal_memory(struct device *in,int *ret_N,int *ret_M);
-void dllinternal_solver_free_memory(struct device *in);
+void dllinternal_solver_free_memory(struct simulation *sim,struct device *in);
 int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x);
 void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int dim);
 #endif

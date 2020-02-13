@@ -27,30 +27,34 @@
 #include <string.h>
 #include <sys/stat.h>
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "dump_ctrl.h"
 #include "light.h"
 #include "dat_file.h"
 #include <cal_path.h>
 #include <lang.h>
 
-void light_dump_verbose_2d(struct simulation *sim,struct light *in)
+void light_dump_verbose_2d(struct simulation *sim,struct light *li)
 {
 	FILE *out;
-	int i;
-	int ii;
+	int x=0;
+	int y=0;
+	int z=0;
+	int l=0;
 	struct dat_file buf;
 	char line[1024];
 	char temp[1024];
-
+	struct dim_light *dim=&li->dim;
+	struct epitaxy *epi=li->epi;
+	long double device_start =epi->device_start;
 	buffer_init(&buf);
 
-	out=fopena(in->dump_dir,"light_2d_Ep.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_2d_Ep.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			fprintf(out,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,gpow(gpow(in->Ep[i][ii],2.0)+gpow(in->Epz[i][ii],2.0),0.5));
+			fprintf(out,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,gpow(gpow(li->Ep[z][x][y][l],2.0)+gpow(li->Epz[z][x][y][l],2.0),0.5));
 
 		}
 
@@ -58,24 +62,24 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	}
 	fclose(out);
 
-	out=fopena(in->dump_dir,"light_2d_En.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_2d_En.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			fprintf(out,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,gpow(gpow(in->En[i][ii],2.0)+gpow(in->Enz[i][ii],2.0),0.5));
+			fprintf(out,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,gpow(gpow(li->En[z][x][y][l],2.0)+gpow(li->Enz[z][x][y][l],2.0),0.5));
 		}
 
 	fprintf(out,"\n");
 	}
 	fclose(out);
 
-	out=fopena(in->dump_dir,"light_2d_E_mod.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_2d_E_mod.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			fprintf(out,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,gpow(gpow(in->Ep[i][ii]+in->En[i][ii],2.0)+gpow(in->Enz[i][ii]+in->Epz[i][ii],2.0),1.0));
+			fprintf(out,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,gpow(gpow(li->Ep[z][x][y][l]+li->En[z][x][y][l],2.0)+gpow(li->Enz[z][x][y][l]+li->Epz[z][x][y][l],2.0),1.0));
 		}
 
 	fprintf(out,"\n");
@@ -97,19 +101,19 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->lpoints;
-	buf.y=in->points;
+	buf.x=dim->llen;
+	buf.y=dim->ylen;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
 
-	for (i=0;i<in->lpoints;i++)
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,in->n[i][ii]);
+			sprintf(line,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,li->n[z][x][y][l]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -119,28 +123,28 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
 
-	buffer_dump_path(sim,in->dump_dir,"2d_n.dat",&buf);
+	buffer_dump_path(sim,li->dump_dir,"2d_n.dat",&buf);
 	buffer_free(&buf);
 
 
-	out=fopena(in->dump_dir,"light_lambda_sun.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_lambda_sun.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		fprintf(out,"%Le %Le\n",in->l[i],in->sun[i]);
+		fprintf(out,"%Le %Le\n",dim->l[l],li->sun[l]);
 	}
 	fclose(out);
 
-	out=fopena(in->dump_dir,"light_lambda_sun_norm.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_lambda_sun_norm.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		fprintf(out,"%Le %Le\n",in->l[i],in->sun_norm[i]);
+		fprintf(out,"%Le %Le\n",dim->l[l],li->sun_norm[l]);
 	}
 	fclose(out);
 
-	out=fopena(in->dump_dir,"light_lambda_sun_photons.dat","w");
-	for (i=0;i<in->lpoints;i++)
+	out=fopena(li->dump_dir,"light_lambda_sun_photons.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		fprintf(out,"%Le %Le\n",in->l[i],in->sun_photons[i]);
+		fprintf(out,"%Le %Le\n",dim->l[l],li->sun_photons[l]);
 	}
 	fclose(out);
 
@@ -157,19 +161,19 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->lpoints;
-	buf.y=in->points;
+	buf.x=dim->llen;
+	buf.y=dim->ylen;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
 
-	for (i=0;i<in->lpoints;i++)
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,in->alpha[i][ii]);
+			sprintf(line,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,li->alpha[z][x][y][l]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -179,7 +183,7 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
 
-	buffer_dump_path(sim,in->dump_dir,"2d_alpha.dat",&buf);
+	buffer_dump_path(sim,li->dump_dir,"2d_alpha.dat",&buf);
 	buffer_free(&buf);
 
 	buffer_malloc(&buf);
@@ -195,19 +199,19 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	strcpy(buf.data_units,"m^{-3}");
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=in->lpoints;
-	buf.y=in->points;
+	buf.x=dim->llen;
+	buf.y=dim->ylen;
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
 	sprintf(temp,"#data\n");
 	buffer_add_string(&buf,temp);
 
-	for (i=0;i<in->lpoints;i++)
+	for (l=0;l<dim->llen;l++)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le %Le\n",in->l[i],in->x[ii]-in->device_start,in->n[i][ii]);
+			sprintf(line,"%Le %Le %Le\n",dim->l[l],dim->y[y]-device_start,li->n[z][x][y][l]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -217,13 +221,13 @@ void light_dump_verbose_2d(struct simulation *sim,struct light *in)
 	sprintf(temp,"#end\n");
 	buffer_add_string(&buf,temp);
 
-	buffer_dump_path(sim,in->dump_dir,"light_lambda_n.dat",&buf);
+	buffer_dump_path(sim,li->dump_dir,"light_lambda_n.dat",&buf);
 	buffer_free(&buf);
 
-	out=fopena(in->dump_dir,"light_sun_wavelength_E.dat","w");
-	for (ii=0;ii<in->lpoints;ii++)
+	out=fopena(li->dump_dir,"light_sun_wavelength_E.dat","w");
+	for (l=0;l<dim->llen;l++)
 	{
-		fprintf(out,"%Le %Le\n",in->l[ii],in->sun_E[ii]);
+		fprintf(out,"%Le %Le\n",dim->l[l],li->sun_E[l]);
 	}
 	fclose(out);
 

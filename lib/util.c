@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file util.c
 	@brief Utility functions.
@@ -35,7 +35,7 @@
 #include <fcntl.h>
 #include "util.h"
 #include "log.h"
-#include <const.h>
+#include <gpvdm_const.h>
 #include <lang.h>
 #include <math.h>
 #include <ctype.h>
@@ -43,30 +43,6 @@
 
 static char* unused_pchar __attribute__((unused));
 
-void get_meter_dim(char *unit,long double *mul,long double max_val)
-{
-
-if (max_val<1e-6)
-{
-	strcpy(unit,"nm");
-	*mul=1e9;
-}else
-if (max_val<1e-3)
-{
-	strcpy(unit,"um");
-	*mul=1e6;
-}else
-if (max_val<1e-1)
-{
-	strcpy(unit,"mm");
-	*mul=1e3;
-}else
-{
-	strcpy(unit,"m");
-	*mul=1.0;
-}
-
-}
 void gpvdm_mkdir(char *file_name)
 {
 struct stat st = {0};
@@ -120,67 +96,7 @@ return i;
 
 
 
-void fx_with_units(char *out,double number)
-{
-	if (number<1e3)
-	{
-		sprintf(out,"%.3lf Hz",number);
-	}
-	else
-	if (number<1e6)
-	{
-		sprintf(out,"%.3lf KHz",number*1e-3);
-	}
-	else
-	if (number<1e9)
-	{
-		sprintf(out,"%.3lf MHz",number*1e-6);
-	}
-	else
-	if (number<1e12)
-	{
-		sprintf(out,"%.3lf GHz",number*1e-9);
-	}
 
-}
-
-void time_with_units(char *out,double number)
-{
-	double val=fabs(number);
-	if (val>=1.0)
-	{
-		sprintf(out,"%.3lfs",number);
-	}else
-	if (val>=1e-3)
-	{
-		sprintf(out,"%.3lfms",number/1e-3);
-	}else
-	if (val>=1e-6)
-	{
-		sprintf(out,"%.3lfus",number/1e-6);
-	}else
-	if (val>=1e-9)
-	{
-		sprintf(out,"%.3lfns",number/1e-9);
-	}else
-	if (val>=1e-12)
-	{
-		sprintf(out,"%.3lfps",number/1e-12);
-	}else
-	if (val>=1e-15)
-	{
-		sprintf(out,"%.3lffs",number/1e-15);
-	}else
-	if (val>=1e-18)
-	{
-		sprintf(out,"%.3lfas",number/1e-18);
-	}else
-	{
-		sprintf(out,"%.3lfs",number);
-	}
-
-
-}
 
 
 void print_hex(struct simulation *sim,unsigned char *data)
@@ -338,15 +254,15 @@ if (strcmp(temp,"complex")==0)
 else
 if (strcmp(temp,"open_circuit")==0)
 {
-	return pulse_open_circuit;
+	return OPEN_CIRCUIT;
 }else
 if (strcmp(temp,"load")==0)
 {
-	return pulse_load;
+	return LOAD;
 }else
 if (strcmp(temp,"ideal_diode_ideal_load")==0)
 {
-	return pulse_ideal_diode_ideal_load;
+	return IDEAL_DIODE_IDEAL_LOAD;
 }else
 if (strcmp(temp,"none")==0)
 {
@@ -424,7 +340,56 @@ if (strcmp(temp,"ohmic")==0)
 if (strcmp(temp,"schottky")==0)
 {
 	return contact_schottky;
+}else
+if (strcmp(temp,"ray_run_never")==0)
+{
+	return ray_run_never;
+}else
+if (strcmp(temp,"ray_run_once")==0)
+{
+	return ray_run_once;
+}else
+if (strcmp(temp,"ray_run_step")==0)
+{
+	return ray_run_step;
+}else
+if (strcmp(temp,"ray_emission_single_point")==0)
+{
+	return ray_emission_single_point;
+}else
+if (strcmp(temp,"ray_emission_electrical_mesh")==0)
+{
+	return ray_emission_electrical_mesh;
+}else
+if (strcmp(temp,"dump_verbosity_everything")==0)
+{
+	return dump_verbosity_everything;
+}else
+if (strcmp(temp,"dump_verbosity_key_results")==0)
+{
+	return dump_verbosity_key_results;
+}else
+if (strcmp(temp,"measure_voltage")==0)
+{
+	return measure_voltage;
+}else
+if (strcmp(temp,"measure_current")==0)
+{
+	return measure_current;
+}else
+if (strcmp(temp,"contact")==0)
+{
+	return LAYER_CONTACT;
+}else
+if (strcmp(temp,"active")==0)
+{
+	return LAYER_ACTIVE;
+}else
+if (strcmp(temp,"other")==0)
+{
+	return LAYER_OTHER;
 }
+
 
 ewe(sim,"%s %s\n",_("I don't understand the command"),in);
 return 0;
@@ -495,7 +460,7 @@ void randomprint(struct simulation *sim,char *in)
 		if (rnd==3) textcolor(sim,fg_yellow);
 		if (rnd==4) textcolor(sim,fg_blue);
 		if (rnd==5) textcolor(sim,fg_purple);
-		
+
 		if ((wide[i]!='\n')||(sim->html==FALSE))
 		{
 			//mbstowcs(wide, in, 1000);
@@ -507,7 +472,7 @@ void randomprint(struct simulation *sim,char *in)
 		}
 
 		textcolor(sim,fg_reset);
-					
+
 		}
 
 fflush(stdout);
@@ -790,7 +755,7 @@ void remove_dir_ittr(struct simulation *sim,char* dir_name,int depth)
 void remove_dir(struct simulation *sim,char* dir_name)
 {
 	remove_dir_ittr(sim,dir_name,-1);
-	
+
 }
 
 /**This is a version of the standard fgets, but it will also accept a 0x0d as a new line.
@@ -824,12 +789,12 @@ int gpvdm_fgets(char *buf,int len,FILE *file)
 		buf[pos]=dat;
 
 		pos++;
-		
+
 		if (pos>len)
 		{
 			break;
 		}
-		
+
 	}while(1);
 	buf[pos]=0;
 

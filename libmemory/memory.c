@@ -27,22 +27,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <lang.h>
-#include <complex_solver.h>
 #include "sim.h"
 #include "dump.h"
 #include "mesh.h"
 #include <math.h>
 #include "log.h"
 #include <solver_interface.h>
+#include <circuit.h>
 #include "memory.h"
 #include "ray_fun.h"
 #include "newton_tricks.h"
+#include "shape.h"
 
 void device_alloc_traps(struct device *in)
 {
 	struct dimensions *dim=&in->ns.dim;
 
-	//printf("hello %d %d %d %d \n",dim->xmeshpoints,dim->ymeshpoints,dim->zmeshpoints,dim->srh_bands);
+	//printf("hello %d %d %d %d \n",dim->xlen,dim->ylen,dim->zlen,dim->srh_bands);
 
 	malloc_srh_bands(dim, &(in->nt));
 	//printf("1\n");
@@ -70,7 +71,7 @@ void device_alloc_traps(struct device *in)
 	malloc_srh_bands(dim, &(in->pt));
 	malloc_srh_bands(dim, &(in->ptlast));
 	//printf("5\n");
-	//printf("hello %d %d %d %d \n",dim->xmeshpoints,dim->ymeshpoints,dim->zmeshpoints,dim->srh_bands);
+	//printf("hello %d %d %d %d \n",dim->xlen,dim->ylen,dim->zlen,dim->srh_bands);
 
 	malloc_srh_bands(dim, &(in->dpt));
 	malloc_srh_bands(dim, &(in->srh_p_r1));
@@ -95,145 +96,191 @@ void device_alloc_traps(struct device *in)
 
 	//getchar();
 
-	newton_save_state_alloc_traps(&(in->ns),dim);
+	newton_state_alloc_traps(&(in->ns),dim);
 
 }
 
 
 void device_free(struct simulation *sim,struct device *in)
 {
+	int i;
 	struct dimensions *dim=&in->ns.dim;
 
-	if (dim->ymeshpoints==0)
+	//world made from triangles
+	for (i=0;i<in->objects;i++)
+	{
+		if (in->obj[i].n!=NULL)
+		{
+			ewe(sim,"There is still data in the array\n");
+		}
+
+		object_free(&(in->obj[i]));
+	}
+
+	free(in->obj);
+
+	in->obj=NULL;
+	in->objects=0;
+
+	shape_free(sim,&(in->big_box));
+
+	if (dim->ylen==0)
 	{
 		return;
 	}
 
 	//2d
-	free_zx_gdouble(dim,&in->Vapplied_r);
-	free_zx_gdouble(dim,&in->Vapplied_l);
-	free_zx_gdouble(dim,&in->Jnleft);
-	free_zx_gdouble(dim,&in->Jnright);
-	free_zx_gdouble(dim,&in->Jpleft);
-	free_zx_gdouble(dim,&in->Jpright);
-	free_zx_int(dim,&in->n_contact_r);
-	free_zx_int(dim,&in->n_contact_l);
-	free_zx_int(dim,&in->passivate_r);
-	free_zx_int(dim,&in->passivate_l);
-	free_zx_gdouble(dim,&in->l_electrons);
-	free_zx_gdouble(dim,&in->l_holes);
-	free_zx_gdouble(dim,&in->r_electrons);
-	free_zx_gdouble(dim,&in->r_holes);
-	free_zx_gdouble(dim,&in->Fi0_top);
-	free_zx_gdouble(dim,&in->Vl);
-	free_zx_gdouble(dim,&in->Vr);
+
+	free_zx_gdouble(dim,&in->Vapplied_y0);
+	free_zx_gdouble(dim,&in->Vapplied_y1);
+
+	free_zy_long_double(dim,&in->Vapplied_x0);
+	free_zy_long_double(dim,&in->Vapplied_x1);
+
+	free_zx_gdouble(dim,&in->Jn_y0);
+	free_zx_gdouble(dim,&in->Jn_y1);
+	free_zx_gdouble(dim,&in->Jp_y0);
+	free_zx_gdouble(dim,&in->Jp_y1);
+
+	free_zx_int(dim,&in->n_contact_y0);
+	free_zx_int(dim,&in->n_contact_y1);
+	free_zy_int(dim,&in->n_contact_x0);
+	free_zy_int(dim,&in->n_contact_x1);
+
+
+	free_zx_int(dim,&in->passivate_y0);
+	free_zx_int(dim,&in->passivate_y1);
+	free_zy_int(dim,&in->passivate_x0);
+	free_zy_int(dim,&in->passivate_x1);
+
+	free_zx_gdouble(dim,&in->electrons_y0);
+	free_zx_gdouble(dim,&in->holes_y0);
+	free_zx_gdouble(dim,&in->electrons_y1);
+	free_zx_gdouble(dim,&in->holes_y1);
+
+	free_zy_long_double(dim,&in->electrons_x0);
+	free_zy_long_double(dim,&in->holes_x0);
+	free_zy_long_double(dim,&in->electrons_x1);
+	free_zy_long_double(dim,&in->holes_x1);
+
+	free_zx_gdouble(dim,&in->Fi0_y0);
+	free_zx_gdouble(dim,&in->Fi0_y1);
+	free_zy_long_double(dim,&in->Fi0_x0);
+	free_zy_long_double(dim,&in->Fi0_y1);
+
+	free_zx_gdouble(dim,&in->V_y0);
+	free_zx_gdouble(dim,&in->V_y1);
+	free_zy_long_double(dim,&in->V_x0);
+	free_zy_long_double(dim,&in->V_x1);
 
 	//3d
-	free_3d_gdouble(dim,&in->B);
-	free_3d_gdouble(dim,&in->Nad);
-	free_3d_gdouble(dim,&in->n);
-	free_3d_gdouble(dim,&in->p);
-	free_3d_gdouble(dim,&in->dn);
-	free_3d_gdouble(dim,&in->dp);
-	free_3d_gdouble(dim,&in->dndphi);
-	free_3d_gdouble(dim,&in->dpdphi);
-	free_3d_gdouble(dim,&in->Eg);
-	free_3d_gdouble(dim,&in->Xi);
-	free_3d_gdouble(dim,&in->Ev);
-	free_3d_gdouble(dim,&in->Ec);
-	free_3d_gdouble(dim,&in->mun);
-	free_3d_gdouble(dim,&in->mup);
-	free_3d_gdouble(dim,&in->muion);
-	free_3d_gdouble(dim,&in->Nion);
-	free_3d_gdouble(dim,&in->Nion_last);
-	free_3d_gdouble(dim,&in->Dn);
-	free_3d_gdouble(dim,&in->Dp);
-	free_3d_gdouble(dim,&in->Fn);
-	free_3d_gdouble(dim,&in->Fp);
+	free_zxy_gdouble(dim,&in->B);
+	free_zxy_gdouble(dim,&in->Nad);
+	free_zxy_gdouble(dim,&in->n);
+	free_zxy_gdouble(dim,&in->p);
+	free_zxy_gdouble(dim,&in->dn);
+	free_zxy_gdouble(dim,&in->dp);
+	free_zxy_gdouble(dim,&in->dndphi);
+	free_zxy_gdouble(dim,&in->dpdphi);
+	free_zxy_gdouble(dim,&in->Eg);
+	free_zxy_gdouble(dim,&in->Xi);
+	free_zxy_gdouble(dim,&in->Ev);
+	free_zxy_gdouble(dim,&in->Ec);
+	free_zxy_gdouble(dim,&in->mun);
+	free_zxy_gdouble(dim,&in->mup);
+	free_zxy_gdouble(dim,&in->muion);
+	free_zxy_gdouble(dim,&in->Nion);
+	free_zxy_gdouble(dim,&in->Nion_last);
+	free_zxy_gdouble(dim,&in->Dn);
+	free_zxy_gdouble(dim,&in->Dp);
+	free_zxy_gdouble(dim,&in->Fn);
+	free_zxy_gdouble(dim,&in->Fp);
 
-	free_3d_gdouble(dim,&in->Nc);
-	free_3d_gdouble(dim,&in->Nv);
-	free_3d_gdouble(dim,&in->G);
-	free_3d_gdouble(dim,&in->Gn);
-	free_3d_gdouble(dim,&in->Gp);
-	free_3d_gdouble(dim,&in->Photon_gen);
-	free_3d_gdouble(dim,&in->Tl);
-	free_3d_gdouble(dim,&in->Te);
-	free_3d_gdouble(dim,&in->Th);
-	free_3d_gdouble(dim,&in->Fi);
-	free_3d_gdouble(dim,&in->Jn);
-	free_3d_gdouble(dim,&in->Jp);
-	free_3d_gdouble(dim,&in->Jn_x);
-	free_3d_gdouble(dim,&in->Jp_x);
-	free_3d_gdouble(dim,&in->Jn_drift);
-	free_3d_gdouble(dim,&in->Jn_diffusion);
-	free_3d_gdouble(dim,&in->Jp_drift);
-	free_3d_gdouble(dim,&in->Jp_diffusion);
-	free_3d_gdouble(dim,&in->t);
-	free_3d_gdouble(dim,&in->tp);
-	free_3d_gdouble(dim,&in->ex);
-	free_3d_gdouble(dim,&in->Dex);
-	free_3d_gdouble(dim,&in->Hex);
-	free_3d_gdouble(dim,&in->epsilonr);
+	free_zxy_gdouble(dim,&in->Nc);
+	free_zxy_gdouble(dim,&in->Nv);
+	free_zxy_gdouble(dim,&in->G);
+	free_zxy_gdouble(dim,&in->Gn);
+	free_zxy_gdouble(dim,&in->Gp);
+	free_zxy_gdouble(dim,&in->Photon_gen);
+	free_zxy_gdouble(dim,&in->Tl);
+	free_zxy_gdouble(dim,&in->Te);
+	free_zxy_gdouble(dim,&in->Th);
+	free_zxy_gdouble(dim,&in->Fi);
+	free_zxy_gdouble(dim,&in->Jn);
+	free_zxy_gdouble(dim,&in->Jp);
+	free_zxy_gdouble(dim,&in->Jn_x);
+	free_zxy_gdouble(dim,&in->Jp_x);
+	free_zxy_gdouble(dim,&in->Jn_drift);
+	free_zxy_gdouble(dim,&in->Jn_diffusion);
+	free_zxy_gdouble(dim,&in->Jp_drift);
+	free_zxy_gdouble(dim,&in->Jp_diffusion);
+	free_zxy_gdouble(dim,&in->t);
+	free_zxy_gdouble(dim,&in->tp);
+	free_zxy_gdouble(dim,&in->ex);
+	free_zxy_gdouble(dim,&in->Dex);
+	free_zxy_gdouble(dim,&in->Hex);
+	free_zxy_gdouble(dim,&in->epsilonr);
 
-	free_3d_gdouble(dim,&in->kf);
-	free_3d_gdouble(dim,&in->kd);
-	free_3d_gdouble(dim,&in->kr);
-	free_3d_gdouble(dim,&in->Rfree);
-	free_3d_gdouble(dim,&in->Rn);
-	free_3d_gdouble(dim,&in->Rp);
-	free_3d_gdouble(dim,&in->Rn_srh);
-	free_3d_gdouble(dim,&in->Rp_srh);
-	free_3d_gdouble(dim,&in->Rnet);
-	free_3d_gdouble(dim,&in->kl);
-	free_3d_gdouble(dim,&in->ke);
-	free_3d_gdouble(dim,&in->kh);
-	free_3d_gdouble(dim,&in->Hl);
-	free_3d_gdouble(dim,&in->He);
-	free_3d_gdouble(dim,&in->Hh);
-	free_3d_gdouble(dim,&in->Habs);
-	free_3d_gdouble(dim,&in->nlast);
-	free_3d_gdouble(dim,&in->plast);
+	free_zxy_gdouble(dim,&in->kf);
+	free_zxy_gdouble(dim,&in->kd);
+	free_zxy_gdouble(dim,&in->kr);
+	free_zxy_gdouble(dim,&in->Rfree);
+	free_zxy_gdouble(dim,&in->Rn);
+	free_zxy_gdouble(dim,&in->Rp);
+	free_zxy_gdouble(dim,&in->Rn_srh);
+	free_zxy_gdouble(dim,&in->Rp_srh);
+	free_zxy_gdouble(dim,&in->Rnet);
+	free_zxy_gdouble(dim,&in->kl);
+	free_zxy_gdouble(dim,&in->ke);
+	free_zxy_gdouble(dim,&in->kh);
+	free_zxy_gdouble(dim,&in->Hl);
+	free_zxy_gdouble(dim,&in->He);
+	free_zxy_gdouble(dim,&in->Hh);
+	free_zxy_gdouble(dim,&in->Habs);
+	free_zxy_gdouble(dim,&in->nlast);
+	free_zxy_gdouble(dim,&in->plast);
 
-	free_3d_gdouble(dim,&in->wn);
-	free_3d_gdouble(dim,&in->wp);
+	free_zxy_gdouble(dim,&in->wn);
+	free_zxy_gdouble(dim,&in->wp);
 
-	free_3d_gdouble(dim,&in->nt_all);
+	free_zxy_gdouble(dim,&in->nt_all);
 
-	free_3d_gdouble(dim,&in->tt);
-	free_3d_gdouble(dim,&in->Rbi_k);
+	free_zxy_gdouble(dim,&in->tt);
+	free_zxy_gdouble(dim,&in->Rbi_k);
 
-	free_3d_gdouble(dim,&in->pt_all);
+	free_zxy_gdouble(dim,&in->pt_all);
 
 
-	free_3d_gdouble(dim,&in->tpt);
+	free_zxy_gdouble(dim,&in->tpt);
 
-	free_3d_gdouble(dim,&in->nf_save);
-	free_3d_gdouble(dim,&in->pf_save);
-	free_3d_gdouble(dim,&in->nt_save);
-	free_3d_gdouble(dim,&in->pt_save);
+	free_zxy_gdouble(dim,&in->nf_save);
+	free_zxy_gdouble(dim,&in->pf_save);
+	free_zxy_gdouble(dim,&in->nt_save);
+	free_zxy_gdouble(dim,&in->pt_save);
 
-	free_3d_gdouble(dim,&in->nfequlib);
-	free_3d_gdouble(dim,&in->pfequlib);
-	free_3d_gdouble(dim,&in->ntequlib);
-	free_3d_gdouble(dim,&in->ptequlib);
+	free_zxy_gdouble(dim,&in->nfequlib);
+	free_zxy_gdouble(dim,&in->pfequlib);
+	free_zxy_gdouble(dim,&in->ntequlib);
+	free_zxy_gdouble(dim,&in->ptequlib);
 
-	free_3d_gdouble(dim,&in->nrelax);
-	free_3d_gdouble(dim,&in->ntrap_to_p);
-	free_3d_gdouble(dim,&in->prelax);
-	free_3d_gdouble(dim,&in->ptrap_to_n);
+	free_zxy_gdouble(dim,&in->nrelax);
+	free_zxy_gdouble(dim,&in->ntrap_to_p);
+	free_zxy_gdouble(dim,&in->prelax);
+	free_zxy_gdouble(dim,&in->ptrap_to_n);
 
-	free_3d_gdouble(dim,&in->n_orig);
-	free_3d_gdouble(dim,&in->p_orig);
-	free_3d_gdouble(dim,&in->n_orig_f);
-	free_3d_gdouble(dim,&in->p_orig_f);
-	free_3d_gdouble(dim,&in->n_orig_t);
-	free_3d_gdouble(dim,&in->p_orig_t);
+	free_zxy_gdouble(dim,&in->n_orig);
+	free_zxy_gdouble(dim,&in->p_orig);
+	free_zxy_gdouble(dim,&in->n_orig_f);
+	free_zxy_gdouble(dim,&in->p_orig_f);
+	free_zxy_gdouble(dim,&in->n_orig_t);
+	free_zxy_gdouble(dim,&in->p_orig_t);
 
-	free_3d_gdouble(dim,&in->phi_save);
+	free_zxy_gdouble(dim,&in->phi_save);
 
 	free_3d_int(dim,in->imat);
 	free_3d_int(dim,in->imat_epitaxy);
+	free_3d_int(dim,in->mask);
+
 
 	//traps
 	free_srh_bands(dim, &in->nt);
@@ -276,41 +323,39 @@ void device_free(struct simulation *sim,struct device *in)
 
 	free_srh_bands(dim, &in->ptlast);
 
-	newton_save_state_free(&(in->ns));
+	newton_state_free(&(in->ns));
 	//dim_free(&(in->dim_max));
 	//Free epitaxy
 
 	//Free solvers
 	solver_free(sim);
-	complex_solver_free(sim);
 	printf_log(sim,"%s %i %s\n", _("Solved"), in->odes, _("Equations"));
+
+
+	circuit_free(sim,&(in->cir));
+
 
 }
 
 void device_get_memory(struct simulation *sim,struct device *in)
 {
 	in->odes = 0;
-	in->Ti = NULL;
-	in->Tj = NULL;
-	in->Tx = NULL;
-	in->b = NULL;
-	in->Tdebug = NULL;
-
-
+	struct newton_state *ns=(&in->ns);
 	struct dimensions *dim=&in->ns.dim;
 
-	//dim_alloc(dim);
-	if (dim->ymeshpoints==0)
+	in->obj=malloc(sizeof(struct object)*1000);
+
+	if (dim->ylen==0)
 	{
 		return;
 	}
 
-	if ((dim->ymeshpoints<1)||(dim->xmeshpoints<1)||(dim->zmeshpoints<1))
+	if ((dim->ylen<1)||(dim->xlen<1)||(dim->zlen<1))
 	{
 		ewe(sim,"%s\n",_("I can't allocate a device with less than 1 mesh point."));
 	}
 
-	if ((dim->ymeshpoints>50000)||(dim->xmeshpoints>50000)||(dim->zmeshpoints>50000))
+	if ((dim->ylen>50000)||(dim->xlen>50000)||(dim->zlen>50000))
 	{
 		ewe(sim,"%s\n",_("You are asking me to simulate a device with more than 50000 mesh points, although I could do this I am not going to because it seems a bad idea to me."));
 	}
@@ -319,211 +364,239 @@ void device_get_memory(struct simulation *sim,struct device *in)
 
 	//1d
 
-
 	//2d
-	malloc_zx_gdouble(dim,&(in->Vapplied_r));
-	malloc_zx_gdouble(dim,&(in->Vapplied_l));
-	malloc_zx_gdouble(dim,&(in->Jnleft));
-	malloc_zx_gdouble(dim,&(in->Jnright));
-	malloc_zx_gdouble(dim,&(in->Jpleft));
-	malloc_zx_gdouble(dim,&(in->Jpright));
-	malloc_zx_int(dim,&(in->n_contact_r));
-	malloc_zx_int(dim,&(in->n_contact_l));
-	malloc_zx_int(dim,&(in->passivate_r));
-	malloc_zx_int(dim,&(in->passivate_l));
+	malloc_zx_gdouble(dim,&(in->Vapplied_y0));
+	malloc_zx_gdouble(dim,&(in->Vapplied_y1));
 
-	malloc_zx_gdouble(dim,&(in->l_electrons));
-	malloc_zx_gdouble(dim,&(in->l_holes));
-	malloc_zx_gdouble(dim,&(in->r_electrons));
-	malloc_zx_gdouble(dim,&(in->r_holes));
-	malloc_zx_gdouble(dim,&(in->Fi0_top));
-	malloc_zx_gdouble(dim,&(in->Vl));
-	malloc_zx_gdouble(dim,&(in->Vr));
+	malloc_zy_long_double(dim,&(in->Vapplied_x0));
+	malloc_zy_long_double(dim,&(in->Vapplied_x1));
+
+	malloc_zx_gdouble(dim,&(in->Jn_y0));
+	malloc_zx_gdouble(dim,&(in->Jn_y1));
+	malloc_zx_gdouble(dim,&(in->Jp_y0));
+	malloc_zx_gdouble(dim,&(in->Jp_y1));
+
+	malloc_zx_int(dim,&(in->n_contact_y0));
+	malloc_zx_int(dim,&(in->n_contact_y1));
+	malloc_zy_int(dim,&(in->n_contact_x0));
+	malloc_zy_int(dim,&(in->n_contact_x1));
+
+	malloc_zx_int(dim,&(in->passivate_y0));
+	malloc_zx_int(dim,&(in->passivate_y1));
+	malloc_zy_int(dim,&(in->passivate_x0));
+	malloc_zy_int(dim,&(in->passivate_x1));
+
+	malloc_zx_gdouble(dim,&(in->electrons_y0));
+	malloc_zx_gdouble(dim,&(in->holes_y0));
+	malloc_zx_gdouble(dim,&(in->electrons_y1));
+	malloc_zx_gdouble(dim,&(in->holes_y1));
+
+	malloc_zy_long_double(dim,&(in->electrons_x0));
+	malloc_zy_long_double(dim,&(in->holes_x0));
+	malloc_zy_long_double(dim,&(in->electrons_x1));
+	malloc_zy_long_double(dim,&(in->holes_x1));
+
+
+	malloc_zx_gdouble(dim,&(in->Fi0_y0));
+	malloc_zx_gdouble(dim,&(in->Fi0_y1));
+	malloc_zy_long_double(dim,&(in->Fi0_x0));
+	malloc_zy_long_double(dim,&(in->Fi0_x1));
+
+	malloc_zx_gdouble(dim,&(in->V_y0));
+	malloc_zx_gdouble(dim,&(in->V_y1));
+	malloc_zy_long_double(dim,&(in->V_x0));
+	malloc_zy_long_double(dim,&(in->V_x1));
 
 
 	//3d
-	zxy_malloc_gdouble(dim,&(in->nf_save));
+	malloc_zxy_gdouble(dim,&(in->nf_save));
 
-	zxy_malloc_gdouble(dim,&(in->pf_save));
+	malloc_zxy_gdouble(dim,&(in->pf_save));
 
-	zxy_malloc_gdouble(dim,&(in->nt_save));
+	malloc_zxy_gdouble(dim,&(in->nt_save));
 
-	zxy_malloc_gdouble(dim,&(in->pt_save));
+	malloc_zxy_gdouble(dim,&(in->pt_save));
 
-	zxy_malloc_gdouble(dim,&(in->nfequlib));
+	malloc_zxy_gdouble(dim,&(in->nfequlib));
 
-	zxy_malloc_gdouble(dim,&(in->pfequlib));
+	malloc_zxy_gdouble(dim,&(in->pfequlib));
 
-	zxy_malloc_gdouble(dim,&(in->ntequlib));
+	malloc_zxy_gdouble(dim,&(in->ntequlib));
 
-	zxy_malloc_gdouble(dim,&(in->ptequlib));
+	malloc_zxy_gdouble(dim,&(in->ptequlib));
 
-	zxy_malloc_gdouble(dim,&(in->Habs));
+	malloc_zxy_gdouble(dim,&(in->Habs));
 
-	zxy_malloc_gdouble(dim,&(in->B));
+	malloc_zxy_gdouble(dim,&(in->B));
 
-	zxy_malloc_gdouble(dim,&(in->Nad));
+	malloc_zxy_gdouble(dim,&(in->Nad));
 
-	zxy_malloc_gdouble(dim,&(in->n));
+	malloc_zxy_gdouble(dim,&(in->n));
 
-	zxy_malloc_gdouble(dim,&(in->p));
+	malloc_zxy_gdouble(dim,&(in->p));
 
-	zxy_malloc_gdouble(dim,&(in->dn));
+	malloc_zxy_gdouble(dim,&(in->dn));
 
-	zxy_malloc_gdouble(dim,&(in->dp));
+	malloc_zxy_gdouble(dim,&(in->dp));
 
-	zxy_malloc_gdouble(dim,&(in->dndphi));
+	malloc_zxy_gdouble(dim,&(in->dndphi));
 
-	zxy_malloc_gdouble(dim,&(in->dpdphi));
+	malloc_zxy_gdouble(dim,&(in->dpdphi));
 
-	zxy_malloc_gdouble(dim,&(in->Eg));
+	malloc_zxy_gdouble(dim,&(in->Eg));
 
-	zxy_malloc_gdouble(dim,&(in->Fn));
+	malloc_zxy_gdouble(dim,&(in->Fn));
 
-	zxy_malloc_gdouble(dim,&(in->Fp));
+	malloc_zxy_gdouble(dim,&(in->Fp));
 
-	zxy_malloc_gdouble(dim,&(in->Xi));
+	malloc_zxy_gdouble(dim,&(in->Xi));
 
-	zxy_malloc_gdouble(dim,&(in->Ev));
+	malloc_zxy_gdouble(dim,&(in->Ev));
 
-	zxy_malloc_gdouble(dim,&(in->Ec));
+	malloc_zxy_gdouble(dim,&(in->Ec));
 
-	zxy_malloc_gdouble(dim,&(in->mun));
+	malloc_zxy_gdouble(dim,&(in->mun));
 
-	zxy_malloc_gdouble(dim,&(in->mup));
+	malloc_zxy_gdouble(dim,&(in->mup));
 
-	zxy_malloc_gdouble(dim,&(in->muion));
+	malloc_zxy_gdouble(dim,&(in->muion));
 
-	zxy_malloc_gdouble(dim,&(in->Nion));
+	malloc_zxy_gdouble(dim,&(in->Nion));
 
-	zxy_malloc_gdouble(dim,&(in->Nion_last));
+	malloc_zxy_gdouble(dim,&(in->Nion_last));
 
-	zxy_malloc_gdouble(dim,&(in->Dn));
+	malloc_zxy_gdouble(dim,&(in->Dn));
 
-	zxy_malloc_gdouble(dim,&(in->Dp));
+	malloc_zxy_gdouble(dim,&(in->Dp));
 
-	zxy_malloc_gdouble(dim,&(in->Nc));
+	malloc_zxy_gdouble(dim,&(in->Nc));
 
-	zxy_malloc_gdouble(dim,&(in->Nv));
+	malloc_zxy_gdouble(dim,&(in->Nv));
 
-	zxy_malloc_gdouble(dim,&(in->G));
+	malloc_zxy_gdouble(dim,&(in->G));
 
-	zxy_malloc_gdouble(dim,&(in->Gn));
+	malloc_zxy_gdouble(dim,&(in->Gn));
 
-	zxy_malloc_gdouble(dim,&(in->Photon_gen));
+	malloc_zxy_gdouble(dim,&(in->Photon_gen));
 
-	zxy_malloc_gdouble(dim,&(in->Gp));
+	malloc_zxy_gdouble(dim,&(in->Gp));
 
-	zxy_malloc_gdouble(dim,&(in->Tl));
+	malloc_zxy_gdouble(dim,&(in->Tl));
 
-	zxy_malloc_gdouble(dim,&(in->Te));
+	malloc_zxy_gdouble(dim,&(in->Te));
 
-	zxy_malloc_gdouble(dim,&(in->Th));
+	malloc_zxy_gdouble(dim,&(in->Th));
 
-	zxy_malloc_gdouble(dim,&(in->Fi));
+	malloc_zxy_gdouble(dim,&(in->Fi));
 
-	zxy_malloc_gdouble(dim,&(in->Jn));
+	malloc_zxy_gdouble(dim,&(in->Jn));
 
-	zxy_malloc_gdouble(dim,&(in->Jp));
+	malloc_zxy_gdouble(dim,&(in->Jp));
 
-	zxy_malloc_gdouble(dim,&(in->Jn_x));
+	malloc_zxy_gdouble(dim,&(in->Jn_x));
 
-	zxy_malloc_gdouble(dim,&(in->Jp_x));
+	malloc_zxy_gdouble(dim,&(in->Jp_x));
 
-	zxy_malloc_gdouble(dim,&(in->Jn_drift));
+	malloc_zxy_gdouble(dim,&(in->Jn_drift));
 
-	zxy_malloc_gdouble(dim,&(in->Jn_diffusion));
+	malloc_zxy_gdouble(dim,&(in->Jn_diffusion));
 
-	zxy_malloc_gdouble(dim,&(in->Jp_drift));
+	malloc_zxy_gdouble(dim,&(in->Jp_drift));
 
-	zxy_malloc_gdouble(dim,&(in->Jp_diffusion));
+	malloc_zxy_gdouble(dim,&(in->Jp_diffusion));
 
 
-	zxy_malloc_gdouble(dim,&(in->t));
+	malloc_zxy_gdouble(dim,&(in->t));
 
-	zxy_malloc_gdouble(dim,&(in->tp));
+	malloc_zxy_gdouble(dim,&(in->tp));
 
-	zxy_malloc_gdouble(dim,&(in->kf));
+	malloc_zxy_gdouble(dim,&(in->kf));
 
-	zxy_malloc_gdouble(dim,&(in->kd));
+	malloc_zxy_gdouble(dim,&(in->kd));
 
-	zxy_malloc_gdouble(dim,&(in->kr));
+	malloc_zxy_gdouble(dim,&(in->kr));
 
-	zxy_malloc_gdouble(dim,&(in->Rfree));
+	malloc_zxy_gdouble(dim,&(in->Rfree));
 
-	zxy_malloc_gdouble(dim,&(in->Rn));
-	zxy_malloc_gdouble(dim,&(in->Rp));
+	malloc_zxy_gdouble(dim,&(in->Rn));
+	malloc_zxy_gdouble(dim,&(in->Rp));
 
-	zxy_malloc_gdouble(dim,&(in->Rn_srh));
-	zxy_malloc_gdouble(dim,&(in->Rp_srh));
+	malloc_zxy_gdouble(dim,&(in->Rn_srh));
+	malloc_zxy_gdouble(dim,&(in->Rp_srh));
 
-	zxy_malloc_gdouble(dim,&(in->Rnet));
+	malloc_zxy_gdouble(dim,&(in->Rnet));
 
-	zxy_malloc_gdouble(dim,&(in->ex));
+	malloc_zxy_gdouble(dim,&(in->ex));
 
-	zxy_malloc_gdouble(dim,&(in->Dex));
+	malloc_zxy_gdouble(dim,&(in->Dex));
 
-	zxy_malloc_gdouble(dim,&(in->Hex));
+	malloc_zxy_gdouble(dim,&(in->Hex));
 
-	zxy_malloc_gdouble(dim,&(in->epsilonr));
+	malloc_zxy_gdouble(dim,&(in->epsilonr));
 
-	zxy_malloc_gdouble(dim,&(in->kl));
+	malloc_zxy_gdouble(dim,&(in->kl));
 
-	zxy_malloc_gdouble(dim,&(in->ke));
+	malloc_zxy_gdouble(dim,&(in->ke));
 
-	zxy_malloc_gdouble(dim,&(in->kh));
+	malloc_zxy_gdouble(dim,&(in->kh));
 
-	zxy_malloc_gdouble(dim,&(in->Hl));
+	malloc_zxy_gdouble(dim,&(in->Hl));
 
-	zxy_malloc_gdouble(dim,&(in->He));
+	malloc_zxy_gdouble(dim,&(in->He));
 
-	zxy_malloc_gdouble(dim,&(in->Hh));
+	malloc_zxy_gdouble(dim,&(in->Hh));
 
-	zxy_malloc_gdouble(dim,&(in->nlast));
+	malloc_zxy_gdouble(dim,&(in->nlast));
 
-	zxy_malloc_gdouble(dim,&(in->plast));
+	malloc_zxy_gdouble(dim,&(in->plast));
 
-	zxy_malloc_gdouble(dim,&(in->wn));
+	malloc_zxy_gdouble(dim,&(in->wn));
 
-	zxy_malloc_gdouble(dim,&(in->wp));
+	malloc_zxy_gdouble(dim,&(in->wp));
 
-	zxy_malloc_gdouble(dim,&(in->nt_all));
+	malloc_zxy_gdouble(dim,&(in->nt_all));
 
-	zxy_malloc_gdouble(dim,&(in->phi_save));
+	malloc_zxy_gdouble(dim,&(in->phi_save));
 
-	zxy_malloc_gdouble(dim,&(in->tt));
+	malloc_zxy_gdouble(dim,&(in->tt));
 
 
-	zxy_malloc_gdouble(dim,&(in->pt_all));
+	malloc_zxy_gdouble(dim,&(in->pt_all));
 
-	zxy_malloc_gdouble(dim,&(in->tpt));
+	malloc_zxy_gdouble(dim,&(in->tpt));
 
-	zxy_malloc_gdouble(dim,&(in->Rbi_k));
+	malloc_zxy_gdouble(dim,&(in->Rbi_k));
 
-	zxy_malloc_gdouble(dim,&(in->nrelax));
+	malloc_zxy_gdouble(dim,&(in->nrelax));
 
-	zxy_malloc_gdouble(dim,&(in->ntrap_to_p));
+	malloc_zxy_gdouble(dim,&(in->ntrap_to_p));
 
-	zxy_malloc_gdouble(dim,&(in->prelax));
+	malloc_zxy_gdouble(dim,&(in->prelax));
 
-	zxy_malloc_gdouble(dim,&(in->ptrap_to_n));
+	malloc_zxy_gdouble(dim,&(in->ptrap_to_n));
 
-	zxy_malloc_gdouble(dim,&(in->n_orig));
+	malloc_zxy_gdouble(dim,&(in->n_orig));
 
-	zxy_malloc_gdouble(dim,&(in->p_orig));
+	malloc_zxy_gdouble(dim,&(in->p_orig));
 
-	zxy_malloc_gdouble(dim,&(in->n_orig_f));
+	malloc_zxy_gdouble(dim,&(in->n_orig_f));
 
-	zxy_malloc_gdouble(dim,&(in->p_orig_f));
+	malloc_zxy_gdouble(dim,&(in->p_orig_f));
 
-	zxy_malloc_gdouble(dim,&(in->n_orig_t));
+	malloc_zxy_gdouble(dim,&(in->n_orig_t));
 
-	zxy_malloc_gdouble(dim,&(in->p_orig_t));
+	malloc_zxy_gdouble(dim,&(in->p_orig_t));
 
 	malloc_3d_int(dim,&(in->imat));
 	malloc_3d_int(dim,&(in->imat_epitaxy));
+	malloc_3d_int(dim,&(in->mask));
 
-	newton_save_state_alloc_mesh(&(in->ns),dim);
+	//newton_state_alloc_mesh(&(in->ns),dim);
 
+	malloc_zxy_gdouble(dim,&(ns->phi));
+	malloc_zxy_gdouble(dim,&(ns->x));
+	malloc_zxy_gdouble(dim,&(ns->xp));
+
+	circuit_alloc_nodes_and_links(sim,&(in->cir));
 
 }

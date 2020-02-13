@@ -20,17 +20,38 @@
 // 
 // 
 
-/** @file complex_solver.h
-	@brief Complex sparse matrix solver..
+/** @file object.h
+@brief ray tracing header files.
 */
+#ifndef object_h
+#define object_h
 
-#ifndef h_complex_solver
-#define h_complex_solver
+#include <vec.h>
 #include <sim_struct.h>
+#include <triangle.h>
 
-void error_report(int status, const char *file, const char *func, int line);
-void complex_solver_dump_matrix(struct simulation *sim,int col,int nz,int *Ti,int *Tj, double *Tx, double *Txz,double *b,double *bz);
-void complex_solver_free(struct simulation *sim);
-int complex_solver(struct simulation *sim,int col,int nz,int *Ti,int *Tj, double *Tx, double *Txz,double *b,double *bz);
-void complex_solver_print(struct simulation *sim,int col,int nz,int *Ti,int *Tj, double *Tx, double *Txz,double *b,double *bz);
+struct object
+{
+	int epi_layer;
+	char name[100];
+	int uid;
+	double *n;
+	double *alpha;
+	struct triangles tri;
+	struct vec min;
+	struct vec max;
+	struct shape* s;		//This is a poinnter to the origonal shape which generated the object
+};
+
+//Object
+void object_flip_y_axis(struct object *obj);
+void object_sub_y(struct object *obj,double y);
+void object_add_y(struct object *obj,double y);
+double object_get_min_y(struct object *obj);
+void object_init(struct object *obj);
+void object_free(struct object *obj);
+void object_cal_min_max(struct object *obj);
+void object_nalpha_malloc(struct object *obj,int l_max);
+void object_nalpha_free(struct object *obj);
+void object_malloc(struct object *obj);
 #endif

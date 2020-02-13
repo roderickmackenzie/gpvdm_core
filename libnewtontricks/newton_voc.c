@@ -174,84 +174,92 @@ if (do_LC==TRUE)
 return get_I(in)+in->C*(Vapplied-Vapplied_last)+Vapplied/in->Rshunt;
 }
 
-gdouble newton_sim_voc(struct simulation *sim, struct device *in)
+long double newton_sim_voc(struct simulation *sim, struct device *in)
 {
-printf_log(sim,"Looking for Voc (1)\n");
-//long double photon_density=0.0;
-//photon_density=three_d_avg(in, in->Gn);
-//if (photon_density<1.0)
-//{
-//	return 0.0;
-//}
+	printf_log(sim,"Looking for Voc (1)\n");
+	//long double photon_density=0.0;
+	//photon_density=three_d_avg(in, in->Gn);
+	//if (photon_density<1.0)
+	//{
+	//	return 0.0;
+	//}
 
-gdouble C=in->C;
-gdouble clamp=0.05;
-gdouble step=0.01;
-gdouble e0;
-gdouble e1;
-gdouble i0;
-gdouble i1;
-gdouble deriv;
-gdouble Rdrain=in->Rload+in->Rcontact;
-gdouble Vapplied=0.0;
-gdouble Vapplied_last=0.0;
+	long double C=in->C;
+	long double clamp=0.05;
+	long double step=0.01;
+	long double e0;
+	long double e1;
+	long double i0;
+	long double i1;
+	long double deriv;
+	long double Rdrain=in->Rload+in->Rcontact;
 
-Vapplied=contact_get_active_contact_voltage(sim,in);
-//printf("%Lf\n",Vapplied);
-//getchar();
-Vapplied_last=contact_get_active_contact_voltage_last(sim,in);
-//printf("Generation rate: %Le m^-3 s^-1\n",in->Gn[0][0][0]);
-solve_all(sim,in);
-i0=get_I(in);
-e0=fabs(i0+Vapplied*(1.0/in->Rshunt-1.0/Rdrain));
+	long double Vapplied=0.0;
+	long double Vapplied_last=0.0;
+	int count=0;
+	int max=200;
+	long double error_diff=0.0;
+	long double ret=0.0;
 
-Vapplied+=step;
-contact_set_active_contact_voltage(sim,in,Vapplied);
-solve_all(sim,in);
-i1=get_I(in);
-e1=fabs(i1+Vapplied*(1.0/in->Rshunt-1.0/Rdrain));
+	Vapplied=contact_get_active_contact_voltage(sim,in);
+	//printf("%Lf %Le\n",Vapplied,in->Gn[0][0][0]);
+	//getchar();
+	Vapplied_last=contact_get_active_contact_voltage_last(sim,in);
+	//printf("Generation rate: %Le m^-3 s^-1\n",in->Gn[0][0][0]);
+	solve_all(sim,in);
+	i0=get_I(in);
+	e0=fabs(i0+Vapplied*(1.0/in->Rshunt-1.0/Rdrain));
 
-deriv=(e1-e0)/step;
-step=-e1/deriv;
-
-step=step/(1.0+fabs(step/clamp));
-Vapplied+=step;
-contact_set_active_contact_voltage(sim,in,Vapplied);
-
-int count=0;
-int max=200;
-long double error_diff=0.0;
-do
-{
-	e0=e1;
+	Vapplied+=step;
+	contact_set_active_contact_voltage(sim,in,Vapplied);
 	solve_all(sim,in);
 	i1=get_I(in);
 	e1=fabs(i1+Vapplied*(1.0/in->Rshunt-1.0/Rdrain));
+
 	deriv=(e1-e0)/step;
 	step=-e1/deriv;
-	error_diff=e1-e0;
 
 	step=step/(1.0+fabs(step/clamp));
 	Vapplied+=step;
 	contact_set_active_contact_voltage(sim,in,Vapplied);
 
-	if (get_dump_status(sim,dump_print_text)==TRUE)
+	do
 	{
-		printf_log(sim,"%d voc find Voc Vapplied=%Lf step=%Le error=%Le\n",count,Vapplied,step,e1);
-	}
-	if (count>max) break;
-	count++;
+		e0=e1;
+		solve_all(sim,in);
+		i1=get_I(in);
+		e1=fabs(i1+Vapplied*(1.0/in->Rshunt-1.0/Rdrain));
+		deriv=(e1-e0)/step;
+		step=-e1/deriv;
+		error_diff=e1-e0;
 
-	
-	if (error_diff>0)
-	{
-		clamp/=1.1;
-		printf_log(sim,"*");
-	}
+		step=step/(1.0+fabs(step/clamp));
+		Vapplied+=step;
+		contact_set_active_contact_voltage(sim,in,Vapplied);
+
+		if (get_dump_status(sim,dump_print_text)==TRUE)
+		{
+			printf_log(sim,"%d Vapplied=%Lf step=%Le f()=%Le\n",count,Vapplied,step,e1);
+		}
+		if (count>max) break;
+		count++;
+
 		
-	}while(e1>1e-12);
+		if (error_diff>0)
+		{
+			clamp/=1.1;
+			printf_log(sim,"*");
+		}
+			
+		}while(e1>1e-12);
 
-gdouble ret=Vapplied-C*(i1-in->Ilast)/in->dt;
+	ret=Vapplied-C*(i1-in->Ilast)/in->dt;
+
+	if (Vapplied<0.0)
+	{
+		ewe(sim,"I have found a negative Voc");
+	}
+
 return ret;
 }
 

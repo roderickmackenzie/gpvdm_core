@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file util_str.c
 	@brief Utility functions for string handeling.
@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include "util.h"
 #include "log.h"
-#include <const.h>
+#include <gpvdm_const.h>
 #include <lang.h>
 #include <math.h>
 
@@ -94,7 +94,7 @@ switch(a)
 	default:
 		return FALSE;
 }
-	
+
 }
 
 int get_number_in_string(double *out, char* in, int n)
@@ -129,7 +129,7 @@ int get_number_in_string(double *out, char* in, int n)
 
 	}
 
-return -1;		
+return -1;
 }
 
 int replace_number_in_string(char *buf, char* in, double replace, int n)
@@ -165,17 +165,17 @@ int replace_number_in_string(char *buf, char* in, double replace, int n)
 				pos=strlen(buf);
 			}
 		}
-		
+
 		if (number!=n)
 		{
 			buf[pos]=in[i];
 			pos++;
 			buf[pos]=0;
-			
+
 		}
-		
+
 	}
-		
+
 }
 
 int fnmatch2(char *pat,char *in)
@@ -304,11 +304,11 @@ sscanf(temp,"%d",&ret);
 return ret;
 }
 
-int str_isnumber(char *input) 
-{ 
+int str_isnumber(char *input)
+{
     int start = 0;
 	int len=strlen(input);
-	int stop= len-1; 
+	int stop= len-1;
 	if (len==0)
 	{
 		return FALSE;
@@ -323,8 +323,8 @@ int str_isnumber(char *input)
 			return FALSE;
 		}
 	}
- 
-	while(input[stop] == ' ') 
+
+	while(input[stop] == ' ')
 	{
         stop--;
 		if (stop<=0)
@@ -334,36 +334,36 @@ int str_isnumber(char *input)
 		}
 	}
 
-          
+
     // len==1 and first character not digit
-    if(len == 1 && !(input[start] >= '0' && input[stop] <= '9')) 
+    if(len == 1 && !(input[start] >= '0' && input[stop] <= '9'))
 	{
-		return FALSE; 
-	}
-  
-    // 1st char must be +, -, . or number  
-    if( input[start] != '+' && input[start] != '-' && !(input[start] >= '0' && input[start] <= '9'))
-	{ 
-		return FALSE; 
+		return FALSE;
 	}
 
-    int dot_or_e = FALSE; 
+    // 1st char must be +, -, . or number
+    if( input[start] != '+' && input[start] != '-' && !(input[start] >= '0' && input[start] <= '9'))
+	{
+		return FALSE;
+	}
+
+    int dot_or_e = FALSE;
 	int i=start;
 
-    for(i ; i <= stop ; i++) 
+    for(i ; i <= stop ; i++)
     {
-        // Only allow numbers, +, - and e  
+        // Only allow numbers, +, - and e
         if(input[i] != 'e' && input[i] != 'E' && input[i] != '.' &&   input[i] != '+' && input[i] != '-' &&  !(input[i] >= '0' && input[i] <= '9'))
 		{
 			return FALSE;
-		} 
-             
-        if(input[i] == '.') 
-        { 
+		}
+
+        if(input[i] == '.')
+        {
             // a . as a last character is not allowed
             if(i == len-1)
 			{
-				return FALSE; 
+				return FALSE;
 			}
 
             // have we seen a dot or e before
@@ -371,45 +371,45 @@ int str_isnumber(char *input)
 			{
                 return FALSE;
 			}
-   
-            // If we have a . we need a number after it			 
+
+            // If we have a . we need a number after it
             if(!(input[i+1] >= '0' && input[i+1] <= '9'))
 			{
-				return FALSE; 
+				return FALSE;
 			}
 
 		}else
 		if ((input[i] == 'e') || (input[i] == 'E'))
-        {  
-            dot_or_e = TRUE; 
+        {
+            dot_or_e = TRUE;
 
-            // e as the last character is also not allowed  
+            // e as the last character is also not allowed
             if(i == len-1)
 			{
-				return FALSE; 
+				return FALSE;
 			}
 
             // an e first is not allowed we need a number before it
             if(!(input[i-1] >= '0' && input[i-1] <= '9'))
 			{
-				return FALSE; 
+				return FALSE;
 			}
 
-            // e must be followed by a + - or a number   
+            // e must be followed by a + - or a number
             if (input[i+1] != '+' && input[i+1] != '-' && (input[i+1] >= '0' && input[i] <= '9'))
 			{
-				return FALSE; 
+				return FALSE;
 			}
         }
-    } 
-      
+    }
 
-	return TRUE; 
+
+	return TRUE;
 }
 
 void split_dot(char *out, char *in)
 {
-	int i=0;	
+	int i=0;
 	strcpy(out,in);
 	for (i=0;i<strlen(out);i++)
 	{
@@ -419,4 +419,47 @@ void split_dot(char *out, char *in)
 			break;
 		}
 	}
+}
+
+int get_line(char *out,char *data,int len,int *pos)
+{
+	out[0]=0;
+	//printf("%s\n",data);
+	int i=0;
+	if (*pos>=len)
+	{
+		return -1;
+	}
+
+		//printf("pos = %d\n",*pos);
+		//getchar();
+	while(*pos<len)
+	{
+		if ((data[*pos]=='\n')||(data[*pos]=='\r')||(data[*pos]==0))
+		{
+			out[i]=0;
+
+			if (data[*pos]=='\r')
+			{
+				(*pos)++;
+			}
+
+			if (*pos<len)
+			{
+				if (data[*pos]=='\n')
+				{
+					(*pos)++;
+				}
+			}
+			break;
+		}
+
+		out[i]=data[*pos];
+		out[i+1]=0;
+		i++;
+		(*pos)++;
+
+	}
+
+return 0;
 }

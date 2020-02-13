@@ -33,8 +33,10 @@
 #include <shape_struct.h>
 
 struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct shape *s, char *file_name);
-void shape_load(struct simulation *sim,struct epitaxy *in);
 int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long double y,long double z);
 void shape_free_materials(struct simulation *sim,struct epitaxy *in);
 void shape_free(struct simulation *sim,struct shape *s);
+int shape_in_shape(struct simulation *sim,struct shape *s,long double z,long double x,long double y);
+void shape_init(struct simulation *sim,struct shape *s);
+void shape_load_materials(struct simulation *sim,struct shape *s);
 #endif

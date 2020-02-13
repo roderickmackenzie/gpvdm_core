@@ -72,4 +72,5 @@ double vec_ang(struct vec *one,struct vec *two);
 double vec_overlap_test(struct vec *a,struct vec *b);
 void vec_flip_y_axis(struct vec *one,double y);
 int vec_within_box(struct vec *l,struct vec *h,struct vec *v);
+void vec_dump_to_file(char *file_name,struct vec *one);
 #endif

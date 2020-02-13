@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file log.c
 	@brief Deal with output to the log file, can either be disk/screen or both.  UTF8 supported/HTML supported and can stream to GUI under Windows/Linux.
@@ -34,7 +34,7 @@
 #include <util.h>
 #include <cal_path.h>
 #include <string.h>
-#include <const.h>
+#include <gpvdm_const.h>
 #include <lang.h>
 #include <dump.h>
 #include <wchar.h>
@@ -60,14 +60,14 @@ void log_clear(struct simulation *sim)
 	//out=fopen(temp,"w");
 	//fprintf(out,"gpvdm log file:\n");
 	//fclose(out);
-	
+
 	join_path(2,temp,sim->root_simulation_path,"log_file_access.dat");
 	remove_file(sim,temp);
 
 	//out=fopen(temp,"w");
 	//fprintf(out,"gpvdm file access log file:\n");
 	//fclose(out);
-		
+
 }
 
 void log_tell_use_where_file_access_log_is(struct simulation *sim)
@@ -78,7 +78,7 @@ void log_tell_use_where_file_access_log_is(struct simulation *sim)
 		join_path(2,temp,sim->root_simulation_path,"log_file_access.dat");
 		printf_log(sim,_("File access log written to %s\n"),temp);
 	}
-		
+
 }
 void log_write_file_access(struct simulation *sim,char * file,char mode)
 {
@@ -95,8 +95,8 @@ void log_write_file_access(struct simulation *sim,char * file,char mode)
 		{
 			fprintf(out,"read:%s\n",file);
 		}
-		
-		fclose(out);	
+
+		fclose(out);
 	}
 }
 
@@ -131,16 +131,16 @@ void text_to_html(struct simulation *sim,char *out, char *in,int max)
 					break;
 				}
 			}
-			
+
 		}
-		
+
 		out[out_pos]=0;
 	}else
 	{
 		out[0]=0;
 		strncpy(out,in,max);
 	}
-	
+
 }
 
 void printf_log(struct simulation *sim, const char *format, ...)
@@ -229,7 +229,7 @@ void waveprint(struct simulation *sim,char *in,double wavelength)
 		{
 			textcolor(sim,fg_reset);
 		}
-			
+
 	}
 }
 

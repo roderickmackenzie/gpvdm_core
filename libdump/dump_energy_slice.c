@@ -42,7 +42,7 @@ int y=in->dump_energy_slice_ypos;
 int z=in->dump_energy_slice_zpos;
 struct dimensions *dim=&in->ns.dim;
 
-if ((y>=dim->ymeshpoints)||(x>=dim->xmeshpoints)||(z>=dim->zmeshpoints))
+if ((y>=dim->ylen)||(x>=dim->xlen)||(z>=dim->zlen))
 {
 	return;
 }

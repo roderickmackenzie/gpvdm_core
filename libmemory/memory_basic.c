@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <lang.h>
-#include <complex_solver.h>
 #include "sim.h"
 #include "dump.h"
 #include "mesh.h"
@@ -49,11 +48,11 @@ void free_srh_bands(struct dimensions *dim, gdouble *(**** in_var))
 	int y=0;
 	int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 					free(var[z][x][y]);
 			}
@@ -74,9 +73,9 @@ int x=0;
 int y=0;
 int z=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
 			dst[z][x]=src[z][x];
 		}
@@ -91,11 +90,11 @@ int y=0;
 int z=0;
 int b=0;
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				for (b = 0; b < dim->srh_bands; b++)
 				{
@@ -105,177 +104,6 @@ int b=0;
 
 		}
 	}
-
-}
-
-
-void malloc_zx_gdouble(struct dimensions *dim, gdouble * (**var))
-{
-	int z=0;
-
-	*var = (gdouble **) malloc(dim->zmeshpoints * sizeof(gdouble *));
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		(*var)[z] = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
-		memset((*var)[z], 0, dim->xmeshpoints * sizeof(gdouble));
-	}
-
-}
-
-void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in)
-{
-	int z=0;
-	int x=0;
-
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		for (x = 0; x < dim->xmeshpoints; x++)
-		{
-			data_out[z][x]=data_in[z][x];
-		}
-	}
-
-}
-
-void mem_add_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in)
-{
-	int z=0;
-	int x=0;
-
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		for (x = 0; x < dim->xmeshpoints; x++)
-		{
-			data_out[z][x]+=data_in[z][x];
-		}
-	}
-
-}
-
-void free_zx_gdouble(struct dimensions *dim, gdouble * (**in_var))
-{
-	int z=0;
-	long double **var=*in_var;
-
-	if (var==NULL)
-	{
-		return;
-	}
-
-	//printf("%d %d %d\n",dim->zmeshpoints,dim->xmeshpoints,dim->ymeshpoints);
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		free(var[z]);
-	}
-
-	//printf("free\n");
-	free(var);
-
-	*in_var=NULL;
-}
-
-void malloc_zx_int(struct dimensions *dim, int * (**var))
-{
-	int z=0;
-
-	*var = (int **) malloc(dim->zmeshpoints * sizeof(int *));
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		(*var)[z] = (int *) malloc(dim->xmeshpoints * sizeof(int));
-		memset((*var)[z], 0, dim->xmeshpoints * sizeof(int));
-	}
-
-}
-
-void free_zx_int(struct dimensions *dim, int *(**in_var))
-{
-	int z=0;
-
-	int **var=*in_var;
-
-	if (var==NULL)
-	{
-		return;
-	}
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		free(var[z]);
-	}
-
-	free(var);
-
-	*in_var=NULL;
-}
-
-
-void malloc_3d_int(struct dimensions *dim, int * (***var))
-{
-	int x=0;
-	int y=0;
-	int z=0;
-
-
-	*var = (int ***) malloc(dim->zmeshpoints * sizeof(int **));
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-		(*var)[z] = (int **) malloc(dim->xmeshpoints * sizeof(int*));
-		for (x = 0; x < dim->xmeshpoints; x++)
-		{
-			(*var)[z][x] = (int *) malloc(dim->ymeshpoints * sizeof(int));
-			memset((*var)[z][x], 0, dim->ymeshpoints * sizeof(int));
-		}
-	}
-
-}
-
-void free_3d_int(struct dimensions *dim, int ***var)
-{
-	int x=0;
-	int y=0;
-	int z=0;
-
-	if (var==NULL)
-	{
-		return;
-	}
-
-	for (z = 0; z < dim->zmeshpoints; z++)
-	{
-
-		for (x = 0; x < dim->xmeshpoints; x++)
-		{
-			free(var[z][x]);
-		}
-		free(var[z]);
-	}
-
-	free(var);
-
-}
-
-void memory_flip_1d_int(int *var,int len)
-{
-	int x=0;
-	int y=0;
-	int z=0;
-	int * data=malloc(sizeof(int)*len);
-	for (y=0;y<len;y++)
-	{
-		data[y]=var[len-1-y];
-	}
-
-	for (y=0;y<len;y++)
-	{
-		var[y]=data[y];
-	}
-
-	free(data);
 
 }
 
@@ -304,17 +132,17 @@ void malloc_srh_bands(struct dimensions *dim, gdouble * (****var))
 	int y=0;
 	int z=0;
 
-	//printf("alloc %d %d %d %d \n",dim->xmeshpoints,dim->ymeshpoints,dim->zmeshpoints,dim->srh_bands);
+	//printf("alloc %d %d %d %d \n",dim->xlen,dim->ylen,dim->zlen,dim->srh_bands);
 
-	*var = (gdouble ****) malloc(dim->zmeshpoints * sizeof(gdouble ***));
+	*var = (gdouble ****) malloc(dim->zlen * sizeof(gdouble ***));
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
-		(*var)[z] = (gdouble ***) malloc(dim->xmeshpoints * sizeof(gdouble**));
-		for (x = 0; x < dim->xmeshpoints; x++)
+		(*var)[z] = (gdouble ***) malloc(dim->xlen * sizeof(gdouble**));
+		for (x = 0; x < dim->xlen; x++)
 		{
-			(*var)[z][x] = (gdouble **) malloc(dim->ymeshpoints * sizeof(gdouble*));
-			for (y = 0; y < dim->ymeshpoints; y++)
+			(*var)[z][x] = (gdouble **) malloc(dim->ylen * sizeof(gdouble*));
+			for (y = 0; y < dim->ylen; y++)
 			{
 				if (dim->srh_bands != 0)
 				{
@@ -360,16 +188,16 @@ long double xr;
 long double c;
 
 	z=0;
-	for (x = 0; x < dim_out->xmeshpoints; x++)
+	for (x = 0; x < dim_out->xlen; x++)
 	{
 
 		x_out=dim_out->xmesh[x];
-		xi=hashget(dim_in->xmesh,dim_in->xmeshpoints,x_out);
+		xi=hashget(dim_in->xmesh,dim_in->xlen,x_out);
 
-		for (y = 0; y < dim_out->ymeshpoints; y++)
+		for (y = 0; y < dim_out->ylen; y++)
 		{
 			y_out=dim_out->ymesh[y];
-			yi=hashget(dim_in->ymesh,dim_in->ymeshpoints,y_out);
+			yi=hashget(dim_in->ymesh,dim_in->ylen,y_out);
 
 			y00=dim_in->ymesh[yi];
 			y01=dim_in->ymesh[yi+1];
@@ -421,16 +249,16 @@ long double xr;
 long double c;
 
 	z=0;
-	for (x = 0; x < dim_out->xmeshpoints; x++)
+	for (x = 0; x < dim_out->xlen; x++)
 	{
 
 		x_out=dim_out->xmesh[x];
-		xi=hashget(dim_in->xmesh,dim_in->xmeshpoints,x_out);
+		xi=hashget(dim_in->xmesh,dim_in->xlen,x_out);
 
-		for (y = 0; y < dim_out->ymeshpoints; y++)
+		for (y = 0; y < dim_out->ylen; y++)
 		{
 			y_out=dim_out->ymesh[y];
-			yi=hashget(dim_in->ymesh,dim_in->ymeshpoints,y_out);
+			yi=hashget(dim_in->ymesh,dim_in->ylen,y_out);
 
 			y00=dim_in->ymesh[yi];
 			y01=dim_in->ymesh[yi+1];
@@ -462,13 +290,13 @@ int y=0;
 int z=0;
 	FILE *out=fopen(file_name,"w");
 
-	for (z = 0; z < dim->zmeshpoints; z++)
+	for (z = 0; z < dim->zlen; z++)
 	{
 
-		for (x = 0; x < dim->xmeshpoints; x++)
+		for (x = 0; x < dim->xlen; x++)
 		{
 
-			for (y = 0; y < dim->ymeshpoints; y++)
+			for (y = 0; y < dim->ylen; y++)
 			{
 				fprintf(out,"%Le %Le %Le\n",dim->xmesh[x],dim->ymesh[y],in[z][x][y][band]);
 			}
@@ -478,4 +306,48 @@ int z=0;
 	}
 
 fclose(out);
+}
+
+/**Do a chop search for a value
+@param x index array
+@param N length
+@param find Value to find
+*/
+int search(long double *x,int N,long double find)
+{
+if (N==1) return 0;
+int pos=N/2;
+int step=N/2;
+do
+{
+	step=step/2 + (step % 2 > 0 ? 1 : 0);
+
+	if (x[pos]>find)
+	{
+		pos-=step;
+	}else
+	{
+		pos+=step;
+	}
+
+	if (pos<=0)
+	{
+		pos=0;
+		break;
+	}
+	if (pos>=(N-1))
+	{
+		pos=N-1;
+		break;
+	}
+	if (step==0) break;
+	if (x[pos]==find) break;
+	if ((x[pos]<=find)&&((x[pos+1]>find))) break;
+
+}while(1);
+
+if (pos==(N-1)) pos=N-2;
+
+
+return pos;
 }

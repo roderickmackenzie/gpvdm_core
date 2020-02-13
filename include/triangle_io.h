@@ -39,4 +39,7 @@ void triangles_sub_vec(struct triangles *in,struct vec *v);
 void triangles_add_vec(struct triangles *in,struct vec *v);
 void triangles_div_vec(struct triangles *in,struct vec *v);
 void triangles_mul_vec(struct triangles *in,struct vec *v);
+void triangles_cal_edges(struct triangles *in);
+void triangles_init(struct triangles *tri);
+void triangles_malloc(struct triangles *tri);
 #endif

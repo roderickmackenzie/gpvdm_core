@@ -53,6 +53,8 @@ struct shape
 	struct istruct alpha;
 	struct istruct n;
 	struct triangles tri;
+	int flip_y;
+	int flip_x;
 };
 
 #endif

@@ -29,7 +29,7 @@
 #include <string.h>
 #include "util.h"
 #include "dat_file.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "code_ctrl.h"
 #include "cal_path.h"
 #include "dump.h"
@@ -90,6 +90,22 @@ in->buf=(char*)malloc(sizeof(char)*in->max_len);
 memset(in->buf, 0, in->max_len);
 }
 
+void buffer_add_xy_data_shift(struct simulation *sim,struct dat_file *in,gdouble *x, gdouble *y, int len,long double shift)
+{
+int i;
+long double *temp;
+temp=malloc(len*sizeof(long double));
+
+for (i=0;i<len;i++)
+{
+	temp[i]=y[i]+shift;
+}
+
+buffer_add_xy_data(sim,in,x,temp, len);
+
+free(temp);
+}
+
 void buffer_add_xy_data(struct simulation *sim,struct dat_file *in,gdouble *x, gdouble *y, int len)
 {
 int i;
@@ -144,6 +160,39 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
+void buffer_add_zxy_long_double_light_data(struct simulation *sim,struct dat_file *in,long double ***data, struct dim_light *dim)
+{
+int z;
+int x;
+int y;
+char string[100];
+
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#data\n");
+	buffer_add_string(in,string);
+}
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				sprintf(string,"%Le %Le %Le %Le\n",dim->z[z],dim->x[x],dim->y[y],data[z][x][y]);
+				buffer_add_string(in,string);
+			}
+		}
+	}
+
+
+if (get_dump_status(sim,dump_write_headers)==TRUE)
+{
+	sprintf(string,"#end\n");
+	buffer_add_string(in,string);
+}
+
+}
 
 void buffer_add_xy_data_z_label(struct dat_file *in,gdouble *x, gdouble *y, gdouble *z, int len)
 {
@@ -333,6 +382,9 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 		sprintf(temp,"#z %d\n",in->z);
 		buffer_add_string(in,temp);
 	}
+
+	sprintf(temp,"#begin\n");
+	buffer_add_string(in,temp);
 }
 }
 

@@ -87,8 +87,8 @@ void triplet_to_ccs(double *out_x,int *out_row, int *out_pointer, int *in_i,int 
 int umfpack_solver(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *lTx,long double *lb)
 {
 int i;
-void *Symbolic, *Numeric;
-int status;
+//void *Symbolic, *Numeric;
+//int status;
 double *dtemp;
 int *itemp;
 
@@ -167,17 +167,17 @@ for (i=0;i<nz;i++)
 
 
     SuperMatrix A, L, U, B;
-    double   *a, *rhs;
-    double   s, u, p, e, r, l;
+    double   *a;//, *rhs;
+    //double   s, u, p, e, r, l;
     int      *asub, *xa;
     int      *perm_r; /* row permutations from partial pivoting */
     int      *perm_c; /* column permutation vector */
-    int      nrhs, info, m, n, nnz, permc_spec;
+    int      info;	//nrhs,  m, n, nnz,  permc_spec
     superlu_options_t options;
     SuperLUStat_t stat;
 
     /* Initialize matrix A. */
-    m = n = col;
+   	//m =  n = col;
     if ( !(a = doubleMalloc(nz)) )
 	{
 		ABORT("Malloc fails for a[].");

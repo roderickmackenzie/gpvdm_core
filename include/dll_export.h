@@ -44,9 +44,13 @@ EXPORT void dll_matrix_solve(struct simulation *sim,int col,int nz,int *Ti,int *
 EXPORT void dll_matrix_dump(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *Tx,long double *b,char *index);
 EXPORT void dll_matrix_solver_free(struct simulation *sim);
 
+//Complex matrix solver
+EXPORT void dll_complex_matrix_solve(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *Tx,long double *Txz,long double *b,long double *bz);
+EXPORT void dll_complex_matrix_solver_free(struct simulation *sim);
+
 //Light
 EXPORT void light_dll_init(struct simulation *sim);
-EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,struct light *in,int lam);
+EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,struct light *in,int z, int x, int l);
 EXPORT void light_dll_ver(struct simulation *sim);
 EXPORT void light_fixup(char *name,void (*in));
 
@@ -54,7 +58,7 @@ EXPORT void light_fixup(char *name,void (*in));
 EXPORT void dll_newton_set_min_ittr(int ittr);
 EXPORT int dll_solve_cur(struct simulation *sim,struct device *in, int z, int x);
 EXPORT void dll_solver_realloc(struct simulation *sim,struct device *in);
-EXPORT void dll_solver_free_memory(struct device *in);
+EXPORT void dll_solver_free_memory(struct simulation *sim,struct device *in);
 
 //electrical plugin
 EXPORT void dll_run_simulation(struct simulation *sim,struct device *in);

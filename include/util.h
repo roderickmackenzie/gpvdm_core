@@ -79,6 +79,7 @@ int strcmp_end(char * str,char *end);
 int extract_str_number(char * in,char *cut);
 int strcmp_begin(char * str,char *begin);
 void get_meter_dim(char *unit,long double *mul,long double max_val);
+void get_time_dim(char *unit,long double *mul,long double max_val);
 //zip_buffer
 void write_zip_buffer(struct simulation *sim,char *outfile,long double *buf,int buf_len);
 int read_zip_buffer(struct simulation *sim,char *file_name,long double **buf);

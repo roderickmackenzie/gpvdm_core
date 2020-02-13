@@ -28,10 +28,10 @@
 #include <unistd.h>
 #include <dirent.h>
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "light.h"
 #include "device.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "dump.h"
 #include "config.h"
 #include "inp.h"
@@ -45,39 +45,38 @@
 
 static int unused __attribute__((unused));
 
-void light_load_materials(struct simulation *sim,struct light *in)
+void light_load_materials(struct simulation *sim,struct light *li)
 {
-printf_log(sim,"%s\n",_("load: materials"));
-char file_path[PATH_MAX];
+	printf_log(sim,"%s\n",_("load: materials"));
+	char file_path[PATH_MAX];
 
-DIR *theFolder;
+	DIR *theFolder;
 
-struct inp_file inp;
+	struct inp_file inp;
 
-/////////////////////////////////////////////////////
-theFolder = opendir(get_spectra_path(sim));
-if (theFolder==NULL)
-{
-	ewe(sim,_("Optical spectra directory not found\n"));
-}
-closedir (theFolder);
-inp_init(sim,&inp);
+	theFolder = opendir(get_spectra_path(sim));
+	if (theFolder==NULL)
+	{
+		ewe(sim,_("Optical spectra directory not found\n"));
+	}
+	closedir (theFolder);
+	inp_init(sim,&inp);
 
 
-	join_path(3,file_path,get_spectra_path(sim),in->suns_spectrum_file,"spectra.inp");
+	join_path(3,file_path,get_spectra_path(sim),li->suns_spectrum_file,"spectra.inp");
 
 	if (isfile(file_path)!=0)
 	{
 		ewe(sim,"%s: %s\n",_("File not found"),file_path);
 	}
 
-inter_load(sim,&(in->sun_read),file_path);
-inter_sort(&(in->sun_read));
+	inter_load(sim,&(li->sun_read),file_path);
+	inter_sort(&(li->sun_read));
 
-inter_mod(&(in->sun_read));
+	inter_mod(&(li->sun_read));
 
-long double Power=inter_intergrate(&(in->sun_read));
-printf_log(sim,"%s %Le Wm^{-2}\n",_("Power density of the optical spectra:"),Power);
+	long double Power=inter_intergrate(&(li->sun_read));
+	printf_log(sim,"%s %Le Wm^{-2}\n",_("Power density of the optical spectra:"),Power);
 }
 
 

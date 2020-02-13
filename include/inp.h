@@ -74,4 +74,5 @@ void inp_search_long_long(struct simulation *sim,struct inp_file *in,long long* 
 
 int get_line(char *out,char *data,int len,int *pos);
 void inp_free_no_save(struct simulation *sim,struct inp_file *in);
+int inp_is_token(struct simulation *sim,struct inp_file *in,char* token);
 #endif

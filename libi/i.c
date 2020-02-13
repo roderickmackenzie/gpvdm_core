@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 
 
@@ -36,9 +36,10 @@
 #include "i.h"
 #include "util.h"
 #include "cal_path.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include <log.h>
 #include "inp.h"
+#include <memory.h>
 
 
 static int unused __attribute__((unused));
@@ -223,50 +224,6 @@ for (i=0;i<in->len;i++)
 
 free(data);
 return 0;
-}
-
-/**Do a chop search for a value
-@param x index array
-@param N length
-@param find Value to find
-*/
-int search(long double *x,int N,long double find)
-{
-if (N==1) return 0;
-int pos=N/2;
-int step=N/2;
-do
-{
-	step=step/2 + (step % 2 > 0 ? 1 : 0);
-
-	if (x[pos]>find)
-	{
-		pos-=step;
-	}else
-	{
-		pos+=step;
-	}
-
-	if (pos<=0)
-	{
-		pos=0;
-		break;
-	}
-	if (pos>=(N-1))
-	{
-		pos=N-1;
-		break;
-	}
-	if (step==0) break;
-	if (x[pos]==find) break;
-	if ((x[pos]<=find)&&((x[pos+1]>find))) break;
-
-}while(1);
-
-if (pos==(N-1)) pos=N-2;
-
-
-return pos;
 }
 
 
@@ -1077,6 +1034,8 @@ if (file == NULL)
 }
 
 inter_init(sim,in);
+inter_malloc(in,100);
+
 do
 {
 	memset(temp,0,1000);
@@ -1120,19 +1079,19 @@ fclose(file);
 
 void inter_import_array(struct istruct* in,long double *x,long double *y,int len,int alloc)
 {
-int i;
-in->len=len;
+	int i;
 
-if (alloc==TRUE)
-{
-inter_alloc(in,in->len);
-}
+	if (alloc==TRUE)
+	{
+		inter_malloc(in,len);
+	}
+	in->len=len;
 
-for  (i=0;i<in->len;i++)
-{
-	in->x[i]=x[i];
-	in->data[i]=y[i];
-}
+	for  (i=0;i<in->len;i++)
+	{
+		in->x[i]=x[i];
+		in->data[i]=y[i];
+	}
 
 
 }
@@ -1264,6 +1223,7 @@ strcpy(in->name,name);
 
 
 inp_init(sim,&data);
+
 if (inp_load(sim,&data,name)!=0)
 {
 	return -1;

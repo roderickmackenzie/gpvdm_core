@@ -27,12 +27,13 @@
 #include "mesh.h"
 #include "inp.h"
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "hard_limit.h"
 #include <log.h>
 #include <cal_path.h>
 #include <lang.h>
 #include <shape.h>
+#include <device_fun.h>
 
 
 void dim_init_xyz(struct dimensions *dim,char xyz)
@@ -40,20 +41,20 @@ void dim_init_xyz(struct dimensions *dim,char xyz)
 	if (xyz=='x')
 	{
 		dim->xmesh= NULL;
-		dim->dxmesh= NULL;
-		dim->xmeshpoints=-1;
+		dim->dx= NULL;
+		dim->xlen=-1;
 	}else
 	if (xyz=='y')
 	{
 		dim->ymesh= NULL;
-		dim->dymesh= NULL;
-		dim->ymeshpoints=-1;
+		dim->dy= NULL;
+		dim->ylen=-1;
 	}else
 	if (xyz=='z')
 	{
 		dim->zmesh= NULL;
-		dim->dzmesh= NULL;
-		dim->zmeshpoints=-1;
+		dim->dz= NULL;
+		dim->zlen=-1;
 	}
 
 }
@@ -73,7 +74,7 @@ void dim_free_xyz(struct dimensions *dim,char xyz)
 		if (dim->xmesh!=NULL)
 		{
 			free(dim->xmesh);
-			free(dim->dxmesh);
+			free(dim->dx);
 			dim_init_xyz(dim,'x');
 		}
 	}else
@@ -82,7 +83,7 @@ void dim_free_xyz(struct dimensions *dim,char xyz)
 		if (dim->ymesh!=NULL)
 		{
 			free(dim->ymesh);
-			free(dim->dymesh);
+			free(dim->dy);
 			dim_init_xyz(dim,'y');
 		}
 	}else
@@ -91,7 +92,7 @@ void dim_free_xyz(struct dimensions *dim,char xyz)
 		if (dim->zmesh!=NULL)
 		{
 			free(dim->zmesh);
-			free(dim->dzmesh);
+			free(dim->dz);
 			dim_init_xyz(dim,'z');
 		}
 	}
@@ -111,27 +112,36 @@ void dim_alloc_xyz(struct dimensions *dim,char xyz)
 
 	if (xyz=='x')
 	{
-		dim->xmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
-		memset(dim->xmesh, 0, dim->xmeshpoints * sizeof(gdouble));
+		if (dim->xlen!=0)
+		{
+			dim->xmesh = (gdouble *) malloc(dim->xlen * sizeof(gdouble));
+			memset(dim->xmesh, 0, dim->xlen * sizeof(gdouble));
 
-		dim->dxmesh = (gdouble *) malloc(dim->xmeshpoints * sizeof(gdouble));
-		memset(dim->dxmesh, 0, dim->xmeshpoints * sizeof(gdouble));
+			dim->dx = (gdouble *) malloc(dim->xlen * sizeof(gdouble));
+			memset(dim->dx, 0, dim->xlen * sizeof(gdouble));
+		}
 	}else
 	if (xyz=='y')
 	{
-		dim->ymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
-		memset(dim->ymesh, 0, dim->ymeshpoints * sizeof(gdouble));
+		if (dim->ylen!=0)
+		{
+			dim->ymesh = (gdouble *) malloc(dim->ylen * sizeof(gdouble));
+			memset(dim->ymesh, 0, dim->ylen * sizeof(gdouble));
 
-		dim->dymesh = (gdouble *) malloc(dim->ymeshpoints * sizeof(gdouble));
-		memset(dim->dymesh, 0, dim->ymeshpoints * sizeof(gdouble));
+			dim->dy = (gdouble *) malloc(dim->ylen * sizeof(gdouble));
+			memset(dim->dy, 0, dim->ylen * sizeof(gdouble));
+		}
 	}else
 	if (xyz=='z')
 	{
-		dim->zmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
-		memset(dim->zmesh, 0, dim->zmeshpoints * sizeof(gdouble));
+		if (dim->zlen!=0)
+		{
+			dim->zmesh = (gdouble *) malloc(dim->zlen * sizeof(gdouble));
+			memset(dim->zmesh, 0, dim->zlen * sizeof(gdouble));
 
-		dim->dzmesh = (gdouble *) malloc(dim->zmeshpoints * sizeof(gdouble));
-		memset(dim->dzmesh, 0, dim->zmeshpoints * sizeof(gdouble));
+			dim->dz = (gdouble *) malloc(dim->zlen * sizeof(gdouble));
+			memset(dim->dz, 0, dim->zlen * sizeof(gdouble));
+		}
 	}
 
 
@@ -142,9 +152,9 @@ void dim_alloc_gen_untiy_mesh_x(struct dimensions *dim)
 
 	int x=0;
 	long double xpos=0.0;
-	long double dx=1.0/dim->xmeshpoints;
+	long double dx=1.0/dim->xlen;
 
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
 		dim->xmesh[x]=xpos;
 		xpos+=dx;
@@ -155,9 +165,9 @@ void dim_alloc_gen_untiy_mesh_z(struct dimensions *dim)
 {
 	int z=0;
 	long double zpos=0.0;
-	long double dz=1.0/dim->zmeshpoints;
+	long double dz=1.0/dim->zlen;
 
-	for (z=0;z<dim->zmeshpoints;z++)
+	for (z=0;z<dim->zlen;z++)
 	{
 		dim->zmesh[z]=zpos;
 		zpos+=dz;
@@ -191,30 +201,59 @@ void dim_cpy(struct dimensions *out,struct dimensions *in)
 	int z=0;
 
 	dim_free(out);
-	out->xmeshpoints=in->xmeshpoints;
-	out->ymeshpoints=in->ymeshpoints;
-	out->zmeshpoints=in->zmeshpoints;
+	out->xlen=in->xlen;
+	out->ylen=in->ylen;
+	out->zlen=in->zlen;
 
 	dim_alloc(out);
 
-	for (x=0;x<out->xmeshpoints;x++)
+	for (x=0;x<out->xlen;x++)
 	{
 		out->xmesh[x]=in->xmesh[x];
-		out->dxmesh[x]=in->dxmesh[x];
+		out->dx[x]=in->dx[x];
 	}
 
-	for (y=0;y<out->ymeshpoints;y++)
+	for (y=0;y<out->ylen;y++)
 	{
 		out->ymesh[y]=in->ymesh[y];
-		out->dymesh[y]=in->dymesh[y];
+		out->dy[y]=in->dy[y];
 	}
 
-	for (z=0;z<out->zmeshpoints;z++)
+	for (z=0;z<out->zlen;z++)
 	{
 		out->zmesh[z]=in->zmesh[z];
-		out->dzmesh[z]=in->dzmesh[z];
+		out->dz[z]=in->dz[z];
 	}
 
 	out->srh_bands=in->srh_bands;
 }
+
+void dim_info_to_buf(struct dat_file *buf,struct dimensions *dim)
+{
+	long double mul_x=0.0;
+	long double mul_y=0.0;
+	long double mul_z=0.0;
+
+	get_meter_dim(buf->x_units,&mul_x,dim->xmesh[dim->xlen-1]);
+	get_meter_dim(buf->y_units,&mul_y,dim->ymesh[dim->ylen-1]);
+	get_meter_dim(buf->z_units,&mul_z,dim->zmesh[dim->zlen-1]);
+	buf->y_mul=mul_y;
+	buf->x_mul=mul_x;
+	buf->z_mul=mul_z;
+
+	strcpy(buf->x_label,_("x-position"));
+	strcpy(buf->y_label,_("y-position"));
+	strcpy(buf->z_label,_("z-position"));
+
+	buf->x=dim->xlen;
+	buf->y=dim->ylen;
+	buf->z=dim->zlen;
+
+	buf->logscale_x=0;
+	buf->logscale_y=0;
+
+}
+
+
+
 

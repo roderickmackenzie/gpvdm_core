@@ -125,7 +125,7 @@ rhored_tot=0.0;
 if (rhored_tot>max) max=rhored_tot;
 //getchar();
 hf+=hf_step;
-printf_log(sim,"%Le\n",hf);
+//printf_log(sim,"%Le\n",hf);
 }while(hf<2.0);
 
 hf=0;
@@ -147,7 +147,7 @@ rhored_tot=0.0;
 //getchar();
 fprintf(qe,"%Le %Le\n",hf,rhored_tot/max);
 hf+=hf_step;
-printf_log(sim,"%Le\n",hf);
+//printf_log(sim,"%Le\n",hf);
 }while(hf<2.0);
 
 fclose(qe);
@@ -202,7 +202,7 @@ fclose(out);
 
 void gen_do(struct simulation *sim,struct dosconfig *in,struct dosconfig *in2,char * outfile,int electrons,int mat)
 {
-char name[100];
+char name[200];
 char temp[1000];
 gdouble tstart=0.0;
 gdouble tstop=0.0;
@@ -253,7 +253,7 @@ long double sum_r=0.0;
 long double pos=0.0;
 struct dos_an_data my_dos_an;
 
-#define dos_test_stats
+//#define dos_test_stats
 #ifdef dos_test_stats
 FILE *freetest;
 if (electrons==TRUE)
@@ -763,7 +763,7 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 		#ifdef dos_test_stats
 			if ((x%100)==0)
 			{
-				printf("%d\n",x);
+				//printf("%d\n",x);
 				if (electrons==TRUE)
 				{
 					freetest=fopen("freetestn.dat","a");
@@ -920,10 +920,10 @@ void gen_load_dos(struct simulation *sim,int mat,struct epitaxy *my_epitaxy)
 char file_name[100];
 char temp[100];
 char full_name[100];
-strcpy(confige[mat].dos_name,(my_epitaxy->dos_file[mat]));
+strcpy(confige[mat].dos_name,(my_epitaxy->layer[mat].dos_file));
 strcpy(confige[mat].analytical_dos_file_name,(my_epitaxy->lumo_file[mat]));
 
-strcpy(configh[mat].dos_name,(my_epitaxy->dos_file[mat]));
+strcpy(configh[mat].dos_name,(my_epitaxy->layer[mat].dos_file));
 strcpy(configh[mat].analytical_dos_file_name,(my_epitaxy->homo_file[mat]));
 
 
@@ -1117,7 +1117,7 @@ inp_free(sim,&inp);
 
 void gen_dos_fd_gaus_fd(struct simulation *sim)
 {
-char name[100];
+char name[200];
 char full_name[1000];
 int matnumber=0;
 
@@ -1153,7 +1153,7 @@ for (mat=0;mat<matnumber;mat++)
 	problem_with_dos=FALSE;
 
 
-	sprintf(name,"%s.inp",my_epitaxy.dos_file[mat]);
+	sprintf(name,"%s.inp",my_epitaxy.layer[mat].dos_file);
 	join_path(2, full_name,get_input_path(sim),name);
 
 	if (checksum_check(sim,full_name)==FALSE)
@@ -1161,14 +1161,14 @@ for (mat=0;mat<matnumber;mat++)
 		problem_with_dos=TRUE;
 	}
 
-	sprintf(name,"%s_dosn.dat",my_epitaxy.dos_file[mat]);
+	sprintf(name,"%s_dosn.dat",my_epitaxy.layer[mat].dos_file);
 	join_path(3, full_name,get_input_path(sim),"cache",name);
 	if (isfile(full_name)!=0)
 	{
 		problem_with_dos=TRUE;
 	}
 
-	sprintf(name,"%s_dosp.dat",my_epitaxy.dos_file[mat]);
+	sprintf(name,"%s_dosp.dat",my_epitaxy.layer[mat].dos_file);
 	join_path(3, full_name,get_input_path(sim),"cache",name);
 	if (isfile(full_name)!=0)
 	{
@@ -1186,7 +1186,7 @@ for (mat=0;mat<matnumber;mat++)
 
 	if (confige[mat].dostype==dos_read)
 	{
-		sprintf(name,"%s_srhbandn.inp",my_epitaxy.dos_file[mat]);
+		sprintf(name,"%s_srhbandn.inp",my_epitaxy.layer[mat].dos_file);
 		join_path(2, full_name,get_input_path(sim),name);
 		if (checksum_check(sim,full_name)==FALSE)
 		{
@@ -1194,7 +1194,7 @@ for (mat=0;mat<matnumber;mat++)
 			launch_server=TRUE;
 		}
 
-		sprintf(name,"%s_srhbandp.inp",my_epitaxy.dos_file[mat]);
+		sprintf(name,"%s_srhbandp.inp",my_epitaxy.layer[mat].dos_file);
 		join_path(2, full_name,get_input_path(sim),name);
 		if (checksum_check(sim,full_name)==FALSE)
 		{
@@ -1236,19 +1236,19 @@ for (mat=0;mat<matnumber;mat++)
 
 		pick_dump();
 
-		sprintf(name,"%s.inp",my_epitaxy.dos_file[mat]);
+		sprintf(name,"%s.inp",my_epitaxy.layer[mat].dos_file);
 		join_path(2, full_name,get_input_path(sim),name);
 		if (file_dos==TRUE) checksum_write(sim,full_name);
 
 
 		if (confige[mat].dostype==dos_read)
 		{
-			sprintf(name,"%s_srhbandn.inp",my_epitaxy.dos_file[mat]);
+			sprintf(name,"%s_srhbandn.inp",my_epitaxy.layer[mat].dos_file);
 			safe_file(name);
 			join_path(2, full_name,get_input_path(sim),name);
 			if (file_bandn==TRUE) checksum_write(sim,full_name);
 
-			sprintf(name,"%s_srhbandp.inp",my_epitaxy.dos_file[mat]);
+			sprintf(name,"%s_srhbandp.inp",my_epitaxy.layer[mat].dos_file);
 			safe_file(name);
 			join_path(2, full_name,get_input_path(sim),name);
 			if (file_bandp==TRUE) checksum_write(sim,full_name);

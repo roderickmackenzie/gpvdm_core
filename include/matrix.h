@@ -20,14 +20,34 @@
 // 
 // 
 
-/** @file fit_sin.h
-@brief Fit a sin wave to some data.
+/** @file matrix.h
+	@brief matrix file
 */
 
-#ifndef _fit_sin
-#define _fit_sin
+#ifndef matrix_h
+#define matrix_h
 
-void fit_sin(struct simulation *sim,gdouble *ret_mag,gdouble *ret_delta,struct istruct *in,gdouble fx,char * prefix);
+struct matrix
+{
+	//solver
+	int nz;
+	int nz_max;
+	int M;
+	int *Ti;			//row
+	int *Tj;			//col
+	long double *Tx;	//data
+	long double *Txz;
+
+	long double *b;
+	long double *bz;
+
+	char** Tdebug;
+
+	int use_cache;
+	char hash[256];
+	char cache_file_path[PATH_MAX];
+	int ittr;
+	int complex_matrix;
+};
 
 #endif
-

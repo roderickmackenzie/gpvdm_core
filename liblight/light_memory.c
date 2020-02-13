@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 
 /** @file light_memory.c
@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "light.h"
 #include "device.h"
 #include "config.h"
@@ -34,172 +34,188 @@
 #include "lang.h"
 #include "log.h"
 #include <light_fun.h>
+#include <matrix.h>
+#include <memory.h>
+#include <device_fun.h>
+
 
 static int unused __attribute__((unused));
 
-void light_memory(struct simulation *sim,struct light *in)
+void light_init(struct light *li)
+{
+	struct dim_light *dim=&(li->dim);
+	li->last_Psun= -1000.0;
+	li->last_laser_eff= -1000.0;
+	li->last_wavelength_laser= -1000.0;
+	li->laser_wavelength= -1.0;
+	li->laser_pos= -1;
+	li->laser_wavelength= -1.0;
+	li->lstart= -1.0;
+	li->spotx= -1.0;
+	li->spoty= -1.0;
+	li->pulseJ= -1.0;
+	li->pulse_width= -1.0;
+	li->G_percent=NULL;
+	li->disable_cal_photon_density=FALSE;
+	li->finished_solveing=FALSE;
+	li->print_wavlengths=TRUE;
+	li->save_data_to_disk=TRUE;
+
+	li->Ep=NULL;
+	li->Epz=NULL;
+	li->En=NULL;
+	li->Enz=NULL;
+	li->n=NULL;
+	li->alpha0=NULL;
+	li->alpha=NULL;
+	li->photons=NULL;
+	li->photons_asb=NULL;
+	li->pointing_vector=NULL;
+	li->E_tot_r=NULL;
+	li->E_tot_i=NULL;
+	li->H=NULL;
+	li->Gn=NULL;
+	li->Gp=NULL;
+
+	//long double complex
+	li->t=NULL;
+	li->r=NULL;
+	li->nbar=NULL;
+
+	li->Htot=NULL;
+	li->photons_tot=NULL;
+
+	li->sun_E=NULL;
+	li->sun=NULL;
+	li->sun_norm=NULL;
+	li->sun_photons=NULL;
+	li->reflect=NULL;
+	li->transmit=NULL;
+	li->extract_eff=NULL;
+
+	dim_light_init(dim);
+	matrix_init(&(li->mx));
+}
+
+void light_malloc(struct simulation *sim,struct light *li)
 {
 printf_log(sim,"alloc: light_memory\n");
-int i;
+	int l=0;
+	struct dim_light *dim=&(li->dim);
+	struct matrix *mx=&(li->mx);
 
-	if (in->align_mesh==FALSE)
+	dim_light_malloc(dim);
+
+	//long double zxyl
+	malloc_light_zxyl_long_double(dim,&(li->Ep));
+	malloc_light_zxyl_long_double(dim,&(li->Epz));
+	malloc_light_zxyl_long_double(dim,&(li->En));
+	malloc_light_zxyl_long_double(dim,&(li->Enz));
+	malloc_light_zxyl_long_double(dim,&(li->n));
+	malloc_light_zxyl_long_double(dim,&(li->alpha0));
+	malloc_light_zxyl_long_double(dim,&(li->alpha));
+	malloc_light_zxyl_long_double(dim,&(li->photons));
+	malloc_light_zxyl_long_double(dim,&(li->photons_asb));
+	malloc_light_zxyl_long_double(dim,&(li->pointing_vector));
+	malloc_light_zxyl_long_double(dim,&(li->E_tot_r));
+	malloc_light_zxyl_long_double(dim,&(li->E_tot_i));
+	malloc_light_zxyl_long_double(dim,&(li->H));
+
+
+	//long double zxy
+	malloc_light_zxy_long_double(dim,&(li->Gn));
+	malloc_light_zxy_long_double(dim,&(li->Gp));
+	malloc_light_zxy_long_double(dim,&(li->Htot));
+	malloc_light_zxy_long_double(dim,&(li->photons_tot));
+
+	//long double complex
+	malloc_light_zxyl_long_double_complex(dim,&(li->t));
+	malloc_light_zxyl_long_double_complex(dim,&(li->r));
+	malloc_light_zxyl_long_double_complex(dim,&(li->nbar));
+
+	//zxy_p_object
+	malloc_light_zxy_p_object(dim, &(li->obj));
+
+	malloc_light_l_long_double(dim,&(li->sun_E));
+	malloc_light_l_long_double(dim,&(li->sun));
+	malloc_light_l_long_double(dim,&(li->sun_norm));
+	malloc_light_l_long_double(dim,&(li->sun_photons));
+	malloc_light_l_long_double(dim,&(li->reflect));
+	malloc_light_l_long_double(dim,&(li->transmit));
+	malloc_light_l_long_double(dim,&(li->extract_eff));
+
+	for (l=0;l<dim->llen;l++)
 	{
-		in->dx=in->ylen/((gdouble)in->points);
-	}else
-	{
-		in->points=(int)(in->ylen/in->dx);
+		li->extract_eff[l]=1.0;
 	}
 
-	in->print_wavlengths=TRUE;
-	in->save_data_to_disk=TRUE;
-	in->x=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->H1d=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->l=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->Gn=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->Gp=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->photons_tot=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->sun=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->layer_end=(gdouble *)malloc(in->points*sizeof(gdouble));
-	in->sun_norm=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->sun_photons=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->sun_E=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->En=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->Enz=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->Ep=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->Epz=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->photons_asb=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->H=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->alpha=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->alpha0=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->photons=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->pointing_vector=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->E_tot_r=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->E_tot_i=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->n=(gdouble **)malloc(in->lpoints*sizeof(gdouble*));
-	in->t=(gdouble complex **)malloc(in->lpoints*sizeof(gdouble complex *));
-	in->r=(gdouble complex **)malloc(in->lpoints*sizeof(gdouble complex *));
-	in->nbar=(gdouble complex **)malloc(in->lpoints*sizeof(gdouble complex *));
-	for (i=0;i<in->lpoints;i++)
-	{
-		in->En[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->Enz[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->Ep[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->Epz[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->photons_asb[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->alpha[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->alpha0[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->photons[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->pointing_vector[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->E_tot_r[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->E_tot_i[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->n[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
-		in->t[i]=(gdouble complex *)malloc(in->points*sizeof(gdouble complex));
-		in->r[i]=(gdouble complex *)malloc(in->points*sizeof(gdouble complex));
-		in->nbar[i]=(gdouble complex *)malloc(in->points*sizeof(gdouble complex));
-		in->H[i]=(gdouble *)malloc(in->points*sizeof(gdouble));
+	//sort out the matrix
+	mx->nz=0.0;
+	mx->nz+=dim->ylen;
+	mx->nz+=dim->ylen-1;
+	mx->nz+=dim->ylen;
 
-	}
+	mx->nz+=dim->ylen-1;
+	mx->nz+=dim->ylen; //t
+	mx->nz+=dim->ylen-1;
+	//li->N+=1;
+	mx->M=dim->ylen+dim->ylen;
+	mx->complex_matrix=TRUE;
+	matrix_malloc(sim,mx);
 
-	in->reflect=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-	in->transmit=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-
-	in->extract_eff=(gdouble *)malloc(in->lpoints*sizeof(gdouble));
-
-	for (i=0;i<in->lpoints;i++)
-	{
-		in->extract_eff[i]=1.0;
-	}
-	
-	in->layer=(int *)malloc(in->points*sizeof(int));
-
-	in->N=0.0;
-	in->N+=in->points;
-	in->N+=in->points-1;
-	in->N+=in->points;
-
-	in->N+=in->points-1;
-	in->N+=in->points; //t
-	in->N+=in->points-1;
-	//in->N+=1;
-	in->M=in->points+in->points;
-	in->Ti=malloc(in->N*sizeof(int));
-	in->Tj= malloc(in->N*sizeof(int));
-	in->Tx=malloc(in->N*sizeof(double));
-	in->Txz=malloc(in->N*sizeof(double));
-	in->b=malloc(in->M*sizeof(double));
-	in->bz=malloc(in->M*sizeof(double));
 }
 
 
 
-void light_free_memory(struct simulation *sim,struct light *in)
+void light_free_memory(struct simulation *sim,struct light *li)
 {
+	struct dim_light *dim=&(li->dim);
+	struct matrix *mx=&(li->mx);
 
-	light_free_epitaxy(in);
+	//long double zxyl
+	free_light_zxyl_long_double(dim,&(li->Ep));
+	free_light_zxyl_long_double(dim,&(li->Epz));
+	free_light_zxyl_long_double(dim,&(li->En));
+	free_light_zxyl_long_double(dim,&(li->Enz));
+	free_light_zxyl_long_double(dim,&(li->n));
+	free_light_zxyl_long_double(dim,&(li->alpha0));
+	free_light_zxyl_long_double(dim,&(li->alpha));
+	free_light_zxyl_long_double(dim,&(li->photons));
+	free_light_zxyl_long_double(dim,&(li->photons_asb));
+	free_light_zxyl_long_double(dim,&(li->pointing_vector));
+	free_light_zxyl_long_double(dim,&(li->E_tot_r));
+	free_light_zxyl_long_double(dim,&(li->E_tot_i));
+	free_light_zxyl_long_double(dim,&(li->H));
 
-	int i;
-	free(in->H1d);
-	free(in->x);
-	free(in->layer_end);
+	//long double zxy
+	free_light_zxy_long_double(dim,&(li->Gn));
+	free_light_zxy_long_double(dim,&(li->Gp));
+	free_light_zxy_long_double(dim,&(li->Htot));
+	free_light_zxy_long_double(dim,&(li->photons_tot));
 
-	for (i=0;i<in->lpoints;i++)
-	{
-		free(in->En[i]);
-		free(in->Enz[i]);
-		free(in->Ep[i]);
-		free(in->Epz[i]);
+	//long double complex
+	free_light_zxyl_long_double_complex(dim,&(li->t));
+	free_light_zxyl_long_double_complex(dim,&(li->r));
+	free_light_zxyl_long_double_complex(dim,&(li->nbar));
 
-		free(in->photons_asb[i]);
-		free(in->alpha[i]);
-		free(in->alpha0[i]);
-		free(in->photons[i]);
-		free(in->pointing_vector[i]);
-		free(in->E_tot_r[i]);
-		free(in->E_tot_i[i]);
-		free(in->n[i]);
-		free(in->t[i]);
-		free(in->r[i]);
-		free(in->nbar[i]);
-		free(in->H[i]);
-	}
+	//zxy_p_object
+	free_light_zxy_p_object(dim, &(li->obj));
+
+	//long double
+	free_light_l_long_double(dim,&(li->sun_E));
+	free_light_l_long_double(dim,&(li->sun));
+	free_light_l_long_double(dim,&(li->sun_norm));
+	free_light_l_long_double(dim,&(li->sun_photons));
+	free_light_l_long_double(dim,&(li->reflect));
+	free_light_l_long_double(dim,&(li->transmit));
+	free_light_l_long_double(dim,&(li->extract_eff));
+
+/////////////
+	matrix_free(sim,mx);
 
 
-	free(in->t);
-	free(in->r);
-	free(in->nbar);
-	free(in->En);
-	free(in->Enz);
-	free(in->Ep);
-	free(in->Epz);
-	free(in->photons_asb);
-	free(in->alpha);
-	free(in->alpha0);
-	free(in->photons);
-	free(in->pointing_vector);
-	free(in->E_tot_r);
-	free(in->E_tot_i);
-	free(in->n);
-	free(in->H);
-	free(in->reflect);
-	free(in->transmit);
-	free(in->extract_eff);
-
-	free(in->sun);
-	free(in->sun_norm);
-	free(in->sun_photons);
-	free(in->sun_E);
-	free(in->Gn);
-	free(in->Gp);
-	free(in->photons_tot);
-	free(in->layer);
-	free(in->Ti);
-	free(in->Tj);
-	free(in->Tx);
-	free(in->Txz);
-	free(in->b);
-	free(in->bz);
-	free(in->l);
-	inter_free(&(in->sun_read));
+	inter_free(&(li->sun_read));
+	dim_light_free(dim);
 
 	printf_log(sim,_("Freeing memory from the optical model\n"));
 }

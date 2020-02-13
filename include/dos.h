@@ -46,7 +46,6 @@ long double get_dp_pop_srh(struct simulation *sim,struct device *in,long double 
 void load_dos(struct simulation *sim,struct device *dev,char *namen, char *namep,int mat);
 long double get_dn_trap_den(long double top,long double T,int type,int band, int mat);
 long double get_dp_trap_den(long double top,long double T,int type, int mat);
-int search(long double *x,int N,long double find);
 long double get_n_srh(struct simulation *sim,struct device *in,long double top,long double T,int trap,int r, int mat);
 long double get_dn_srh(struct simulation *sim,struct device *in,long double top,long double T,int trap,int r, int mat);
 long double get_p_srh(struct simulation *sim,struct device *in,long double top,long double T,int trap,int r, int mat);

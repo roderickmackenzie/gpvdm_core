@@ -40,6 +40,7 @@ struct jv
 	long double jv_Rshunt;
 	long double jv_Rcontact;
 	int jv_single_point;
+	int dump_verbocity;
 };
 
 void sim_jv(struct simulation *sim,struct device *in);

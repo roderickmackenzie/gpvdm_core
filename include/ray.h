@@ -32,6 +32,10 @@
 #include <triangle.h>
 #include <dim.h>
 #include <shape_struct.h>
+#include <object.h>
+
+
+#include <pthread.h>
 
 #define WAIT 0
 #define READY 1
@@ -48,47 +52,38 @@ struct ray
 	struct vec dir;
 	int state;
 	int bounce;
-	int xy_obj_uid;
+	int obj_uid_start;		//The ray started in
 	int parent;
 	int uid;
 	double mag;
 };
 
-struct object
+
+struct ray_worker
 {
-	int epi_layer;
-	int shape_number;
-	char name[100];
-	double n;
-	int uid;
-	double alpha;
-	struct triangles tri;
-	struct vec min;
-	struct vec max;
-	struct shape* s;		//This is a poinnter to the origonal shape which generated the object
+	struct ray *rays;
+	int nrays;
+	int nray_max;
+	int top_of_done_rays;
+	int l;
+	int working;
+	pthread_t thread;
+	int worker_n;
 };
 
 struct image
 {
-	int start_of_shapes;
-	int triangles;
-	struct ray *rays;
-	int nrays;
-	int nray_max;
-	struct object obj[1000];
+	int worker_max;
+	struct ray_worker *worker;
 
-	int objects;
 	struct vec start_rays[100];
 	int n_start_rays;
-	int top_of_done_rays;
 
 	double y_escape_level;
 	long double *angle;
 	long double **ang_escape;
 	int ray_wavelength_points;
 	double *lam;
-	double cur_lam;
-	int ray_auto_run;
 	int escape_bins;
 	double ray_xsrc;
 	double ray_ysrc;
@@ -112,7 +107,16 @@ struct image
 	int viewpoint_enabled;
 	double viewpoint_size;
 	double viewpoint_dz;
-	long double **viewpoint_image;
+	long double ***viewpoint_image;
+
+	//benchmarking
+	int tot_rays;
+	double start_time;
+
+	//run control
+	int ray_auto_run;
+	int ray_emission_source;
+
 };
 
 

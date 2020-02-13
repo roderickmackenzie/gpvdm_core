@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file cal_path.c
 	@brief Calculate the path of where stuff is, and if it can't find a file look harder.  Win/Linux.
@@ -36,7 +36,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdarg.h>
-#include <const.h>
+#include <gpvdm_const.h>
 
 
 #include <limits.h>
@@ -78,7 +78,7 @@ if (isfile(lib_path)==0)
 {
 	return 0;
 }
-	
+
 struct dirent *next_file;
 DIR *theFolder;
 
@@ -96,7 +96,7 @@ if (theFolder!=NULL)
 				closedir (theFolder);
 				return 0;
 			}
-				
+
 		}
 	}
 
@@ -197,14 +197,14 @@ char temp[PATH_MAX];
 		strcpy(out,temp);
 		return;
 	}
-	
+
 	join_path(2,temp,"/usr/share/gpvdm/",name);
 	if (isdir(temp)==0)
 	{
 		strcpy(out,temp);
 		return;
 	}
- 
+
 	//Ubuntu
 	join_path(2,temp,"/usr/lib/x86_64-linux-gnu/gpvdm/",name);
 	if (isdir(temp)==0)
@@ -219,7 +219,7 @@ char temp[PATH_MAX];
 		strcpy(out,temp);
 		return;
 	}
-	
+
 	if ((strcmp(name,"settings.inp")!=0)&&(strcmp(name,"info.inp")!=0))
 	{
 		ewe(sim,"I can't find the %s\n",name);
@@ -246,7 +246,7 @@ void get_file_name_from_path(char *out,char *in)
 			return;
 		}
 	}
-	
+
 }
 
 int is_dir_in_path(char *long_path, char* search_dir)
@@ -308,7 +308,7 @@ void get_nth_dir_name_from_path(char *out,char *in,int n)
 			}
 		}
 	}
-	
+
 }
 void cal_path(struct simulation *sim)
 {

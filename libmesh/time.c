@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file time.c
 	@brief Meshing in time domain.
@@ -33,7 +33,7 @@
 #include <contacts.h>
 #include <log.h>
 #include <light_fun.h>
-
+#include <circuit.h>
 
 static int unused __attribute__((unused));
 
@@ -210,11 +210,11 @@ int z;
 int band;
 struct dimensions *dim=&in->ns.dim;
 
-for (z=0;z<dim->zmeshpoints;z++)
+for (z=0;z<dim->zlen;z++)
 {
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
-		for (y=0;y<dim->ymeshpoints;y++)
+		for (y=0;y<dim->ylen;y++)
 		{
 			in->nlast[z][x][y]=in->n[z][x][y];
 			in->plast[z][x][y]=in->p[z][x][y];
@@ -231,6 +231,7 @@ for (z=0;z<dim->zmeshpoints;z++)
 }
 
 contacts_time_step(sim,in);
+circuit_time_step(sim,&(in->cir));
 in->VCext_last=in->VCext;
 in->Ilast=get_I(in);
 }

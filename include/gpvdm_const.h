@@ -20,12 +20,12 @@
 // 
 // 
 
-/** @file const.h
+/** @file gpvdm_const.h
 	@brief Physical constants.
 */
 
-#ifndef h_const
-#define h_const
+#ifndef h_gpvdm_const
+#define h_gpvdm_const
 
 //Physical constants
 #define STR_MAX	1024
@@ -77,11 +77,10 @@
 #define tpv_mode_sun 1
 
 //sim modes
-#define pulse_open_circuit 0
-#define pulse_load 1
-#define pulse_ideal_diode_ideal_load 2
-#define fxdomain_open_circuit 0
-#define fxdomain_load 1
+#define IDEAL_DIODE_IDEAL_LOAD 2
+#define LOAD 1
+#define OPEN_CIRCUIT 0
+
 
 //dump control
 #define dump_optics 1
@@ -112,11 +111,13 @@
 #define dump_optical_probe_spectrum 29
 #define dump_ray_trace_map 31
 #define dump_file_access_log 32
-#define dump_fx 33
 #define dump_use_cache 34
 #define dump_write_headers 37
 #define dump_remove_dos_cache 38
 
+//Atempt to put output in files
+#define dump_verbosity_key_results	0	
+#define dump_verbosity_everything		1
 //dos types
 #define dos_exp		0
 #define dos_an		1
@@ -134,6 +135,26 @@
 #define contact_ohmic 0
 #define contact_schottky 1
 
+//Ray tracer
+#define ray_run_never	0
+#define ray_run_once    1
+#define ray_run_step	2
+#define RAY_SIM_EDGE	0
+#define RAY_VIEWPOINT	1
+#define RAY_OBJECT		2
+#define ray_emission_single_point 0
+#define ray_emission_electrical_mesh 1
+
+
+#define measure_voltage		0
+#define measure_current		1
+
+#define LAYER_ACTIVE 	0
+#define LAYER_CONTACT 	1
+#define LAYER_OTHER		2
+
+
 		#include <linux/limits.h>
+
 
 #endif

@@ -30,7 +30,7 @@
 #include <sim_struct.h>
 #include <i_struct.h>
 
-void inter_alloc(struct istruct* in,int len);
+void inter_malloc(struct istruct* in,int len);
 void inter_realloc(struct istruct* in,int len);
 int inter_get_col_n(struct simulation *sim,char *name);
 void inter_add_to_hist(struct istruct* in,gdouble pos,gdouble value);
@@ -54,7 +54,6 @@ gdouble inter_sum_mod(struct istruct* in);
 void inter_set_value(struct istruct* in,gdouble value);
 gdouble inter_get_neg(struct istruct* in,gdouble x);
 gdouble inter_get_noend(struct istruct* in,gdouble x);
-void inter_new(struct istruct* in,int len);
 void inter_to_new_mesh(struct istruct* in,struct istruct* out);
 void inter_swap(struct istruct* in);
 void inter_log_y_m(struct istruct* in);
@@ -108,5 +107,4 @@ void inter_find_peaks(struct istruct* out,struct istruct* in,int find_max);
 void inter_sin(struct istruct *in,gdouble mag,gdouble fx,gdouble delta);
 void inter_purge_x_zero(struct istruct* in);
 int inter_search_token(struct simulation *sim,long double *value,char *token,char *name);
-void inter_alloc(struct istruct* in,int len);
 #endif

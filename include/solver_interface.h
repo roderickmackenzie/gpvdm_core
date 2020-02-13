@@ -18,8 +18,7 @@
 // more details.
 // 
 // 
-// 
-
+//
 /** @file solver_interface.h
 @brief an interface load and run sparse solvers from various dlls.
 */
@@ -29,8 +28,10 @@
 #include <sim_struct.h>
 #include <device.h>
 void solver_init(struct simulation *sim,char *solver_name);
-void solver(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *Tx,long double *b);
 void dump_matrix(struct simulation *sim,struct device *in);
 void solver_free(struct simulation *sim);
+
+void test_complex_solver_init(struct simulation *sim,char *solver_name);
+void test_complex_solver_free(struct simulation *sim);
 
 #endif

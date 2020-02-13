@@ -20,27 +20,21 @@
 // 
 // 
 
-/** @file newton.h
-@brief newton solver plugin which uses slotboom vars.
+/** @file lib.h
+@brief umfpack plugin solver header file
 */
 
 
-
-#ifndef h_newton
-#define h_newton
+#ifndef h_complex_solver_lib
+#define h_complex_solver_lib
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <device.h>
+#include <sim_struct.h>
 
-void dllinternal_newton_set_min_ittr(int ittr);
-void update_solver_vars(struct simulation *sim,struct device *in,int clamp, int z, int x);
-void fill_matrix(struct simulation *sim,struct device *in, int z, int x);
-gdouble get_cur_error(struct simulation *sim, struct device *in);
-gdouble get_abs_error(struct device *in);
-void solver_cal_memory(struct device *in,int *ret_N,int *ret_M,int dim);
-void dllinternal_solver_free_memory(struct device *in);
-int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x);
-void dllinternal_solver_realloc(struct simulation *sim,struct device *in, int dim);
+int complex_umfpack_solver(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *Tx, long double *Txz,long double *b,long double *lbz);
+void complex_umfpack_solver_free(struct simulation *sim);
+
+
 #endif

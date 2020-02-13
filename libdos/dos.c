@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file dos.c
 	@brief Reads in the DoS files but does not generate them, also deals with interpolation.
@@ -49,11 +49,11 @@ long double n_tot_den=0.0;
 
 struct dimensions *dim=&(in->ns.dim);
 
-for (z=0;z<dim->zmeshpoints;z++)
+for (z=0;z<dim->zlen;z++)
 {
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
-		for (y=0;y<dim->ymeshpoints;y++)
+		for (y=0;y<dim->ylen;y++)
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{
@@ -79,11 +79,11 @@ long double p_tot=0.0;
 long double p_tot_den=0.0;
 struct dimensions *dim=&(in->ns.dim);
 
-for (z=0;z<dim->zmeshpoints;z++)
+for (z=0;z<dim->zlen;z++)
 {
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
-		for (y=0;y<dim->ymeshpoints;y++)
+		for (y=0;y<dim->ylen;y++)
 		{
 			for (band=0;band<dim->srh_bands;band++)
 			{

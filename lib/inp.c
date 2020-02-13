@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file inp.c
 	@brief Input file interface, files can be in .gpvdm files or stand alone files.
@@ -35,7 +35,7 @@
 #include "inp.h"
 #include "util.h"
 #include "code_ctrl.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include <log.h>
 #include <cal_path.h>
 #include "lock.h"
@@ -167,6 +167,8 @@ int i=0;
 int found=FALSE;
 char sim_name[256];
 struct inp_file inp;
+inp_init(sim,&inp);
+
 struct list a;
 inp_listdir(sim,dir_name,&a);
 
@@ -175,17 +177,32 @@ inp_listdir(sim,dir_name,&a);
 	{
 		if ((strcmp(a.names[i],".")!=0)&&(strcmp(a.names[i],"..")!=0))
 		{
+			//printf(">>%s %d\n",a.names[i],strlen(a.names[i]));
 			if ((cmpstr_min(a.names[i],start_of_name)==0)&&(strcmp_end(a.names[i],".inp")==0))
 			{
-				inp_init(sim,&inp);
-				inp_load_from_path(sim,&inp,dir_name,a.names[i]);
-				inp_search_string(sim,&inp,sim_name,"#sim_menu_name");
-				inp_free(sim,&inp);
-				if (strcmp(sim_name,search_name)==0)
+
+				if (inp_load_from_path(sim,&inp,dir_name,a.names[i])==0)
 				{
-					strcpy(ret,a.names[i]);
-					found=TRUE;
-					break;
+					//printf(">>loaded\n");
+
+					strcmp(sim_name,"");
+
+					if (inp_is_token(sim,&inp,"#sim_menu_name")==0)
+					{
+						inp_search_string(sim,&inp,sim_name,"#sim_menu_name");
+					}
+
+					inp_free(sim,&inp);
+					//printf(">>freed\n");
+
+					if (strcmp(sim_name,search_name)==0)
+					{
+						strcpy(ret,a.names[i]);
+						found=TRUE;
+						break;
+					}
+
+
 				}
 
 			}
@@ -287,7 +304,7 @@ int zip_is_in_archive(char *full_file_name)
 		{
 		 	return -1;
 		}
-		
+
 		return 0;
 	}else
 	{
@@ -545,48 +562,6 @@ void inp_replace(struct simulation *sim,struct inp_file *in,char *token, char *t
 inp_replace_offset(sim,in,token, text,0);
 }
 
-int get_line(char *out,char *data,int len,int *pos)
-{
-	out[0]=0;
-	//printf("%s\n",data);
-	int i=0;
-	if (*pos>=len)
-	{
-		return -1;
-	}
-
-		//printf("pos = %d\n",*pos);
-		//getchar();
-	while(*pos<len)
-	{
-		if ((data[*pos]=='\n')||(data[*pos]=='\r')||(data[*pos]==0))
-		{
-			out[i]=0;
-
-			if (data[*pos]=='\r')
-			{
-				(*pos)++;
-			}
-
-			if (*pos<len)
-			{
-				if (data[*pos]=='\n')
-				{
-					(*pos)++;
-				}
-			}
-			break;
-		}
-
-		out[i]=data[*pos];
-		out[i+1]=0;
-		i++;
-		(*pos)++;
-
-	}
-
-return 0;
-}
 
 void inp_replace_offset(struct simulation *sim,struct inp_file *in,char *token, char *text,int offset)
 {
@@ -704,7 +679,7 @@ if ((in_zip_file!=0)||(outside_zip_file==0))
 	zip_close(z);
 
 	z = zip_open(zip_path, 0, &err);
-	
+
 	if(!z || err != ZIP_ER_OK)
 	{
 		exit(0);
@@ -751,7 +726,7 @@ if ((in_zip_file!=0)||(outside_zip_file==0))
 
 
 
-		
+
 	}else
 	{
 		ewe(sim,"zip write error");
@@ -889,6 +864,16 @@ if (inp_search(sim,temp,in,token)==0)
 ewe(sim,"token %s not found in file %s\n",token,in->full_name);
 }
 
+int inp_is_token(struct simulation *sim,struct inp_file *in,char* token)
+{
+	char out[100];
+	if (inp_search(sim,out,in,token)==0)
+	{
+		return 0;
+	}
+	return -1;
+}
+
 void inp_search_string(struct simulation *sim,struct inp_file *in,char* out,char* token)
 {
 if (inp_search(sim,out,in,token)==0)
@@ -921,7 +906,7 @@ void inp_check(struct simulation *sim,struct inp_file *in,double ver)
 			if (ver!=read_ver)
 			{
 				ewe(sim,"File compatibility problem %s >%s< >%s< >%lf<\n",in->full_name,in->data,line,ver);
-				
+
 			}
 			ret=get_line(line,in->data,in->fsize,&pos);
 

@@ -41,7 +41,44 @@
 
 static int unused __attribute__((unused));
 
+void device_load_math_config(struct simulation *sim,struct device *in)
+{
+	char temp[100];
+	struct inp_file inp;
 
+	inp_init(sim,&inp);
+	inp_load_from_path(sim,&inp,get_input_path(sim),"math.inp");
+	inp_check(sim,&inp,1.50);
+	inp_search_int(sim,&inp,&(in->max_electrical_itt0),"#maxelectricalitt_first");
+	inp_search_gdouble(sim,&inp,&(in->electrical_clamp0),"#electricalclamp_first");
+	inp_search_gdouble(sim,&inp,&(in->electrical_error0),"#math_electrical_error_first");
+
+	inp_search_string(sim,&inp,temp,"#math_enable_pos_solver");
+	in->math_enable_pos_solver=english_to_bin(sim,temp);
+
+	inp_search_int(sim,&inp,&(in->max_electrical_itt),"#maxelectricalitt");
+	inp_search_gdouble(sim,&inp,&(in->electrical_clamp),"#electricalclamp");
+	inp_search_gdouble(sim,&inp,&(in->posclamp),"#posclamp");
+	inp_search_gdouble(sim,&inp,&(in->min_cur_error),"#electricalerror");
+	inp_search_int(sim,&inp,&(in->newton_clever_exit),"#newton_clever_exit");
+	inp_search_int(sim,&inp,&(in->newton_min_itt),"#newton_min_itt");
+	inp_search_int(sim,&inp,&(in->remesh),"#remesh");
+	inp_search_int(sim,&inp,&(in->newmeshsize),"#newmeshsize");
+	inp_search_int(sim,&inp,&(in->pos_max_ittr),"#pos_max_ittr");
+	inp_search_int(sim,&inp,&(in->config_kl_in_newton),"#kl_in_newton");
+	inp_search_string(sim,&inp,in->solver_name,"#solver_name");
+	inp_search_string(sim,&inp,in->complex_solver_name,"#complex_solver_name");
+	inp_search_string(sim,&inp,in->newton_name,"#newton_name");
+	inp_search_gdouble(sim,&inp,&(sim->T0),"#math_t0");
+	inp_search_gdouble(sim,&inp,&(sim->D0),"#math_d0");
+	inp_search_gdouble(sim,&inp,&(sim->n0),"#math_n0");
+
+	inp_search_string(sim,&inp,temp,"#math_dynamic_mesh");
+	in->dynamic_mesh=english_to_bin(sim,temp);
+
+	inp_free(sim,&inp);
+
+}
 
 void load_config(struct simulation *sim,struct device *in)
 {
@@ -53,7 +90,6 @@ int i;
 char temp[100];
 
 char device_epitaxy[100];
-char device_file_path[PATH_MAX];
 
 struct inp_file inp;
 inp_init(sim,&inp);
@@ -71,27 +107,6 @@ in->ptrapnewton=TRUE;
 
 inp_free(sim,&inp);
 
-/////////////////////////////////////////
-
-
-join_path(2,device_file_path,get_input_path(sim),"epitaxy.inp");
-
-epitaxy_load(sim,&(in->my_epitaxy),device_file_path);
-
-mesh_obj_load(sim,&(in->mesh_data));
-
-in->ns.dim.zmeshpoints=in->mesh_data.meshdata_z.tot_points;
-in->ns.dim.xmeshpoints=in->mesh_data.meshdata_x.tot_points;
-in->ns.dim.ymeshpoints=in->mesh_data.meshdata_y.tot_points;
-
-device_get_memory(sim,in);
-
-mesh_build(sim,in);
-
-
-mesh_numerate_points(sim,in);
-
-///////////////////////////////
 
 in->ylen=0.0;
 
@@ -111,22 +126,8 @@ in->area=in->xlen*in->zlen;
 inp_search_gdouble(sim,&inp,&(in->Rshort),"#Rshort");
 in->Rshort=fabs(in->Rshort);
 
-inp_search_int(sim,&inp,&(in->interfaceleft),"#interfaceleft");
-inp_search_int(sim,&inp,&(in->interfaceright),"#interfaceright");
-inp_search_gdouble(sim,&inp,&(in->phibleft),"#phibleft");
-inp_search_gdouble(sim,&inp,&(in->phibright),"#phibright");
-
-inp_search_gdouble(sim,&inp,&(in->vl_e),"#vl_e");
-in->vl_e=fabs(in->vl_e);
-
-inp_search_gdouble(sim,&inp,&(in->vl_h),"#vl_h");
-in->vl_h=fabs(in->vl_h);
-
-inp_search_gdouble(sim,&inp,&(in->vr_e),"#vr_e");
-in->vr_e=fabs(in->vr_e);
-
-inp_search_gdouble(sim,&inp,&(in->vr_h),"#vr_h");
-in->vr_h=fabs(in->vr_h);
+//inp_search_int(sim,&inp,&(in->interfaceleft),"#interfaceleft");
+//inp_search_int(sim,&inp,&(in->interfaceright),"#interfaceright");
 
 inp_free(sim,&inp);
 
@@ -148,37 +149,6 @@ in->Rcontact=fabs(in->Rcontact);
 
 inp_free(sim,&inp);
 
-
-inp_init(sim,&inp);
-inp_load_from_path(sim,&inp,get_input_path(sim),"math.inp");
-inp_check(sim,&inp,1.50);
-inp_search_int(sim,&inp,&(in->max_electrical_itt0),"#maxelectricalitt_first");
-inp_search_gdouble(sim,&inp,&(in->electrical_clamp0),"#electricalclamp_first");
-inp_search_gdouble(sim,&inp,&(in->electrical_error0),"#math_electrical_error_first");
-
-inp_search_string(sim,&inp,temp,"#math_enable_pos_solver");
-in->math_enable_pos_solver=english_to_bin(sim,temp);
-
-inp_search_int(sim,&inp,&(in->max_electrical_itt),"#maxelectricalitt");
-inp_search_gdouble(sim,&inp,&(in->electrical_clamp),"#electricalclamp");
-inp_search_gdouble(sim,&inp,&(in->posclamp),"#posclamp");
-inp_search_gdouble(sim,&inp,&(in->min_cur_error),"#electricalerror");
-inp_search_int(sim,&inp,&(in->newton_clever_exit),"#newton_clever_exit");
-inp_search_int(sim,&inp,&(in->newton_min_itt),"#newton_min_itt");
-inp_search_int(sim,&inp,&(in->remesh),"#remesh");
-inp_search_int(sim,&inp,&(in->newmeshsize),"#newmeshsize");
-inp_search_int(sim,&inp,&(in->pos_max_ittr),"#pos_max_ittr");
-inp_search_int(sim,&inp,&(in->config_kl_in_newton),"#kl_in_newton");
-inp_search_string(sim,&inp,in->solver_name,"#solver_name");
-inp_search_string(sim,&inp,in->newton_name,"#newton_name");
-inp_search_gdouble(sim,&inp,&(sim->T0),"#math_t0");
-inp_search_gdouble(sim,&inp,&(sim->D0),"#math_d0");
-inp_search_gdouble(sim,&inp,&(sim->n0),"#math_n0");
-
-inp_search_string(sim,&inp,temp,"#math_dynamic_mesh");
-in->dynamic_mesh=english_to_bin(sim,temp);
-
-inp_free(sim,&inp);
 
 
 inp_init(sim,&inp);

@@ -1,24 +1,24 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
-// 
+//
+//
+//
 
 /** @file device.h
 	@brief The main structure which holds information about the device.
@@ -29,12 +29,15 @@
 #include <stdio.h>
 #include "code_ctrl.h"
 #include "light.h"
-#include "epitaxy.h"
+#include <epitaxy_struct.h>
 #include "advmath.h"
 #include <dos_struct.h>
 #include <contact_struct.h>
 #include <perovskite_struct.h>
+#include <circuit_struct.h>
 #include <dim.h>
+#include <matrix.h>
+#include <shape_struct.h>
 
 struct mesh_layer
 {
@@ -69,7 +72,7 @@ struct solver_cache
 };
 
 
-struct newton_save_state
+struct newton_state
 {
 	struct dimensions dim;
 
@@ -80,14 +83,23 @@ struct newton_save_state
 	long double ***x;
 	long double ***xp;
 
-	long double **x_contact;
-	long double **xp_contact;
-
 	long double ****xt;
 	long double ****xpt;
 
 };
 
+struct newton_state_complex
+{
+	struct dimensions dim;
+
+	long double complex ***phi;
+	long double complex ***x;
+	long double complex ***xp;
+
+	long double complex ****xt;
+	long double complex ****xpt;
+
+};
 
 struct device
 {
@@ -118,23 +130,35 @@ struct device
 		//1D arrays
 
 		//2D arrays
-		gdouble **Vapplied_r;
-		gdouble **Vapplied_l;
+		long double **Vapplied_y0;
+		long double **Vapplied_y1;
+		long double **Vapplied_x0;
+		long double **Vapplied_x1;
 
+		int **passivate_y0;
+		int **passivate_y1;
+		int **passivate_x0;
+		int **passivate_x1;
 
-		int **passivate_r;
-		int **passivate_l;
-		
-		int **n_contact_r;
-		int **n_contact_l;
-		gdouble **Jnleft;
-		gdouble **Jnright;
-		gdouble **Jpleft;
-		gdouble **Jpright;
+		int **n_contact_y0;
+		int **n_contact_y1;
+		int **n_contact_x0;
+		int **n_contact_x1;
 
-		gdouble **Fi0_top;		//This is the equilibrium fermi level of the contact were it in free space, i.e. with no phi subtracted
-		gdouble **Vl;
-		gdouble **Vr;
+		long double **Jn_y0;
+		long double **Jn_y1;
+		long double **Jp_y0;
+		long double **Jp_y1;
+
+		long double **Fi0_y0;		//This is the equilibrium fermi level of the contact were it in free space, i.e. with no phi subtracted
+		long double **Fi0_y1;		//This is referenced to Fi0_y0[0][0], and is the difference between Fi0_y0[0][0] and Fi0_y0[z][x/y], this difference must be equal to the built in potential on the contact.
+		long double **Fi0_x0;
+		long double **Fi0_x1;
+
+		long double **V_y0;
+		long double **V_y1;
+		long double **V_x0;
+		long double **V_x1;
 
 		//3D arrays zxy
 		gdouble ***n;
@@ -185,11 +209,13 @@ struct device
 		gdouble ***Fi;
 
 		int ***imat_epitaxy;
+		int ***mask;
+
 		gdouble ***Jn;
 		gdouble ***Jp;
 		gdouble ***Jn_x;
 		gdouble ***Jp_x;
-		
+
 		gdouble ***Jn_diffusion;
 		gdouble ***Jn_drift;
 
@@ -312,14 +338,7 @@ struct device
 			gdouble ****pt_r3;
 			gdouble ****pt_r4;
 
-	//solver
-	int N;
-	int M;
-	int *Ti;	//row
-	int *Tj;	//col
-	long double *Tx;	//data
-	long double *b;
-	char** Tdebug;
+	struct matrix mx;
 
 	//Arrays used by newton solver
 	gdouble *newton_dntrap;
@@ -351,6 +370,7 @@ struct device
 	gdouble Pmax_voltage;
 	int pos_max_ittr;
 	char solver_name[20];
+	char complex_solver_name[20];
 	char newton_name[20];
 
 	//meshing
@@ -374,6 +394,7 @@ struct device
 	gdouble Rshort;
 
 
+
 	int onlypos;
 	int odes;
 	gdouble posclamp;
@@ -387,14 +408,6 @@ struct device
 	gdouble L;
 	gdouble C;
 
-	gdouble electron_affinity_left;
-	gdouble electron_affinity_right;
-	gdouble phibleft;
-	gdouble phibright;
-	gdouble vl_e;
-	gdouble vl_h;
-	gdouble vr_e;
-	gdouble vr_h;
 	int stop_start;
 	gdouble externalv;
 	gdouble Ilast;
@@ -405,14 +418,17 @@ struct device
 	int ntrapnewton;
 	int ptrapnewton;
 
-	gdouble lcharge;
-	gdouble rcharge;
+	long double **electrons_y0;
+	long double **holes_y0;
 
-	long double **l_electrons;
-	long double **l_holes;
-	long double **r_electrons;
-	long double **r_holes;
+	long double **electrons_y1;
+	long double **holes_y1;
 
+	long double **electrons_x0;
+	long double **holes_x0;
+
+	long double **electrons_x1;
+	long double **holes_x1;
 
 
 	gdouble t_big_offset;
@@ -457,7 +473,8 @@ struct device
 	int dumpitdos;
 
 	long double dump_dynamic_pl_energy;
-	
+
+	int snapshot_number;
 
 	//pl
 	long double pl_intensity;
@@ -520,27 +537,22 @@ struct device
 	struct solver_cache cache;
 	int newton_only_fill_matrix;
 
-	struct newton_save_state ns;
-	struct newton_save_state ns_save;
+	struct newton_state ns;
+	struct newton_state ns_save;
 
-	int contact_shift_l;
-	int contact_shift_r;
+	long double omega;
 
-	int interfaceleft;
-	int interfaceright;
+	struct circuit cir;
+	int circuit_simulation;
+
+	//objects
+	struct object *obj;		//This is the scene built from triangles
+	int objects;
+	int triangles;
+
+	struct shape big_box;
+
 };
 
-void device_init(struct device *in);
-void device_alloc_traps(struct device *in);
-void device_get_memory(struct simulation *sim,struct device *in);
-void device_free(struct simulation *sim,struct device *in);
 
-//dimension
-void dim_init(struct dimensions *dim);
-void dim_free(struct dimensions *dim);
-void dim_alloc(struct dimensions *dim);
-void dim_cpy(struct dimensions *out,struct dimensions *in);
-void dim_alloc_xyz(struct dimensions *dim,char xyz);
-void dim_free_xyz(struct dimensions *dim,char xyz);
-void dim_swap(struct dimensions *out,struct dimensions *in);
 #endif

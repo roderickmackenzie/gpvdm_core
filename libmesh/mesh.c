@@ -27,12 +27,16 @@
 #include <mesh.h>
 #include "inp.h"
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "hard_limit.h"
 #include <log.h>
 #include <cal_path.h>
 #include <lang.h>
 #include <shape.h>
+#include <epitaxy_struct.h>
+#include <epitaxy.h>
+#include <device_fun.h>
+
 
 void mesh_cpy(struct simulation *sim,struct mesh *out,struct mesh *in)
 {
@@ -122,9 +126,9 @@ void mesh_remesh(struct simulation *sim,struct mesh *in,struct device *dev)
 
 		mesh_obj_load(sim,&(dev->mesh_data));
 
-		dev->ns.dim.zmeshpoints=dev->mesh_data.meshdata_z.tot_points;
-		dev->ns.dim.xmeshpoints=dev->mesh_data.meshdata_x.tot_points;
-		dev->ns.dim.ymeshpoints=dev->mesh_data.meshdata_y.tot_points;
+		dev->ns.dim.zlen=dev->mesh_data.meshdata_z.tot_points;
+		dev->ns.dim.xlen=dev->mesh_data.meshdata_x.tot_points;
+		dev->ns.dim.ylen=dev->mesh_data.meshdata_y.tot_points;
 
 		device_get_memory(sim,dev);
 		mesh_build(sim,dev);
@@ -194,7 +198,10 @@ void mesh_free(struct mesh *in)
 	{
 		for (i=0;i<in->nlayers;i++)
 		{
-			free(in->layers[i].dmesh);
+			if (in->layers[i].dmesh!=NULL)
+			{
+				free(in->layers[i].dmesh);
+			}
 		}
 
 		free(in->layers);
@@ -242,8 +249,10 @@ void mesh_malloc_sub_mesh(struct simulation * sim, struct mesh *in)
 			dx=dx*in->layers[i].mul;
 		}
 
-		in->layers[i].dmesh=malloc ( in->layers[i].n_points * sizeof(long double));
-
+		if (in->layers[i].n_points!=0)
+		{
+			in->layers[i].dmesh=malloc ( in->layers[i].n_points * sizeof(long double));
+		}
 	}
 
 	in->tot_points=points;
@@ -366,24 +375,24 @@ long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct me
 
 	if (xyz=='x')
 	{
-		dim->xmeshpoints=in->tot_points;
+		dim->xlen=in->tot_points;
 		dim_alloc_xyz(dim,'x');
 		mesh=dim->xmesh;
-		dmesh=dim->dxmesh;
+		dmesh=dim->dx;
 	}else
 	if (xyz=='y')
 	{
-		dim->ymeshpoints=in->tot_points;
+		dim->ylen=in->tot_points;
 		dim_alloc_xyz(dim,'y');
 		mesh=dim->ymesh;
-		dmesh=dim->dymesh;
+		dmesh=dim->dy;
 	}else
 	if (xyz=='z')
 	{
-		dim->zmeshpoints=in->tot_points;
+		dim->zlen=in->tot_points;
 		dim_alloc_xyz(dim,'z');
 		mesh=dim->zmesh;
-		dmesh=dim->dzmesh;
+		dmesh=dim->dz;
 	}
 
 	int pos=0;
@@ -460,11 +469,30 @@ long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct me
 
 }
 
+long double mesh_to_dim_based_on_epitaxy(struct simulation *sim,struct dimensions *dim,struct device *in)
+{
+	int y;
+	struct epitaxy *epi=&(in->my_epitaxy);
+
+	dim->ylen=epi->layers+1;
+	dim_alloc_xyz(dim,'y');
+
+	for (y=0;y<epi->layers;y++)
+	{
+		dim->ymesh[y]=epi->layer[y].y_start;
+		//printf("%Le\n",dim->ymesh[y]);
+	}
+	//getchar();
+	dim->ymesh[epi->layers]=epi->layer[epi->layers-1].y_stop;
+
+	return epi->layer[epi->layers-1].y_stop-epi->layer[0].y_start;
+}
+
 void mesh_dump(struct simulation *sim,struct dimensions *dim)
 {
 	int x=0;
 
-	for (x=0;x<dim->xmeshpoints;x++)
+	for (x=0;x<dim->xlen;x++)
 	{
 		printf("%Le\n",dim->xmesh[x]);
 	}
@@ -474,7 +502,7 @@ void mesh_dump_y(struct simulation *sim,struct dimensions *dim)
 {
 	int y=0;
 
-	for (y=0;y<dim->ymeshpoints;y++)
+	for (y=0;y<dim->ylen;y++)
 	{
 		printf("%Le\n",dim->ymesh[y]);
 	}
@@ -486,7 +514,13 @@ void mesh_build(struct simulation *sim,struct device *in)
 
 	in->zlen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_z),'z');
 	in->xlen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_x),'x');
-	in->ylen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_y),'y');
+	if (strcmp(in->newton_name,"newton_simple")!=0)
+	{
+		in->ylen=mesh_to_dim(sim, &(in->ns.dim), &(in->mesh_data.meshdata_y),'y');
+	}else
+	{
+		in->ylen=mesh_to_dim_based_on_epitaxy(sim, &(in->ns.dim), in);
+	}
 	//dim_cpy(&(in->dim_max),&(in->ns.dim));
 }
 
@@ -503,15 +537,16 @@ void mesh_numerate_points(struct simulation *sim,struct device *in)
 	gdouble dpos=0.0;
 
 	//len=0.0;
-	for (y=0;y<dim->ymeshpoints;y++)
+	for (y=0;y<dim->ylen;y++)
 	{
 		dpos=dim->ymesh[y];
 		in->imat[0][0][y]=epitaxy_get_electrical_material_layer(&(in->my_epitaxy),dpos);
-		in->imat_epitaxy[0][0][y]=epitaxy_get_epitaxy_layer_using_electrical_pos(&(in->my_epitaxy),dpos);
+		in->imat_epitaxy[0][0][y]=epitaxy_get_layer(&(in->my_epitaxy),dpos);
+		//epitaxy_get_epitaxy_layer_using_electrical_pos(&(in->my_epitaxy),dpos);
 
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			for (x=0;x<dim->xmeshpoints;x++)
+			for (x=0;x<dim->xlen;x++)
 			{
 				in->imat[z][x][y]=in->imat[0][0][y];
 				in->imat_epitaxy[z][x][y]=in->imat_epitaxy[0][0][y];
@@ -535,12 +570,12 @@ int cur_i=in->imat[0][0][0];
 in->layer_start[cur_i]=0.0;
 struct dimensions *dim=&in->ns.dim;
 
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
-	if ((in->imat[0][0][i]!=cur_i)||(i==(dim->ymeshpoints-1)))
+	if ((in->imat[0][0][i]!=cur_i)||(i==(dim->ylen-1)))
 	{
 		in->layer_stop[cur_i]=dim->ymesh[i-1];//+(dim->ymesh[i]-dim->ymesh[i-1])/2;
-		if (i==(dim->ymeshpoints-1))
+		if (i==(dim->ylen-1))
 		{
 			break;
 		}

@@ -27,7 +27,7 @@
 #include "mesh.h"
 #include "inp.h"
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "hard_limit.h"
 #include <log.h>
 #include <cal_path.h>

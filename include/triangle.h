@@ -28,25 +28,41 @@
 
 #include <vec.h>
 
-#define RAY_SIM_EDGE	0
-#define RAY_VIEWPOINT	1
-#define RAY_OBJECT		2
-
 struct triangle
 {
 	struct vec xy0;
 	struct vec xy1;
 	struct vec xy2;
 	int object_uid;
-	int tri_uid;
+
 	int object_type;
+
+	//pre calculation
+	struct vec edge1;
+	struct vec edge2;
+
+	int obj_left;
+	int obj_right;
+
+	//not used
+	int tri_uid;		
 };
 
 struct triangles
 {
 	struct triangle *data;
+	int edges_calculated;
 	int max_len;
 	int len;
 };
+
+void triangle_print(struct triangle *in);
+void triangle_cog(struct vec *out,struct triangle *in);
+void triangle_norm(struct vec *ret,struct triangle *my_obj);
+void triangle_dump(char *file_name,struct triangle *tri);
+double ray_tri_get_min_y(struct triangle* tri);
+void ray_tri_flip_y_axis(struct triangle* tri,double y);
+void ray_tri_sub_y(struct triangle* tri,double y);
+void ray_tri_add_y(struct triangle* tri,double y);
 
 #endif

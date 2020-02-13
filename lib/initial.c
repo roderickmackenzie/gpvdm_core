@@ -76,9 +76,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=dim->xmeshpoints;
-	buf.y=dim->ymeshpoints;
-	buf.z=dim->zmeshpoints;
+	buf.x=dim->xlen;
+	buf.y=dim->ylen;
+	buf.z=dim->zlen;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -100,9 +100,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=dim->xmeshpoints;
-	buf.y=dim->ymeshpoints;
-	buf.z=dim->zmeshpoints;
+	buf.x=dim->xlen;
+	buf.y=dim->ylen;
+	buf.z=dim->zlen;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -124,9 +124,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=dim->xmeshpoints;
-	buf.y=dim->ymeshpoints;
-	buf.z=dim->zmeshpoints;
+	buf.x=dim->xlen;
+	buf.y=dim->ylen;
+	buf.z=dim->zlen;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -148,9 +148,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=dim->xmeshpoints;
-	buf.y=dim->ymeshpoints;
-	buf.z=dim->zmeshpoints;
+	buf.x=dim->xlen;
+	buf.y=dim->ylen;
+	buf.z=dim->zlen;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -172,9 +172,9 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 	strcpy(buf.section_two,_("Transport"));
 	buf.logscale_x=0;
 	buf.logscale_y=0;
-	buf.x=dim->xmeshpoints;
-	buf.y=dim->ymeshpoints;
-	buf.z=dim->zmeshpoints;
+	buf.x=dim->xlen;
+	buf.y=dim->ylen;
+	buf.z=dim->zlen;
 	buf.time=in->time;
 	buf.Vexternal=0.0;
 	buffer_add_info(sim,&buf);
@@ -184,294 +184,256 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 }
 }
 
-
-void initial_zero(struct simulation *sim,struct device *in)
-{
-int i;
-int z;
-int x;
-int y;
-int band;
-struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->ns.dim;
-
-in->electron_affinity_right=0.0;
-in->electron_affinity_left=0.0;
-
-for (z=0;z<dim->zmeshpoints;z++)
-{
-	for (x=0;x<dim->xmeshpoints;x++)
-	{
-		in->Fi0_top[z][x]=0.0;
-		in->Vl[z][x]=0.0;
-
-		in->l_electrons[z][x]=0.0;
-		in->l_holes[z][x]=0.0;
-
-		in->r_electrons[z][x]=0.0;
-		in->r_holes[z][x]=0.0;
-
-		in->Vr[z][x]=0.0;
-
-		ns->x_contact[z][x]=0.0;
-		ns->xp_contact[z][x]=0.0;
-
-	}
-}
-
-
-
-for (z=0;z<dim->zmeshpoints;z++)
-{
-	for (x=0;x<dim->xmeshpoints;x++)
-	{
-		for (y=0;y<dim->ymeshpoints;y++)
-		{
-			in->Fi[z][x][y]=0.0;
-
-			in->Fn[z][x][y]=0.0;
-			in->Fp[z][x][y]=0.0;
-
-			ns->phi[z][x][y]=0.0;
-
-			ns->x[z][x][y]=0.0;
-			ns->xp[z][x][y]=0.0;
-
-			in->Ec[z][x][y]=0.0;
-			in->Ev[z][x][y]=0.0;
-
-			in->n[z][x][y]=0.0;
-			in->p[z][x][y]=0.0;
-
-			in->mun[z][x][y]=0.0;
-			in->mup[z][x][y]=0.0;
-
-			for (band=0;band<dim->srh_bands;band++)
-			{
-				in->Fnt[z][x][y][band]= 0.0;
-				in->Fpt[z][x][y][band]= 0.0;
-				ns->xt[z][x][y][band]=0.0;
-
-				in->nt[z][x][y][band]=0.0;
-				in->dnt[z][x][y][band]=0.0;
-
-				ns->xpt[z][x][y][band]=0.0;
-				in->pt[z][x][y][band]=0.0;
-				in->dpt[z][x][y][band]=0.0;
-			}
-
-		}
-	}
-}
-
-in->Vbi=0.0;
-
-}
-
 void get_initial(struct simulation *sim,struct device *in,int guess)
 {
-if (strcmp(in->newton_name,"newton_simple")==0)
-{
-	initial_zero(sim,in);
-	return;
-}
-
-int i;
-int z;
-int x;
-int y;
-
-gdouble Ef=0.0;
-gdouble phi_ramp=0.0;
-gdouble Eg=0.0;
-gdouble Xi=0.0;
-gdouble charge_left=0.0;
-gdouble charge_right=0.0;
-gdouble top_l=0.0;
-gdouble top_r=0.0;
-
-
-Ef=0.0;
-phi_ramp=0.0;
-Eg=in->Eg[0][0][0];
-Xi=in->Xi[0][0][0];
-charge_left=in->lcharge;
-charge_right=in->rcharge;
-top_l=0.0;
-top_r=0.0;
-long double left_ref_to_zero=0.0;
-long double right_ref_to_zero=0.0;
-gdouble delta_phi=0.0;
-
-struct newton_save_state *ns=&(in->ns);
-struct dimensions *dim=&in->ns.dim;
-
-if (contacts_get_rcharge_type(sim,in)==ELECTRON)
-{
-	top_r=get_top_from_n(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
-	in->electron_affinity_right= -in->Xi[0][0][dim->ymeshpoints-1]+top_r;
-	right_ref_to_zero=top_r-in->Xi[0][0][dim->ymeshpoints-1];
-}else
-{
-	top_r= get_top_from_p(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
-	in->electron_affinity_right= -in->Xi[0][0][dim->ymeshpoints-1]-in->Eg[0][0][dim->ymeshpoints-1]-get_top_from_p(in,charge_right,in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
-	right_ref_to_zero=-(in->Eg[0][0][dim->ymeshpoints-1]+top_r)-in->Xi[0][0][dim->ymeshpoints-1];
-}
-
-//in->electron_affinity_left= -in->Xi[0][0][0]-in->Eg[0][0][0]-get_top_from_p(in,charge_left,in->Te[0][0][0],in->imat[0][0][0]);
-//in->electron_affinity_left= -in->Xi[0][0][0]+top_l;
-in->electron_affinity_left=0.0;
-int c=0;
-int type=0;
-for (z=0;z<dim->zmeshpoints;z++)
-{
-	for (x=0;x<dim->xmeshpoints;x++)
+	in->Vbi=0.0;
+	if (strcmp(in->newton_name,"newton_simple")==0)
 	{
-		c=in->n_contact_l[z][x];
+		return;
+	}
 
-		if (c!=-1)
+	int i=0;
+	int z=0;
+	int x=0;
+	int y=0;
+	long double Ef=0.0;
+	long double phi_ramp=0.0;
+	long double Eg=0.0;
+	long double Xi=0.0;
+	long double charge_right=0.0;
+	long double top_l=0.0;
+	long double top_r=0.0;
+	long double left_ref_to_zero=0.0;
+	long double right_ref_to_zero=0.0;
+	long double delta_phi=0.0;
+	int c=0;
+	int type=0;
+	struct newton_state *ns=&(in->ns);
+	struct dimensions *dim=&in->ns.dim;
+
+	Eg=in->Eg[0][0][0];
+	Xi=in->Xi[0][0][0];
+
+	charge_right=contacts_get_rcharge(sim,in);
+
+	if (contacts_get_rcharge_type(sim,in)==ELECTRON)
+	{
+		top_r=get_top_from_n(in,charge_right,in->Te[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
+		right_ref_to_zero=top_r-in->Xi[0][0][dim->ylen-1];
+	}else
+	{
+		top_r= get_top_from_p(in,charge_right,in->Te[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
+		right_ref_to_zero=-(in->Eg[0][0][dim->ylen-1]+top_r)-in->Xi[0][0][dim->ylen-1];
+	}
+
+
+	for (z=0;z<dim->zlen;z++)
+	{
+		for (x=0;x<dim->xlen;x++)
 		{
-			if (in->contacts[c].charge_type==HOLE)
+			//Top
+			c=in->n_contact_y0[z][x];
+
+			if (c!=-1)
 			{
-				top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
-				in->Fi0_top[z][x]= -(top_l+Xi+Eg);
+				if (in->contacts[c].charge_type==HOLE)
+				{
+					top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
+					in->Fi0_y0[z][x]= -(top_l+Xi+Eg);
+				}else
+				{
+					top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
+					in->Fi0_y0[z][x]= -Xi+top_l;
+				}
 			}else
-			{
-				top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][x][0],in->imat[z][x][0]);
-				in->Fi0_top[z][x]= -Xi+top_l;
+			{		//No contact
+				top_l=get_top_from_p(in,1e15,in->Te[z][x][0],in->imat[z][x][0]);
+				in->Fi0_y0[z][x]= -(top_l+Xi+Eg);
 			}
-		}else
-		{		//No contact
-			top_l=get_top_from_p(in,1e15,in->Te[z][x][0],in->imat[z][x][0]);
-			in->Fi0_top[z][x]= -(top_l+Xi+Eg);
+
+			in->V_y0[z][x]=in->Fi0_y0[z][x]-in->Fi0_y0[0][0];		//Everything is referenced to the [0][0] point.
+
+			//Btm
+
+			c=in->n_contact_y1[z][x];
+
+			if (c!=-1)
+			{
+				if (in->contacts[c].charge_type==HOLE)
+				{
+					top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][x][dim->ylen-1],in->imat[z][x][dim->ylen-1]);
+					in->Fi0_y1[z][x]= -(top_l+Xi+Eg);
+				}else
+				{
+					top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][x][dim->ylen-1],in->imat[z][x][dim->ylen-1]);
+					in->Fi0_y1[z][x]= -Xi+top_l;
+				}
+			}else
+			{		//No contact
+				top_l=get_top_from_p(in,1e15,in->Te[z][x][dim->ylen-1],in->imat[z][x][dim->ylen-1]);
+				in->Fi0_y1[z][x]= -(top_l+Xi+Eg);
+			}
+
+			in->V_y1[z][x]=in->Fi0_y1[z][x]-in->Fi0_y0[0][0];		//Everything is referenced to the [0][0] point.
+
 		}
 
-		in->Vl[z][x]=in->Fi0_top[z][x]-in->Fi0_top[0][0];		//Everything is referenced to the [0][0] point.
-		//printf("%Le\n",in->Vl[z][x]);
-	}
-}
-//getchar();
-left_ref_to_zero=in->Fi0_top[0][0];
-Ef=in->Fi0_top[0][0];
-
-
-delta_phi=right_ref_to_zero-left_ref_to_zero;
-
-
-in->vbi=delta_phi;
-
-/*if (get_dump_status(sim,dump_print_text)==TRUE)
-{
-	printf_log(sim,"delta=%Le\n",delta_phi);
-	printf_log(sim,">>>>top_l= %Le\n",top_l+Eg);
-	printf_log(sim,">>>>top_r= %Le\n",-top_r);
-	printf_log(sim,"left= %Le right = %Le  %Le %Le\n",in->electron_affinity_left,in->electron_affinity_right,in->electron_affinity_right-in->electron_affinity_left,delta_phi);
-	printf_log(sim,"%Le %Le %Le %Le %Le\n",top_l,top_r,Eg,delta_phi,ns->phi[0][0][0]);
-}
-*/
-
-//printf("total %Le\n",(-in->Xi[0][0][0]-ns->phi[0][0][0]-Eg)-Ef);
-
-//printf(">>rod>>%Le\n",Ef-(-in->Xi[0][0][0]-ns->phi[0][0][0]));
-
-gdouble Rp=get_p_den(in,(-in->Xi[0][0][dim->ymeshpoints-1]-delta_phi-Eg)-Ef,in->Th[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
-gdouble Rn=get_n_den(in,Ef-(-in->Xi[0][0][dim->ymeshpoints-1]-delta_phi),in->Te[0][0][dim->ymeshpoints-1],in->imat[0][0][dim->ymeshpoints-1]);
-
-for (z=0;z<dim->zmeshpoints;z++)
-{
-	for (x=0;x<dim->xmeshpoints;x++)
-	{
-		in->l_electrons[z][x]=get_n_den(in,Ef-(-in->Xi[z][x][0]-in->Vl[z][x]),in->Te[z][x][0],in->imat[z][x][0]);
-		in->l_holes[z][x]=get_p_den(in,(-in->Xi[z][x][0]-in->Vl[z][x]-in->Eg[z][x][0])-Ef,in->Th[z][x][0],in->imat[z][x][0]);;
-		//printf_log(sim,"Left (%d,%d)  p=%Le n=%Le\n",z,x,in->l_holes[z][x],in->l_electrons[z][x]);
-
-		in->r_electrons[z][x]=Rn;
-		in->r_holes[z][x]=Rp;
-
-		in->Vr[z][x]=delta_phi;
-
-		ns->x_contact[z][x]=Ef-(-in->Xi[z][x][0]-in->Vl[z][x]);
-		ns->xp_contact[z][x]=(-in->Xi[z][x][0]-in->Vl[z][x]-in->Eg[z][x][0])-Ef;
-	}
-}
-
-//printf_log(sim,"Rp = %Le\n",Rp);
-//printf_log(sim,"Rn = %Le\n",Rn);
-
-
-
-if (guess==TRUE)
-{
-	int band;
-	for (z=0;z<dim->zmeshpoints;z++)
-	{
-		for (x=0;x<dim->xmeshpoints;x++)
+		for (y=0;y<dim->ylen;y++)
 		{
+			//Left
+			c=in->n_contact_x0[z][y];
 
-			for (y=0;y<dim->ymeshpoints;y++)
+			if (c!=-1)
 			{
-				phi_ramp=delta_phi*(dim->ymesh[y]/dim->ymesh[dim->ymeshpoints-1]);
-				//printf("%ld %ld %ld %Le\n",x,y,z,phi_ramp);
-				in->Fi[z][x][y]=Ef;
-
-				in->Fn[z][x][y]=Ef;
-				in->Fp[z][x][y]=Ef;
-
-				ns->phi[z][x][y]=phi_ramp;
-
-				ns->x[z][x][y]=ns->phi[z][x][y]+in->Fn[z][x][y];
-				ns->xp[z][x][y]= -(ns->phi[z][x][y]+in->Fp[z][x][y]);
-
-				in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
-				if (in->Ec[z][x][y]<in->Fi[z][x][y])
+				if (in->contacts[c].charge_type==HOLE)
 				{
-					ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]);
-					in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
-				}
-
-				in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
-				if (in->Ev[z][x][y]>in->Fi[z][x][y])
+					top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][0][y],in->imat[z][0][y]);
+					in->Fi0_x0[z][y]= -(top_l+Xi+Eg);
+				}else
 				{
-					ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]+in->Eg[z][x][y]);
-					in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
-
-					in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
+					top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][0][y],in->imat[z][0][y]);
+					in->Fi0_x0[z][y]= -Xi+top_l;
 				}
-
-
-				gdouble t=in->Fi[z][x][y]-in->Ec[z][x][y];
-				gdouble tp=in->Ev[z][x][y]-in->Fi[z][x][y];
-
-				in->n[z][x][y]=in->Nc[z][x][y]*exp(((t)*Q)/(kb*in->Te[z][x][y]));
-				in->p[z][x][y]=in->Nv[z][x][y]*exp(((tp)*Q)/(kb*in->Th[z][x][y]));
-
-				in->mun[z][x][y]=get_n_mu(in,in->imat[z][x][y]);
-				in->mup[z][x][y]=get_p_mu(in,in->imat[z][x][y]);
-
-				for (band=0;band<dim->srh_bands;band++)
-				{
-					in->Fnt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]+dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]);
-					//printf("d %ld %Le\n",band,dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]));
-					in->Fpt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y]-dos_srh_get_fermi_p(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Th[z][x][y]);
-					ns->xt[z][x][y][band]=ns->phi[z][x][y]+in->Fnt[z][x][y][band];
-
-					in->nt[z][x][y][band]=get_n_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
-					in->dnt[z][x][y][band]=get_dn_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
-
-
-					ns->xpt[z][x][y][band]= -(ns->phi[z][x][y]+in->Fpt[z][x][y][band]);
-					in->pt[z][x][y][band]=get_p_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
-					in->dpt[z][x][y][band]=get_dp_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
-				}
-
+			}else
+			{		//No contact
+				top_l=get_top_from_p(in,1e15,in->Te[z][0][y],in->imat[z][0][y]);
+				in->Fi0_x0[z][y]= -(top_l+Xi+Eg);
 			}
+
+			in->V_x0[z][y]=in->Fi0_x0[z][y]-in->Fi0_y0[0][0];		//Everything is referenced to the [0][0] point.
+
+			//Right
+
+			c=in->n_contact_x1[z][y];
+
+			if (c!=-1)
+			{
+				if (in->contacts[c].charge_type==HOLE)
+				{
+					top_l=get_top_from_p(in,in->contacts[c].np,in->Te[z][dim->xlen-1][y],in->imat[z][dim->xlen-1][y]);
+					in->Fi0_x1[z][y]= -(top_l+Xi+Eg);
+				}else
+				{
+					top_l= get_top_from_n(in,in->contacts[c].np,in->Te[z][dim->xlen-1][y],in->imat[z][dim->xlen-1][y]);
+					in->Fi0_x1[z][y]= -Xi+top_l;
+				}
+			}else
+			{		//No contact
+				top_l=get_top_from_p(in,1e15,in->Te[z][dim->xlen-1][y],in->imat[z][dim->xlen-1][y]);
+				in->Fi0_x1[z][y]= -(top_l+Xi+Eg);
+			}
+
+			in->V_x1[z][y]=in->Fi0_x1[z][y]-in->Fi0_y0[0][0];		//Everything is referenced to the [0][0] point.
+
+		}
+	}
+	//getchar();
+	left_ref_to_zero=in->Fi0_y0[0][0];
+	Ef=in->Fi0_y0[0][0];
+
+
+	delta_phi=right_ref_to_zero-left_ref_to_zero;
+
+
+	in->vbi=delta_phi;
+
+	for (z=0;z<dim->zlen;z++)
+	{
+		for (x=0;x<dim->xlen;x++)
+		{
+			in->electrons_y0[z][x]=get_n_den(in,in->Fi0_y0[z][x]+in->Xi[z][x][0],in->Te[z][x][0],in->imat[z][x][0]);
+			in->holes_y0[z][x]=get_p_den(in,-(in->Fi0_y0[z][x]+in->Xi[z][x][0]+in->Eg[z][x][0]),in->Th[z][x][0],in->imat[z][x][0]);
+
+			in->electrons_y1[z][x]=get_n_den(in,in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1],in->Te[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
+			in->holes_y1[z][x]=get_p_den(in,-(in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1]+in->Eg[z][x][dim->ylen-1]),in->Th[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
+
+		}
+
+		for (y=0;y<dim->ylen;y++)
+		{
+			in->electrons_x0[z][y]=get_n_den(in,in->Fi0_x0[z][y]+in->Xi[z][0][y],in->Te[z][0][y],in->imat[z][0][y]);
+			in->holes_x0[z][y]=get_p_den(in,-(in->Fi0_x0[z][y]+in->Xi[z][0][y]+in->Eg[z][0][y]),in->Th[z][0][y],in->imat[z][0][y]);
+			//printf_log(sim,"Left (%d,%d)  p=%Le n=%Le\n",z,x,in->l_holes[z][x],in->l_electrons[z][x]);
+
+			in->electrons_x1[z][y]=get_n_den(in,in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y],in->Te[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y]);
+			in->holes_x1[z][y]=get_p_den(in,-(in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y]+in->Eg[z][dim->xlen-1][y]),in->Th[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y]);
+
+			//printf("%Le %Le\n",delta_phi,in->V_y1[z][x]);
+			//getchar();
 		}
 	}
 
-	in->Vbi=delta_phi;
-	init_dump(sim,in);
-}
-contacts_passivate(sim,in);
+
+
+	if (guess==TRUE)
+	{
+		int band;
+		for (z=0;z<dim->zlen;z++)
+		{
+			for (x=0;x<dim->xlen;x++)
+			{
+
+				for (y=0;y<dim->ylen;y++)
+				{
+					phi_ramp=delta_phi*(dim->ymesh[y]/dim->ymesh[dim->ylen-1]);
+					//printf("%ld %ld %ld %Le\n",x,y,z,phi_ramp);
+					in->Fi[z][x][y]=Ef;
+
+					in->Fn[z][x][y]=Ef;
+					in->Fp[z][x][y]=Ef;
+
+					ns->phi[z][x][y]=phi_ramp;
+
+					ns->x[z][x][y]=ns->phi[z][x][y]+in->Fn[z][x][y];
+					ns->xp[z][x][y]= -(ns->phi[z][x][y]+in->Fp[z][x][y]);
+
+					in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
+					if (in->Ec[z][x][y]<in->Fi[z][x][y])
+					{
+						ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]);
+						in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
+					}
+
+					in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
+					if (in->Ev[z][x][y]>in->Fi[z][x][y])
+					{
+						ns->phi[z][x][y]= -(in->Fi[z][x][y]+in->Xi[z][x][y]+in->Eg[z][x][y]);
+						in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
+
+						in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
+					}
+
+
+					gdouble t=in->Fi[z][x][y]-in->Ec[z][x][y];
+					gdouble tp=in->Ev[z][x][y]-in->Fi[z][x][y];
+
+					in->n[z][x][y]=in->Nc[z][x][y]*exp(((t)*Q)/(kb*in->Te[z][x][y]));
+					in->p[z][x][y]=in->Nv[z][x][y]*exp(((tp)*Q)/(kb*in->Th[z][x][y]));
+
+					for (band=0;band<dim->srh_bands;band++)
+					{
+						in->Fnt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]+dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]);
+						//printf("d %ld %Le\n",band,dos_srh_get_fermi_n(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Te[z][x][y]));
+						in->Fpt[z][x][y][band]= Ef;//-ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y]-dos_srh_get_fermi_p(in,in->n[z][x][y], in->p[z][x][y],band,in->imat[z][x][y],in->Th[z][x][y]);
+						ns->xt[z][x][y][band]=ns->phi[z][x][y]+in->Fnt[z][x][y][band];
+
+						in->nt[z][x][y][band]=get_n_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
+						in->dnt[z][x][y][band]=get_dn_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
+
+
+						ns->xpt[z][x][y][band]= -(ns->phi[z][x][y]+in->Fpt[z][x][y][band]);
+						in->pt[z][x][y][band]=get_p_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
+						in->dpt[z][x][y][band]=get_dp_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
+					}
+
+				}
+			}
+		}
+
+		in->Vbi=delta_phi;
+		init_dump(sim,in);
+	}
+
 if (in->stoppoint==1) exit(0);
 return;
 }

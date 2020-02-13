@@ -30,6 +30,7 @@
 #include "solver_interface.h"
 #include <cal_path.h>
 #include <log.h>
+#include <memory.h>
 
 long double min_thermal_error=2e-11;
 
@@ -45,15 +46,15 @@ long double yr=0.0;
 long double dh=0.0;
 long double Jn=0.0;
 long double Jp=0.0;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
 	if (i==0)
 	{
-		Ecl=-in->Xi[z][x][0]-in->Vapplied_l[z][x];
-		Evl=-in->Xi[z][x][0]-in->Vapplied_l[z][x]-in->Eg[z][x][0];
+		Ecl=-in->Xi[z][x][0]-in->Vapplied_y0[z][x];
+		Evl=-in->Xi[z][x][0]-in->Vapplied_y0[z][x]-in->Eg[z][x][0];
 		yl=dim->ymesh[0]-(dim->ymesh[1]-dim->ymesh[0]);
 	}else
 	{
@@ -62,10 +63,10 @@ for (i=0;i<dim->ymeshpoints;i++)
 		yl=dim->ymesh[i-1];
 	}
 
-	if (i==dim->ymeshpoints-1)
+	if (i==dim->ylen-1)
 	{
-		Ecr=-in->Xi[z][x][i]-in->Vr[z][x];
-		Evr=-in->Xi[z][x][i]-in->Vr[z][x]-in->Eg[z][x][i];
+		Ecr=-in->Xi[z][x][i]-in->V_y1[z][x];
+		Evr=-in->Xi[z][x][i]-in->V_y1[z][x]-in->Eg[z][x][i];
 		yr=dim->ymesh[i]+(dim->ymesh[i]-dim->ymesh[i-1]);
 
 	}else
@@ -92,10 +93,10 @@ for (i=0;i<dim->ymeshpoints;i++)
 void dump_thermal(struct simulation *sim,struct device *in, int z, int x)
 {
 int i;
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
 	printf_log(sim,"%Le Tl=%Lf Te=%Lf Th=%Lf %Le %Le %Le %Le \n",dim->ymesh[i],in->Tl[z][x][i],in->Te[z][x][i],in->Th[z][x][i],in->Hl[z][x][i],in->He[z][x][i],in->Hh[z][x][i],in->kl[z][x][i]);
 }
@@ -108,7 +109,7 @@ long double tot=0.0;
 int i;
 struct dimensions *dim=&in->ns.dim;
 
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
 	if (in->thermal_l==TRUE)
 	{
@@ -117,12 +118,12 @@ for (i=0;i<dim->ymeshpoints;i++)
 
 	if (in->thermal_e==TRUE)
 	{
-		tot+=gfabs(b[dim->ymeshpoints+i]);
+		tot+=gfabs(b[dim->ylen+i]);
 	}
 
 	if (in->thermal_h==TRUE)
 	{
-		tot+=gfabs(b[dim->ymeshpoints+dim->ymeshpoints+i]);
+		tot+=gfabs(b[dim->ylen+dim->ylen+i]);
 	}
 }
 return tot;
@@ -132,17 +133,10 @@ return tot;
 int solve_thermal(struct simulation *sim,struct device *in, int z, int x)
 {
 printf_log(sim,"Solve thermal l=%d e=%d h=%d\n",in->thermal_l,in->thermal_e,in->thermal_h);
-struct newton_save_state *ns=&(in->ns);
+struct newton_state *ns=&(in->ns);
 int i;
 struct dimensions *dim=&in->ns.dim;
 
-int N=0;
-int M=0;
-
-int *Ti;
-int *Tj;
-long double *Tx;
-long double *b;
 
 long double Tll;
 long double Tlc;
@@ -221,35 +215,33 @@ long double dSpdy=0.0;
 long double dSpldTh=0.0;
 long double dSprdTh=0.0;
 
+struct matrix mx;
+mx.nz=0;
+mx.M=0;
+
 if (in->thermal_l==TRUE)
 {
-	N+=dim->ymeshpoints*3-2;			//dTldTl
-	M+=dim->ymeshpoints;
+	mx.nz+=dim->ylen*3-2;			//dTldTl
+	mx.M+=dim->ylen;
 }
 
 if (in->thermal_e==TRUE)
 {
-	N+=dim->ymeshpoints*3-2;			//dTedTe
-	N+=dim->ymeshpoints;				//dTedTl
-	N+=dim->ymeshpoints;				//dTldTe
-	M+=dim->ymeshpoints;
+	mx.nz+=dim->ylen*3-2;			//dTedTe
+	mx.nz+=dim->ylen;				//dTedTl
+	mx.nz+=dim->ylen;				//dTldTe
+	mx.M+=dim->ylen;
 }
 
 if (in->thermal_h==TRUE)
 {
-	N+=dim->ymeshpoints*3-2;			//dThdTh
-	N+=dim->ymeshpoints;				//dThdTl
-	N+=dim->ymeshpoints;				//dTldTh
-	M+=dim->ymeshpoints;
+	mx.nz+=dim->ylen*3-2;			//dThdTh
+	mx.nz+=dim->ylen;				//dThdTl
+	mx.nz+=dim->ylen;				//dTldTh
+	mx.M+=dim->ylen;
 }
 
-
-
-Ti=malloc(N*sizeof(int));
-Tj=malloc(N*sizeof(int));
-Tx=malloc(N*sizeof(long double));
-b=malloc(M*sizeof(long double));
-
+matrix_malloc(sim,&mx);
 
 in->thermal_conv=FALSE;
 update_heat(in,z,x);
@@ -258,7 +250,7 @@ update_heat(in,z,x);
 	{
 
 		pos=0;
-		for (i=0;i<dim->ymeshpoints;i++)
+		for (i=0;i<dim->ylen;i++)
 		{
 
 
@@ -297,13 +289,13 @@ update_heat(in,z,x);
 				Jpl=in->Jp[z][x][i-1];
 			}
 
-			if (i==(dim->ymeshpoints-1))
+			if (i==(dim->ylen-1))
 			{
-				klr=in->kl[z][x][dim->ymeshpoints-1];
-				ker=in->ke[z][x][dim->ymeshpoints-1];
-				khr=in->kh[z][x][dim->ymeshpoints-1];
-				Jnr=in->Jn[z][x][dim->ymeshpoints-1];
-				Jpr=in->Jp[z][x][dim->ymeshpoints-1];
+				klr=in->kl[z][x][dim->ylen-1];
+				ker=in->ke[z][x][dim->ylen-1];
+				khr=in->kh[z][x][dim->ylen-1];
+				Jnr=in->Jn[z][x][dim->ylen-1];
+				Jpr=in->Jp[z][x][dim->ylen-1];
 
 				yr=dim->ymesh[i]+(dim->ymesh[i]-dim->ymesh[i-1]);
 
@@ -314,9 +306,9 @@ update_heat(in,z,x);
 					Tlr=in->Tlr;
 				}else
 				{
-					Tlr=in->Tl[z][x][dim->ymeshpoints-1];
-					Ter=in->Tl[z][x][dim->ymeshpoints-1];
-					Thr=in->Tl[z][x][dim->ymeshpoints-1];
+					Tlr=in->Tl[z][x][dim->ylen-1];
+					Ter=in->Tl[z][x][dim->ylen-1];
+					Thr=in->Tl[z][x][dim->ylen-1];
 				}
 			}else
 			{
@@ -381,7 +373,7 @@ update_heat(in,z,x);
 					dTll=0.0;
 				}
 
-				if ((in->Triso==TRUE)&&(i==(dim->ymeshpoints-1)))
+				if ((in->Triso==TRUE)&&(i==(dim->ylen-1)))
 				{
 					dTlc+=dTlr;
 					dTlr=0.0;
@@ -472,24 +464,24 @@ update_heat(in,z,x);
 			//Build matrix
 			if (i!=0)
 			{
-				Ti[pos]=i;
-				Tj[pos]=i-1;
-				Tx[pos]=dTll;
+				mx.Ti[pos]=i;
+				mx.Tj[pos]=i-1;
+				mx.Tx[pos]=dTll;
 				pos++;
 
 				if (in->thermal_e==TRUE)
 				{
-					Ti[pos]=dim->ymeshpoints+i;
-					Tj[pos]=dim->ymeshpoints+i-1;
-					Tx[pos]=dTel;
+					mx.Ti[pos]=dim->ylen+i;
+					mx.Tj[pos]=dim->ylen+i-1;
+					mx.Tx[pos]=dTel;
 					pos++;
 				}
 
 				if (in->thermal_h==TRUE)
 				{
-					Ti[pos]=2*dim->ymeshpoints+i;
-					Tj[pos]=2*dim->ymeshpoints+i-1;
-					Tx[pos]=dThl;
+					mx.Ti[pos]=2*dim->ylen+i;
+					mx.Tj[pos]=2*dim->ylen+i-1;
+					mx.Tx[pos]=dThl;
 					pos++;
 				}
 
@@ -497,101 +489,101 @@ update_heat(in,z,x);
 			}
 
 			//lattice
-			Ti[pos]=i;
-			Tj[pos]=i;
-			Tx[pos]=dTlc;
+			mx.Ti[pos]=i;
+			mx.Tj[pos]=i;
+			mx.Tx[pos]=dTlc;
 			pos++;
 
 			if (in->thermal_e==TRUE)
 			{
-				Ti[pos]=i;
-				Tj[pos]=dim->ymeshpoints+i;
-				Tx[pos]=dTldTe;
+				mx.Ti[pos]=i;
+				mx.Tj[pos]=dim->ylen+i;
+				mx.Tx[pos]=dTldTe;
 				pos++;
 
-				Ti[pos]=dim->ymeshpoints+i;
-				Tj[pos]=dim->ymeshpoints+i;
-				Tx[pos]=dTec;
+				mx.Ti[pos]=dim->ylen+i;
+				mx.Tj[pos]=dim->ylen+i;
+				mx.Tx[pos]=dTec;
 				pos++;
 
 
-				Ti[pos]=dim->ymeshpoints+i;
-				Tj[pos]=i;
-				Tx[pos]=dTedTl;
+				mx.Ti[pos]=dim->ylen+i;
+				mx.Tj[pos]=i;
+				mx.Tx[pos]=dTedTl;
 				pos++;
 			}
 
 			if (in->thermal_h==TRUE)
 			{
-				Ti[pos]=i;
-				Tj[pos]=2*dim->ymeshpoints+i;
-				Tx[pos]=dTldTh;
+				mx.Ti[pos]=i;
+				mx.Tj[pos]=2*dim->ylen+i;
+				mx.Tx[pos]=dTldTh;
 				pos++;
 
-				Ti[pos]=2*dim->ymeshpoints+i;
-				Tj[pos]=2*dim->ymeshpoints+i;
-				Tx[pos]=dThc;
+				mx.Ti[pos]=2*dim->ylen+i;
+				mx.Tj[pos]=2*dim->ylen+i;
+				mx.Tx[pos]=dThc;
 				pos++;
 
-				Ti[pos]=2*dim->ymeshpoints+i;
-				Tj[pos]=i;
-				Tx[pos]=dThdTl;
+				mx.Ti[pos]=2*dim->ylen+i;
+				mx.Tj[pos]=i;
+				mx.Tx[pos]=dThdTl;
 				pos++;
 			}
 
 
 
 
-			if (i!=(dim->ymeshpoints-1))
+			if (i!=(dim->ylen-1))
 			{
-				Ti[pos]=i;
-				Tj[pos]=i+1;
-				Tx[pos]=dTlr;
+				mx.Ti[pos]=i;
+				mx.Tj[pos]=i+1;
+				mx.Tx[pos]=dTlr;
 				pos++;
 
 				if (in->thermal_e==TRUE)
 				{
-					Ti[pos]=dim->ymeshpoints+i;
-					Tj[pos]=dim->ymeshpoints+i+1;
-					Tx[pos]=dTer;
+					mx.Ti[pos]=dim->ylen+i;
+					mx.Tj[pos]=dim->ylen+i+1;
+					mx.Tx[pos]=dTer;
 					pos++;
 				}
 
 				if (in->thermal_h==TRUE)
 				{
-					Ti[pos]=2*dim->ymeshpoints+i;
-					Tj[pos]=2*dim->ymeshpoints+i+1;
-					Tx[pos]=dThr;
+					mx.Ti[pos]=2*dim->ylen+i;
+					mx.Tj[pos]=2*dim->ylen+i+1;
+					mx.Tx[pos]=dThr;
 					pos++;
 				}
 
 			}
 
-			b[i]=-(dTl);
+			mx.b[i]=-(dTl);
 
 			if (in->thermal_e==TRUE)
 			{
-				b[i+dim->ymeshpoints]=-(dTe+dSndy);
+				mx.b[i+dim->ylen]=-(dTe+dSndy);
 			}
 
 			if (in->thermal_h==TRUE)
 			{
-				b[i+2*dim->ymeshpoints]=-(dTh+dSpdy);
+				mx.b[i+2*dim->ylen]=-(dTh+dSpdy);
 			}
 
 		}
 
 
-		solver(sim,M,N,Ti,Tj, Tx,b);
+		matrix_solve(sim,&mx);
 
-		for (i=0;i<dim->ymeshpoints;i++)
+		for (i=0;i<dim->ylen;i++)
 		{
 			/*long double clamp=200.0;
 			in->Tl[i]+=b[i]/(1.0+fabs(b[i]/clamp/(300.0*kb/Q)));
 
 			if (in->thermal_e==TRUE)
 			{
-				in->Te[z][x][i]+=b[i+dim->ymeshpoints]/(1.0+fabs(b[i+dim->ymeshpoints]/clamp/(300.0*kb/Q)));
+				in->Te[z][x][i]+=b[i+dim->ylen]/(1.0+fabs(b[i+dim->ylen]/clamp/(300.0*kb/Q)));
 			}else
 			{
 				in->Te[z][x][i]=in->Tl[i];
@@ -599,7 +591,7 @@ update_heat(in,z,x);
 
 			if (in->thermal_h==TRUE)
 			{
-				in->Th[z][x][i]+=b[i+2*dim->ymeshpoints]/(1.0+fabs(b[i+2*dim->ymeshpoints]/clamp/(300.0*kb/Q)));
+				in->Th[z][x][i]+=b[i+2*dim->ylen]/(1.0+fabs(b[i+2*dim->ylen]/clamp/(300.0*kb/Q)));
 			}else
 			{
 				in->Th[z][x][i]=in->Tl[i];
@@ -607,12 +599,12 @@ update_heat(in,z,x);
 
 
 
-			in->Tl[z][x][i]+=b[i];
-			in->Te[z][x][i]+=b[i+dim->ymeshpoints];
-			in->Th[z][x][i]+=b[i+2*dim->ymeshpoints];
+			in->Tl[z][x][i]+=mx.b[i];
+			in->Te[z][x][i]+=mx.b[i+dim->ylen];
+			in->Th[z][x][i]+=mx.b[i+2*dim->ylen];
 		}
 
-		error=get_thermal_error(in,b);
+		error=get_thermal_error(in,mx.b);
 		printf_log(sim,"%ld Thermal error = %Le %Le\n",ittr,error,min_thermal_error);
 		if ((ittr<2)&&(error<min_thermal_error)) in->thermal_conv=TRUE;
 		ittr++;
@@ -621,7 +613,7 @@ update_heat(in,z,x);
 
 dump_thermal(sim,in,z,x);
 /*
-for (i=0;i<dim->ymeshpoints;i++)
+for (i=0;i<dim->ylen;i++)
 {
 	if (in->Tl[i]>2000) in->Tl[i]=2000.0;
 	if (in->Te[i]>2000) in->Te[i]=2000.0;
@@ -630,10 +622,8 @@ for (i=0;i<dim->ymeshpoints;i++)
 }
 */
 
-free(Ti);
-free(Tj);
-free(Tx);
-free(b);
+matrix_free(sim,&mx);
+
 return 0;
 }
 

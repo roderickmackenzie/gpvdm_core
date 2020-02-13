@@ -27,53 +27,11 @@
 #ifndef dat_file_h
 #define dat_file_h
 #include "advmath.h"
+#include <dat_file_struct.h>
 //#include <zip.h>
 #include <device.h>
 #include <triangle.h>
 
-struct dat_file
-{
-char title[100];
-char type[100];
-gdouble x_mul;
-gdouble y_mul;
-gdouble z_mul;
-gdouble x_offset;
-gdouble y_offset;
-gdouble z_offset;
-gdouble data_mul;
-char x_label[100];
-char y_label[100];
-char z_label[100];
-char data_label[100];
-char x_units[100];
-char y_units[100];
-char z_units[100];
-char rgb[100];
-char data_units[100];
-char section_one[100];
-char section_two[100];
-int logscale_x;
-int logscale_y;
-int logscale_z;
-int logscale_data;
-int write_to_zip;
-int norm_x_axis;
-int norm_y_axis;
-long double data_max;
-long double data_min;
-int x;
-int y;
-int z;
-gdouble time;
-gdouble Vexternal;
-char *buf;
-struct triangle *data;
-int len;
-int max_len;
-char zip_file_name[400];
-//struct zip *zip_file;
-};
 
 void buffer_zip_set_name(struct dat_file *in,char * name);
 void buffer_init(struct dat_file *in);
@@ -86,6 +44,7 @@ void buffer_dump_path(struct simulation *sim,char *path,char * file,struct dat_f
 void buffer_free(struct dat_file *in);
 void buffer_dump_aes(char *path,char * file,struct dat_file *in,char *key_text);
 void buffer_add_xy_data_z_label(struct dat_file *in,gdouble *x, gdouble *y, gdouble *z, int len);
+void buffer_add_zxy_long_double_light_data(struct simulation *sim,struct dat_file *in,long double ***data, struct dim_light *dim);
 void buffer_dump_cache(struct simulation *sim,char * file,struct dat_file *in);
 void buffer_add_dir(struct simulation *sim,char * file_name);
 void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data,long double **left,long double **right);

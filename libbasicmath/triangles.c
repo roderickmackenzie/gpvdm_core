@@ -1,27 +1,27 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 #include <stdio.h>
 #include <ray.h>
-#include <const.h>
+#include <gpvdm_const.h>
 #include <math.h>
 #include <stdlib.h>
 #include <cal_path.h>
@@ -31,7 +31,7 @@
 #include <util.h>
 
 
-/** @file triangle_io.c
+/** @file triangles.c
 	@brief Basic low level triangle functions
 */
 
@@ -104,19 +104,13 @@ fclose(file);
 
 }
 
-void triangle_print(struct triangle *in)
-{
-	printf("(%le,%le,%le)\n",in->xy0.x,in->xy0.y,in->xy0.z);
-	printf("(%le,%le,%le)\n",in->xy1.x,in->xy1.y,in->xy1.z);
-	printf("(%le,%le,%le)\n",in->xy2.x,in->xy2.y,in->xy2.z);
-	printf("\n");
-
-
-}
 
 void triangles_free(struct triangles *tri)
 {
-	free(tri->data);
+	if (tri->data!=NULL)
+	{
+		free(tri->data);
+	}
 
 	tri->len=0;
 	tri->max_len=0;
@@ -327,6 +321,7 @@ void triangles_print(struct triangles *in)
 }
 
 
+
 void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int object_type)
 {
 
@@ -358,16 +353,46 @@ void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0
 
 }
 
-void triangles_init(struct triangles *tri)
+void triangles_malloc(struct triangles *tri)
 {
-	tri->len=0;
 	tri->max_len=30;
-
 	tri->data=(struct triangle *)malloc(tri->max_len*sizeof(struct triangle));
 
 	if (tri->data==NULL)
 	{
 		printf("triangle memory errror\n");
 	}
+}
+
+void triangles_init(struct triangles *tri)
+{
+	tri->len=0;
+	tri->max_len=0;
+	tri->data=NULL;
+	tri->edges_calculated=FALSE;
 
 }
+
+void triangles_cal_edges(struct triangles *in)
+{
+	int i;
+	struct triangle *tri;
+
+	for (i=0;i<in->len;i++)
+	{
+		tri=&(in->data[i]);
+
+		//edge1 = vertex1 - vertex0;
+		vec_cpy(&(tri->edge1),&(tri->xy1));
+		vec_sub(&(tri->edge1),&(tri->xy0));
+
+		//edge2 = vertex2 - vertex0;
+		vec_cpy(&(tri->edge2),&(tri->xy2));
+		vec_sub(&(tri->edge2),&(tri->xy0));
+	}
+
+	in->edges_calculated=TRUE;
+
+}
+
+

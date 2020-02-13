@@ -24,10 +24,10 @@
 */
 
 #include "util.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "light.h"
 #include "device.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "dump.h"
 #include "config.h"
 #include "inp.h"
@@ -40,122 +40,107 @@
 
 static int unused __attribute__((unused));
 
-gdouble light_get_sun(struct light *in)
+long double light_get_sun(struct light *li)
 {
-return in->Psun;
+return li->Psun;
 }
 
-void light_set_sun(struct light *in,gdouble Psun)
+void light_set_sun(struct light *li,long double Psun)
 {
-in->Psun=Psun;
+	li->Psun=Psun;
 }
 
-void light_set_model(struct light *in,char *model)
+void light_set_model(struct light *li,char *model)
 {
-strcpy(in->mode,model);
+	strcpy(li->mode,model);
 }
 
-void light_solve_optical_problem(struct simulation *sim,struct device *cell,struct light *in)
+
+long double light_cal_photon_density(struct simulation *sim,struct light *li)
 {
-int i;
+struct dim_light *dim=&li->dim;
 
-	gdouble Psun=in->Psun*gpow(10.0,-in->ND);
-	light_set_sun_power(in,Psun,in->laser_eff);
+if (li->disable_cal_photon_density==FALSE)
+{
+	int x;
+	int y;
+	int z;
+	int l;
 
-	light_solve_all(sim,cell,in);
+	long double tot=0.0;
+	long double H_tot=0.0;
+	long double photons_tot=0.0;
+	long double E=0.0;
 
-	light_cal_photon_density(in);
-
-
-	//light_dump(in);
-
-	for (i=0;i<in->lpoints;i++)
+	for (z=0;z<dim->zlen;z++)
 	{
-		light_dump_1d(sim,in, i,"");
+		for (x=0;x<dim->xlen;x++)
+		{
+			for (y=0;y<dim->ylen;y++)
+			{
+				tot=0.0;
+				H_tot=0.0;
+				photons_tot=0.0;
+
+				for (l=0;l<dim->llen;l++)
+				{
+					li->E_tot_r[z][x][y][l]=li->Ep[z][x][y][l]+li->En[z][x][y][l];
+					li->E_tot_i[z][x][y][l]=li->Enz[z][x][y][l]+li->Epz[z][x][y][l];
+					li->pointing_vector[z][x][y][l]=0.5*epsilon0*cl*li->n[z][x][y][l]*(gpow(li->E_tot_r[z][x][y][l],2.0)+gpow(li->E_tot_i[z][x][y][l],2.0));
+
+					li->photons[z][x][y][l]=li->pointing_vector[z][x][y][l]*(dim->l[l]/(hp*cl));
+					li->photons_asb[z][x][y][l]=li->photons[z][x][y][l]*li->alpha[z][x][y][l];
+
+					E=((hp*cl)/dim->l[l])/Q-1.1;		//I'm saying that the Eg is 1.1 eV not correct but cant be bothered to write the code to fix now
+
+					if (E>0.0)
+					{
+						li->H[z][x][y][l]=E*Q*li->photons_asb[z][x][y][l];
+					}else
+					{
+						li->H[z][x][y][l]=0.0;
+					}
+
+					photons_tot+=li->photons[z][x][y][l]*dim->dl;
+					tot+=li->photons_asb[z][x][y][l]*dim->dl;
+					H_tot+=li->H[z][x][y][l]*dim->dl;
+
+				}
+
+				li->Gn[z][x][y]=tot;
+				li->Gp[z][x][y]=tot;
+				li->Htot[z][x][y]=H_tot;
+				li->photons_tot[z][x][y]=photons_tot;
+
+				for (l=0;l<dim->llen;l++)
+				{
+					li->reflect[l]=(gpow(li->En[0][0][0][l],2.0)+gpow(li->Enz[0][0][0][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
+					li->transmit[l]=(gpow(li->Ep[0][0][dim->ylen-1][l],2.0)+gpow(li->Epz[0][0][dim->ylen-1][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
+
+				}
+			}
+		}
 	}
 
-}
-
-gdouble light_cal_photon_density(struct light *in)
-{
-if (in->disable_cal_photon_density==FALSE)
-{
-	int i;
-	int ii;
-	gdouble tot=0.0;
-
-	gdouble H_tot=0.0;
-	gdouble photons_tot=0.0;
-
-	for (ii=0;ii<in->points;ii++)
+	if (li->flip_field==TRUE)
 	{
-		tot=0.0;
-		H_tot=0.0;
-		photons_tot=0.0;
+		flip_light_zxy_long_double_y(sim,dim,li->Gn);
+		flip_light_zxy_long_double_y(sim,dim,li->Gp);
+		flip_light_zxy_long_double_y(sim,dim,li->Htot);
+		flip_light_zxy_long_double_y(sim,dim,li->photons_tot);
 
-		for (i=0;i<in->lpoints;i++)
-		{
-			in->E_tot_r[i][ii]=in->Ep[i][ii]+in->En[i][ii];
-			in->E_tot_i[i][ii]=in->Enz[i][ii]+in->Epz[i][ii];
-			in->pointing_vector[i][ii]=0.5*epsilon0*cl*in->n[i][ii]*(gpow(in->E_tot_r[i][ii],2.0)+gpow(in->E_tot_i[i][ii],2.0));
+		flip_light_zxyl_long_double_y(sim,dim,li->H);
+		flip_light_zxyl_long_double_y(sim,dim,li->photons_asb);
+		flip_light_zxyl_long_double_y(sim,dim,li->photons);
 
-			if (strcmp(in->mode,"bleach")!=0)
-			{
-				in->photons[i][ii]=in->pointing_vector[i][ii]*(in->l[i]/(hp*cl));
-				in->photons_asb[i][ii]=in->photons[i][ii]*in->alpha[i][ii];
-			}
-			gdouble E=((hp*cl)/in->l[i])/Q-in->Eg;
-
-			//getchar();
-			if (E>0.0)
-			{
-			in->H[i][ii]=E*Q*in->photons_asb[i][ii];
-			}else
-			{
-			in->H[i][ii]=0.0;
-			}
-
-			photons_tot+=in->photons[i][ii]*in->dl;
-			tot+=in->photons_asb[i][ii]*in->dl;
-			H_tot+=in->H[i][ii]*in->dl;
-
-		}
-
-		in->Gn[ii]=tot;
-		in->Gp[ii]=tot;
-		in->H1d[ii]=H_tot;
-		in->photons_tot[ii]=photons_tot;
-
-		for (i=0;i<in->lpoints;i++)
-		{
-			in->reflect[i]=(gpow(in->En[i][0],2.0)+gpow(in->Enz[i][0],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
-			in->transmit[i]=(gpow(in->Ep[i][in->points-1],2.0)+gpow(in->Epz[i][in->points-1],2.0))/(gpow(in->Ep[i][0],2.0)+gpow(in->Epz[i][0],2.0));
-
-		}
-
-	}
-
-	if (in->flip_field==TRUE)
-	{
-		memory_flip_1d_long_double(in->Gn,in->points);
-		memory_flip_1d_long_double(in->Gp,in->points);
-		memory_flip_1d_long_double(in->H1d,in->points);
-		memory_flip_1d_long_double(in->photons_tot,in->points);
-
-		for (i=0;i<in->lpoints;i++)
-		{
-			memory_flip_1d_long_double(in->H[i],in->points);
-			memory_flip_1d_long_double(in->photons_asb[i],in->points);
-			memory_flip_1d_long_double(in->photons[i],in->points);
-		}
 	}
 
 }else
 {
-	if ((in->laser_eff==0)&&(in->Psun==0))
+	if ((li->laser_eff==0)&&(li->Psun==0))
 	{
-		memset(in->Gn, 0.0, in->points*sizeof(gdouble));
-		memset(in->Gp, 0.0, in->points*sizeof(gdouble));
+		memset_light_zxy_long_double(dim, li->Gn,0);
+		memset_light_zxy_long_double(dim, li->Gp,0);
 	}
 }
 
@@ -163,236 +148,238 @@ return 0.0;
 }
 
 
-void light_norm_photon_density(struct light *in)
+void light_norm_photon_density(struct simulation *sim, struct light *li)
 {
 
-int i;
-int ii;
-gdouble max=0.0;
-for (i=0;i<in->lpoints;i++)
+int x=0;
+int y=0;
+int z=0;
+int l=0;
+struct epitaxy *epi=li->epi;
+struct dim_light *dim=&li->dim;
+
+long double max=0.0;
+
+for (l=0;l<dim->llen;l++)
 {
 
 	max=0.0;
 
-	for (ii=0;ii<in->points;ii++)
+	for (z=0;z<dim->zlen;z++)
 	{
-			if ((in->x[ii]>in->device_start)&&(in->x[ii]<in->device_start+in->device_ylen))
+		for (x=0;x<dim->xlen;x++)
+		{
+			for (y=0;y<dim->ylen;y++)
 			{
-				if (in->photons[i][ii]>max)
+				if ((dim->y[y]>epi->device_start)&&(dim->y[y]<epi->device_stop))
 				{
-					max=in->photons[i][ii];
+					if (li->photons[z][x][y][l]>max)
+					{
+						max=li->photons[z][x][y][l];
+					}
 				}
 			}
+		}
 	}
 
 	if (max>0.0)
 	{
-		for (ii=0;ii<in->points;ii++)
+		for (z=0;z<dim->zlen;z++)
 		{
-
-				in->photons[i][ii]/=max;
-		}
-	}
-
-
-}
-
-
-}
-
-
-void light_calculate_complex_n(struct light *in)
-{
-int i=0;
-int ii=0;
-gdouble nc=0.0;
-gdouble kc=0.0;
-
-gdouble nr=0.0;
-gdouble kr=0.0;
-gdouble complex n0=0.0+0.0*I;
-gdouble complex n1=0.0+0.0*I;
-
-	for (i=0;i<in->lpoints;i++)
-	{
-		for (ii=0;ii<in->points;ii++)
-		{
-			if (ii==in->points-1)
+			for (x=0;x<dim->xlen;x++)
 			{
-				nr=in->n[i][ii];
-				kr=in->alpha[i][ii]*(in->l[i]/(PI*4.0));
-			}else
-			{
-				nr=in->n[i][ii+1];
-				kr=in->alpha[i][ii+1]*(in->l[i]/(PI*4.0));
+				for (y=0;y<dim->ylen;y++)
+				{
+					li->photons[z][x][y][l]/=max;
+				}
 			}
-			nc=in->n[i][ii];
-			kc=in->alpha[i][ii]*(in->l[i]/(PI*4.0));
-
-			n0=nc-kc*I;
-			n1=nr-kr*I;
-
-			in->nbar[i][ii]=n0;
-
-			in->r[i][ii]=(n0-n1)/(n0+n1);
-			in->t[i][ii]=(2.0*n0)/(n0+n1);
-
 		}
-
-
-		memset(in->En[i], 0.0, in->points*sizeof(gdouble));
-		memset(in->Ep[i], 0.0, in->points*sizeof(gdouble));
-		memset(in->Enz[i], 0.0, in->points*sizeof(gdouble));
-		memset(in->Epz[i], 0.0, in->points*sizeof(gdouble));
-
-	}
-}
-
-
-
-void light_set_sun_power(struct light *in,gdouble power, gdouble laser_eff)
-{
-int i;
-
-gdouble E=0.0;
-//gdouble tot0=0.0;
-
-for (i=0;i<in->lpoints;i++)
-{
-	in->sun[i]=in->sun_norm[i]*power;
-
-	E=hp*cl/in->l[i];
-	in->sun_photons[i]=in->sun[i]/E;
-	if (i==in->laser_pos)
-	{
-		if (in->pulse_width!=0.0)
-		{
-			in->sun_photons[i]+=laser_eff*((in->pulseJ/in->pulse_width/E)/(in->spotx*in->spoty))/in->dl;
-		}
-
 	}
 
-	in->sun_E[i]=gpow(2.0*(in->sun_photons[i]*E)/(epsilon0*cl*in->n[i][0]),0.5);
 
 }
 
-gdouble tot=0.0;
-for  (i=0;i<in->lpoints;i++)
+
+}
+
+
+void light_calculate_complex_n(struct light *li)
 {
-	tot=tot+in->sun_photons[i]*in->dl;
-}
+int x=0;
+int y=0;
+int z=0;
+int l=0;
 
-}
+struct dim_light *dim=&li->dim;
 
-void light_solve_all(struct simulation *sim,struct device *cell,struct light *in)
-{
-	int i;
-	int slices_solved=0;
-	in->finished_solveing=FALSE;
+long double nc=0.0;
+long double kc=0.0;
 
-	for (i=0;i<in->lpoints;i++)
+long double nr=0.0;
+long double kr=0.0;
+long double complex n0=0.0+0.0*I;
+long double complex n1=0.0+0.0*I;
+
+	for (l=0;l<dim->llen;l++)
 	{
-
-		if (in->sun_E[i]!=0.0)
+		for (z=0;z<dim->zlen;z++)
 		{
-			light_solve_lam_slice(sim,cell,in,i);
-
-			if (in->finished_solveing==TRUE)
+			for (x=0;x<dim->xlen;x++)
 			{
-				break;
-			}
+				for (y=0;y<dim->ylen;y++)
+				{
 
-			slices_solved++;
-		}else
-		{
-			memset(in->En[i], 0.0, in->points*sizeof(gdouble));
-			memset(in->Ep[i], 0.0, in->points*sizeof(gdouble));
-			memset(in->Enz[i], 0.0, in->points*sizeof(gdouble));
-			memset(in->Epz[i], 0.0, in->points*sizeof(gdouble));
+					if (y==dim->ylen-1)
+					{
+						nr=li->n[z][x][y][l];
+						kr=li->alpha[z][x][y][l]*(dim->l[l]/(PI*4.0));
+					}else
+					{
+						nr=li->n[z][x][y+1][l];
+						kr=li->alpha[z][x][y+1][l]*(dim->l[l]/(PI*4.0));
+					}
+
+					nc=li->n[z][x][y][l];
+					kc=li->alpha[z][x][y][l]*(dim->l[l]/(PI*4.0));
+
+					n0=nc-kc*I;
+					n1=nr-kr*I;
+
+					li->nbar[z][x][y][l]=n0;
+
+					li->r[z][x][y][l]=(n0-n1)/(n0+n1);
+					li->t[z][x][y][l]=(2.0*n0)/(n0+n1);
+				}
+			}
 		}
 	}
 
-if (slices_solved==0)
-{
-	printf_log(sim,_("It was dark I did not solve any slices\n"));
-}
-}
 
-void light_set_unity_power(struct light *in)
-{
-int i;
-
-//gdouble E=0.0;
-
-for  (i=0;i<in->lpoints;i++)
-{
-//	E=hp*cl/in->l[i];
-	in->sun[i]=0.0;
-	in->sun_photons[i]=0.0;
-	in->sun_E[i]=1.0;//pow(2.0*(1e20*E)/(epsilon0*cl*in->n[i][0]),0.5);
-}
-
+	memset_light_zxyl_long_double(dim, li->En,0);
+	memset_light_zxyl_long_double(dim, li->Ep,0);
+	memset_light_zxyl_long_double(dim, li->Enz,0);
+	memset_light_zxyl_long_double(dim, li->Epz,0);
 
 }
 
-int light_get_pos_from_wavelength(struct simulation *sim,struct light *in,double lam)
-{
-	int i=0;
 
-	if (lam<in->lstart)
+
+void light_set_sun_power(struct light *li,long double power, long double laser_eff)
+{
+int l;
+
+struct dim_light *dim=&li->dim;
+long double E=0.0;
+//long double tot=0.0;
+
+for (l=0;l<dim->llen;l++)
+{
+	li->sun[l]=li->sun_norm[l]*power;
+
+	E=hp*cl/dim->l[l];
+	li->sun_photons[l]=li->sun[l]/E;
+
+	if (l==li->laser_pos)
+	{
+		if (li->pulse_width!=0.0)
+		{
+			li->sun_photons[l]+=laser_eff*((li->pulseJ/li->pulse_width/E)/(li->spotx*li->spoty))/dim->dl;
+		}
+
+	}
+	li->sun_E[l]=gpow(2.0*(li->sun_photons[l]*E)/(epsilon0*cl*li->n[0][0][0][l]),0.5);
+	//printf("%d %Le %Le %Le %Le\n",l,li->sun_E[l],li->sun_photons[l],li->sun[l],li->sun_norm[l]);
+
+}
+
+//getchar();
+/*for  (l=0;l<dim->llen;l++)
+{
+	tot=tot+li->sun_photons[l]*dim->dl;
+}*/
+
+}
+
+
+
+void light_set_unity_power(struct light *li)
+{
+	int l=0;
+	struct dim_light *dim=&li->dim;
+
+	for  (l=0;l<dim->llen;l++)
+	{
+	//	E=hp*cl/li->l[i];
+		li->sun[l]=0.0;
+		li->sun_photons[l]=0.0;
+		li->sun_E[l]=1.0;//pow(2.0*(1e20*E)/(epsilon0*cl*in->n[i][0]),0.5);
+	}
+
+
+}
+
+int light_get_pos_from_wavelength(struct simulation *sim,struct light *li,double lam)
+{
+	int l=0;
+	struct dim_light *dim=&li->dim;
+
+	if (lam<li->lstart)
 	{
 		ewe(sim,"The desired wavelenght is smaller than the simulated range");
 	}
 
-	if (lam>in->lstop)
+	if (lam>li->lstop)
 	{
 		ewe(sim,"The desired wavelenght is bigger than the simulated range");
 	}
 
-	i=(int)((lam-in->lstart)/in->dl);
+	l=(int)((lam-li->lstart)/dim->dl);
 
-	return i;
+	return l;
 }
 
-void light_set_sun_delta_at_wavelength(struct simulation *sim,struct light *in,long double lam)
+void light_set_sun_delta_at_wavelength(struct simulation *sim,struct light *li,long double lam)
 {
-	int i;
-	memset(in->sun, 0.0, in->lpoints*sizeof(gdouble));
-	memset(in->sun_photons, 0.0, in->lpoints*sizeof(gdouble));
-	memset(in->sun_E, 0.0, in->lpoints*sizeof(gdouble));
-	i=light_get_pos_from_wavelength(sim,in,lam);
-	in->sun_E[i]=1.0;
+	int l=0;
+	struct dim_light *dim=&li->dim;
+	memset(li->sun, 0.0, dim->llen*sizeof(long double));
+	memset(li->sun_photons, 0.0, dim->llen*sizeof(long double));
+	memset(li->sun_E, 0.0, dim->llen*sizeof(long double));
+
+	l=light_get_pos_from_wavelength(sim,li,lam);
+	li->sun_E[l]=1.0;
 }
 
-void light_set_unity_laser_power(struct light *in,int lam)
+void light_set_unity_laser_power(struct light *li,int lam)
 {
-	memset(in->sun, 0.0, in->lpoints*sizeof(gdouble));
-	memset(in->sun_photons, 0.0, in->lpoints*sizeof(gdouble));
-	memset(in->sun_E, 0.0, in->lpoints*sizeof(gdouble));
-	in->sun_E[lam]=1.0;
+	struct dim_light *dim=&li->dim;
+	memset(li->sun, 0.0, dim->llen*sizeof(long double));
+	memset(li->sun_photons, 0.0, dim->llen*sizeof(long double));
+	memset(li->sun_E, 0.0, dim->llen*sizeof(long double));
+	li->sun_E[lam]=1.0;
 }
 
-void light_get_mode(struct istruct *mode,int lam,struct light *in)
+void light_get_mode(struct istruct *mode,int lam,struct light *li)
 {
-int ii;
+	int y;
+	long double device_start=0.0;
+	struct epitaxy *epi=li->epi;
+	struct dim_light *dim=&li->dim;
+	device_start=epi->device_start;
 
-for (ii=0;ii<mode->len;ii++)
-{
-	mode->data[ii]=inter_get_raw(in->x,in->photons[lam],in->points,in->device_start+mode->x[ii]);
+	for (y=0;y<mode->len;y++)
+	{
+		mode->data[y]=inter_get_raw(dim->y,li->photons[0][0][lam],dim->ylen,device_start+mode->x[y]);
+	}
+
 }
 
-}
 
-
-void light_set_dx(struct light *in,gdouble dx)
+long double light_convert_density(struct device *in,long double start, long double width)
 {
-in->dx=dx;
-}
+	long double ratio=0.0;
+	long double stop=start+width;
 
-gdouble light_convert_density(struct device *in,gdouble start, gdouble width)
-{
-gdouble ratio=0.0;
-gdouble stop=start+width;
 	if ((start>=in->time)&&(start<=(in->time+in->dt)))
 	{
 		if (width>=in->dt)
@@ -415,32 +402,38 @@ gdouble stop=start+width;
 return ratio;
 }
 
-void light_transfer_gen_rate_to_device(struct device *cell,struct light *in)
+void light_transfer_gen_rate_to_device(struct device *dev,struct light *li)
 {
-int z=0;
-int x=0;
-int y=0;
+	int z=0;
+	int x=0;
+	int y=0;
 
-gdouble Gn=0.0;
-gdouble Gp=0.0;
-long double pos=0;
-struct dimensions *dim=&(cell->ns.dim);
+	long double Gn=0.0;
+	long double Gp=0.0;
+	long double pos=0;
 
-//struct newton_save_state *ns=&cell->ns;
+	struct dimensions *dim=&(dev->ns.dim);
+	struct dim_light *dim_l=&(li->dim);
+	struct epitaxy *epi=&(dev->my_epitaxy);
 
-	for (y=0;y<dim->ymeshpoints;y++)
+	//struct newton_state *ns=&cell->ns;
+
+	for (y=0;y<dim->ylen;y++)
 	{
-		pos=in->device_start+dim->ymesh[y];
 
-		Gn=inter_get_raw(in->x,in->Gn,in->points,pos)*in->Dphotoneff;
-		Gp=inter_get_raw(in->x,in->Gp,in->points,pos)*in->Dphotoneff;
-		for (z=0;z<dim->zmeshpoints;z++)
+		for (z=0;z<dim->zlen;z++)
 		{
-			for (x=0;x<dim->xmeshpoints;x++)
+			for (x=0;x<dim->xlen;x++)
 			{
-				cell->Gn[z][x][y]=Gn*in->electron_eff;
-				cell->Gp[z][x][y]=Gp*in->hole_eff;
-				cell->Habs[z][x][y]=0.0;
+				pos=epi->device_start+dim->ymesh[y];
+
+				Gn=interpolate_light_zxy_long_double(dim_l, li->Gn, z, x, pos)*li->Dphotoneff;
+				Gp=interpolate_light_zxy_long_double(dim_l, li->Gp, z, x, pos)*li->Dphotoneff;
+
+				//printf("%Le %Le %Le %Le %Le\n",Gn,Gp,li->Gn[0][0][0],pos,li->Dphotoneff);
+				dev->Gn[z][x][y]=Gn*li->electron_eff;
+				dev->Gp[z][x][y]=Gp*li->hole_eff;
+				dev->Habs[z][x][y]=0.0;
 			}
 		}
 	}
@@ -448,30 +441,35 @@ struct dimensions *dim=&(cell->ns.dim);
 
 }
 
-long double light_calculate_photons_absorbed_in_active_layer(struct light *in)
+long double light_calculate_photons_absorbed_in_active_layer(struct light *li)
 {
+	int x=0;
+	int y=0;
+	int z=0;
+	struct dim_light *dim=&li->dim;
+	struct epitaxy *epi=li->epi;
 
-int i;
-//long double tot=0.0;
-long double in_active=0.0;
-long double ret=-1.0;
+	long double in_active=0.0;
+	long double ret=-1.0;
 
-for (i=0;i<in->points;i++)
-{
-		if ((in->x[i]>in->device_start)&&(in->x[i]<in->device_start+in->device_ylen))
+
+	for (z=0;z<dim->zlen;z++)
+	{
+		for (x=0;x<dim->xlen;x++)
 		{
-			in_active+=(in->Gn[i]+in->Gp[i])/2.0;
+			for (y=0;y<dim->ylen;y++)
+			{
+				if ((dim->y[y]>epi->device_start)&&(dim->y[y]<epi->device_stop))
+				{
+					in_active+=(li->Gn[z][x][y]+li->Gp[z][x][y])/2.0;
+				}
+			}
 		}
+			//tot+=in->photons_tot[i];//(in->Gn[i]+in->Gp[i])/2.0;
+	}
 
-		//tot+=in->photons_tot[i];//(in->Gn[i]+in->Gp[i])/2.0;
 
-}
+ret=in_active*(epi->device_stop-epi->device_start);
 
-//if ((tot!=0)&&(in_active!=0.0))
-//{
-//	ret=(in_active/tot);
-//}
-
-ret=in_active*in->device_ylen;
 return ret;
 }

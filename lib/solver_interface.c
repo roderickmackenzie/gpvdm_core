@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file solver_interface.c
 	@brief Load the sparse matrix solver .so/.dll.  If this is UMFPACK the plugin will call UMFPACK, for other custom solvers the work will be done in the plugin.
@@ -31,11 +31,10 @@
 
 #include "util.h"
 #include "inp.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "device.h"
 #include "dump_ctrl.h"
 #include "config.h"
-#include "complex_solver.h"
 #include "cal_path.h"
 #include <lang.h>
 #include <log.h>
@@ -44,7 +43,7 @@ static int unused __attribute__((unused));
 
 void solver_init(struct simulation *sim,char *solver_name)
 {
-char lib_path[1000];
+char lib_path[PATH_MAX];
 
 find_dll(sim, lib_path,solver_name);
 
@@ -58,18 +57,6 @@ char *error;
 	}
 
 	sim->dll_matrix_solve = dlsym(sim->dll_matrix_handle, "dll_matrix_solve");
-	if ((error = dlerror()) != NULL)
-	{
-		ewe(sim, "%s\n", error);
-	}
-
-	sim->dll_matrix_dump = dlsym(sim->dll_matrix_handle, "dll_matrix_dump");
-	if ((error = dlerror()) != NULL)
-	{
-		ewe(sim, "%s\n", error);
-	}
-
-	sim->dll_set_interface = dlsym(sim->dll_matrix_handle, "set_interface");
 	if ((error = dlerror()) != NULL)
 	{
 		ewe(sim, "%s\n", error);
@@ -92,30 +79,10 @@ char *error;
 }
 
 
-void solver(struct simulation *sim,int col,int nz,int *Ti,int *Tj, long double *Tx, long double *b)
-{
-(*sim->dll_matrix_solve)(sim,col,nz,Ti,Tj,Tx,b);
-}
-
-void dump_matrix(struct simulation *sim,struct device *in)
-{
-int i;
-	for (i=0;i<in->N;i++)
-	{
-		printf_log(sim,"%ld %ld %Le\n",in->Ti[i],in->Tj[i],in->Tx[i]);
-	}
-	
-	for (i=0;i<in->M;i++)
-	{
-		printf_log(sim,"%Le\n",in->b[i]);
-	}
-	//(*sim->dll_matrix_dump)(sim,col,nz,Ti,Tj, Tx,b,index);
-}
-
 void solver_free(struct simulation *sim)
 {
 if (sim->dll_matrix_handle!=NULL)
-{ 
+{
 	(*sim->dll_matrix_solver_free)(sim);
 
 
@@ -125,11 +92,9 @@ if (sim->dll_matrix_handle!=NULL)
 	{
 		ewe(sim,"%s\n",_("Error closing dll"));
 	}
-	
+
 	sim->dll_matrix_handle=NULL;
 	sim->dll_matrix_solve=NULL;
-	sim->dll_matrix_dump=NULL;
-	sim->dll_set_interface=NULL;
 	sim->dll_matrix_solver_free=NULL;
 
 }

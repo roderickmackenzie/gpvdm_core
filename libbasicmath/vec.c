@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 
 /** @file vec.c
@@ -28,7 +28,7 @@
 #define _LARGEFILE_SOURCE
 #include <stdio.h>
 #include <math.h>
-#include "const.h"
+#include <gpvdm_const.h>
 #include "vec.h"
 
 
@@ -50,13 +50,13 @@ if (my_vec1->z<0) my_vec1->z*= -1.0;
 ///Print a vector to a file
 void vec_fprintf(FILE *out,struct vec *my_vec)
 {
-	fprintf(out,"%lf %lf %lf\n",my_vec->x,my_vec->y,my_vec->z);
+	fprintf(out,"%le %le %le\n",my_vec->x,my_vec->y,my_vec->z);
 }
 
 ///Convert from rad to deg
 double deg(double in)
 {
-	return in*360.0/(2.0*PI);
+	return in*360.0/(2.0*PIf);
 }
 
 
@@ -220,7 +220,7 @@ double overlap(double x0,double x1)
 {
 	double a=x0;
 	double b=x1;
-	
+
 	if (a>b)
 	{
 		a=x1;
@@ -323,23 +323,23 @@ return cos_;
 
 void vec_rot(struct vec *in,struct vec *unit,struct vec *base, double ang)
 {
-struct vec temp;
-struct vec rot;
+	struct vec temp;
+	struct vec rot;
 
-double c;
-double s;
+	double c;
+	double s;
 
-vec_cpy(&rot,in);
-vec_sub(&rot,base);
-c=cos(ang);
-s=sin(ang);
+	vec_cpy(&rot,in);
+	vec_sub(&rot,base);
+	c=cos(ang);
+	s=sin(ang);
 
-temp.x=rot.x*(unit->x*unit->x*(1.0-c)+c) + rot.y*(unit->x*unit->y*(1.0-c)-unit->z*s)	+ rot.z*(unit->x*unit->z*(1.0-c)+unit->y*s);
-temp.y=rot.x*(unit->x*unit->y*(1-c)+unit->z*s)	+ rot.y*(unit->y*unit->y*(1-c)+c)	+ rot.z*(unit->y*unit->z*(1.0-c)-unit->x*s);
-temp.z=rot.x*(unit->x*unit->z*(1.0-c)-unit->y*s) + rot.y*(unit->y*unit->z*(1.0-c)+unit->x*s) + rot.z*(unit->z*unit->z*(1.0-c)+c);
+	temp.x=rot.x*(unit->x*unit->x*(1.0-c)+c) + rot.y*(unit->x*unit->y*(1.0-c)-unit->z*s)	+ rot.z*(unit->x*unit->z*(1.0-c)+unit->y*s);
+	temp.y=rot.x*(unit->x*unit->y*(1-c)+unit->z*s)	+ rot.y*(unit->y*unit->y*(1-c)+c)	+ rot.z*(unit->y*unit->z*(1.0-c)-unit->x*s);
+	temp.z=rot.x*(unit->x*unit->z*(1.0-c)-unit->y*s) + rot.y*(unit->y*unit->z*(1.0-c)+unit->x*s) + rot.z*(unit->z*unit->z*(1.0-c)+c);
 
-vec_add(&temp,base);
-vec_cpy(in,&temp);
+	vec_add(&temp,base);
+	vec_cpy(in,&temp);
 }
 
 ///Add to a vector
@@ -389,4 +389,12 @@ void vec_flip_y_axis(struct vec *one,double y)
 	double dy=(one->y-y);
 	one->y-=2.0*dy;
 }
+
+void vec_dump_to_file(char *file_name,struct vec *one)
+{
+	FILE *out=fopen(file_name,"w");
+	fprintf(out,"%le %le %le\n",one->z,one->x,one->y);
+	fclose(out);
+}
+
 

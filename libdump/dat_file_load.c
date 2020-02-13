@@ -29,7 +29,7 @@
 #include <string.h>
 #include "util.h"
 #include "dat_file.h"
-#include "const.h"
+#include "gpvdm_const.h"
 #include "code_ctrl.h"
 #include "cal_path.h"
 #include "dump.h"
