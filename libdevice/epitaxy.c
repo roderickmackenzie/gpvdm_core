@@ -160,6 +160,40 @@ void epitaxy_load_pl_file(struct simulation *sim,char *pl_file, struct epi_layer
 	strcpy(layer->pl_file,pl_file);
 
 }
+void epitaxy_load_generation_rates(struct simulation *sim,struct epitaxy *in)
+{
+	int i=0;
+	struct inp_file inp;
+	char file[200];
+	char *token;
+	strcpy(file,"light_gnp.inp");
+
+	inp_init(sim,&inp);
+	if (inp_load(sim, &inp , file)!=0)
+	{
+		ewe(sim,"Epitaxy: I can't find file %s\n",file);
+	}
+	inp_reset_read(sim,&inp);
+
+	while(1)
+	{
+		token=inp_get_string(sim,&inp);
+		if (strcmp(token,"#end")==0)
+		{
+			break;
+		}
+		sscanf(inp_get_string(sim,&inp),"%Le",&(in->layer[i].Gnp));
+		printf("%Le\n",in->layer[i].Gnp);
+		i++;
+		if (i>=in->layers)
+		{
+			break;
+		} 
+	}
+
+	inp_free(sim,&inp);
+
+}
 
 void epitaxy_load_dos_files(struct simulation *sim,struct epitaxy *in, char *dos_file,char *lumo_file,char *homo_file)
 {
@@ -310,6 +344,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 		y_pos+=in->layer[i].width;
 		in->layer[i].y_stop=y_pos;
 
+		in->layer[i].Gnp=0.0;
 	}
 
 	in->device_stop=epitaxy_get_device_stop(in);
@@ -327,6 +362,8 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 
 
 	epitaxy_shapes_load(sim,in);
+
+	epitaxy_load_generation_rates(sim,in);
 }
 
 /**

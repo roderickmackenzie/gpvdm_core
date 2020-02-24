@@ -31,7 +31,8 @@
 #include "gui_hooks.h"
 #include <plot.h>
 #include <cal_path.h>
-#include <thermal.h>
+#include <heat.h>
+#include <heat_fun.h>
 #include <contacts.h>
 #include <dump.h>
 #include <log.h>
@@ -201,16 +202,15 @@ int x=0;
 int ittr=0;
 int cont=TRUE;
 struct dimensions *dim=&in->ns.dim;
-
+struct heat *thermal=&(in->thermal);
 
 for (z=0;z<dim->zlen;z++)
 {
 //	for (x=0;x<in->xlen;x++)
 //	{
 
-		if (in->newton_enable_external_thermal==FALSE)
+		if (thermal->newton_enable_external_thermal==FALSE)
 		{
-
 			solve_cur(sim,in,z,x);
 		}else
 		{
@@ -220,13 +220,13 @@ for (z=0;z<dim->zlen;z++)
 
 				//plot_now(sim,"thermal.plot");
 				//getchar();
-				solve_thermal(sim,in);
+				heat_solve(sim,&(in->thermal),in,z,x);
 				//plot_now(sim,"thermal.plot");
 				//getchar();
 
 				//plot_now(in);
 				///getchar();
-				if (((in->thermal_conv==TRUE)&&(in->dd_conv==TRUE))||(ittr>10)) cont=FALSE;
+				if (((thermal->thermal_conv==TRUE)&&(in->dd_conv==TRUE))||(ittr>10)) cont=FALSE;
 				//getchar();
 				ittr++;
 			}while(cont==TRUE);

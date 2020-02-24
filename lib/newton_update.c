@@ -110,6 +110,7 @@ int y=0;
 int z=0;
 struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
+struct heat* thermal=&(in->thermal);
 
 	for (z=0;z<dim->zlen;z++)
 	{
@@ -119,9 +120,9 @@ struct dimensions *dim=&in->ns.dim;
 
 			for (y=0;y<dim->ylen;y++)
 			{
-				in->Tl[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
-				in->Te[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
-				in->Th[z][x][y]=in->Tll+dim->ymesh[y]*(in->Tlr-in->Tll)/in->ylen;
+				in->Tl[z][x][y]=thermal->Ty0+dim->ymesh[y]*(thermal->Ty1-thermal->Ty0)/in->ylen;
+				in->Te[z][x][y]=thermal->Ty0+dim->ymesh[y]*(thermal->Ty1-thermal->Ty0)/in->ylen;
+				in->Th[z][x][y]=thermal->Ty0+dim->ymesh[y]*(thermal->Ty1-thermal->Ty0)/in->ylen;
 				in->ex[z][x][y]=0.0;
 				in->Hex[z][x][y]=0.0;
 				//if ((i>in->ylen/2)&&(i<in->ylen/2+10)) in->Hex[z][x][y]=1e9;
@@ -153,14 +154,6 @@ struct dimensions *dim=&in->ns.dim;
 				in->mup[z][x][y]=get_p_mu(in,in->imat[z][x][y]);
 
 				in->kf[z][x][y]=0.0;//get_mat_param(&(in->mat.l[in->imat[z][x][y]]),mat_kf);
-				in->kl[z][x][y]=in->thermal_kl;//get_mat_param(&(in->mat.l[in->imat[z][x][y]]),mat_kl);
-				in->ke[z][x][y]=get_n_mu(in,in->imat[z][x][y]);
-				in->kh[z][x][y]=get_p_mu(in,in->imat[z][x][y]);
-
-				in->Hl[z][x][y]=0.0;
-				in->He[z][x][y]=0.0;
-				in->Hh[z][x][y]=0.0;
-				in->Habs[z][x][y]=0.0;
 
 				in->t[z][x][y]=in->Xi[z][x][y];
 				in->tp[z][x][y]=in->Xi[z][x][y]+in->Eg[z][x][y];

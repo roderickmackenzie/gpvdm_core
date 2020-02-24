@@ -694,3 +694,45 @@ void flip_zxy_long_double_y(struct simulation *sim, struct dimensions *dim,long 
 
 	free_zxy_gdouble(dim, &temp);
 }
+
+//This shoudl be 3D interpolation but we are assuming the meshes are aligned.
+long double interpolate_zxy_long_double(struct dimensions *dim, long double ***data,int z, int x, long double y_in)
+{
+	int y=0;
+	long double x0=0.0;
+	long double x1=0.0;
+	long double y0=0.0;
+	long double y1=0.0;
+
+	long double ret;
+
+	if (y_in<dim->ymesh[0])
+	{
+		return 0.0;
+	}
+
+
+	if (y_in>=dim->ymesh[dim->ylen-1])
+	{
+		//printf("here %Le %Le\n",y_in,dim->ymesh[dim->ylen-1]);
+		y=dim->ylen-1;
+		x0=dim->ymesh[y-1];
+		x1=dim->ymesh[y];
+		y0=data[z][x][y-1];
+		y1=data[z][x][y];
+
+	}else
+	{
+		y=search(dim->ymesh,dim->ylen,y_in);
+		//printf("%d\n",y);
+		x0=dim->ymesh[y];
+		x1=dim->ymesh[y+1];
+
+		y0=data[z][x][y];
+		y1=data[z][x][y+1];
+	}
+	ret=y0+((y1-y0)/(x1-x0))*(y_in-x0);
+
+return ret;
+
+}

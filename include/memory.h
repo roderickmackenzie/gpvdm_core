@@ -78,6 +78,7 @@ void zxy_load_long_double(struct simulation *sim, struct dimensions *dim,long do
 void zx_y_quick_dump(char *file_name, long double ***in, struct dimensions *dim);
 void zxy_set_gdouble(struct dimensions *dim, gdouble ***var, gdouble val);
 void flip_zxy_long_double_y(struct simulation *sim, struct dimensions *dim,long double *** data);
+long double interpolate_zxy_long_double(struct dimensions *dim, long double ***data,int z, int x, long double y_in);
 
 //zxy_long_double_complex
 void malloc_zxy_long_double_complex(struct dimensions *dim, long double complex * (***var));
@@ -110,6 +111,18 @@ void free_light_zxyl_long_double_complex(struct dim_light *dim, long double comp
 //light_zxy_p_object
 void malloc_light_zxy_p_object(struct dim_light *dim, struct object * (****var));
 void free_light_zxy_p_object(struct dim_light *dim, struct object * (****in_var));
+
+// heat_zxy_long_double
+void malloc_heat_zxy_long_double(struct dim_heat *dim, long double * (***var));
+void free_heat_zxy_long_double(struct dim_heat *dim, long double * (***in_var));
+void flip_heat_zxy_long_double_y(struct simulation *sim, struct dim_heat *dim,long double *** data);
+void memset_heat_zxy_long_double(struct dim_heat *dim, long double ***data,int val);
+void div_heat_zxy_long_double(struct dim_heat *dim, long double ***data,long double val);
+long double interpolate_heat_zxy_long_double(struct dim_heat *dim, long double ***data,int z, int x, long double y_in);
+
+//heat_zxy_p_object
+void malloc_heat_zxy_p_object(struct dim_heat *dim, struct object * (****var));
+void free_heat_zxy_p_object(struct dim_heat *dim, struct object * (****in_var));
 
 //2d opps
 void mem_set_zx_gdouble_from_zx_gdouble(struct dimensions *dim, gdouble **data_out, gdouble **data_in);

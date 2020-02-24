@@ -35,6 +35,27 @@
 	@brief Basic low level triangle functions
 */
 
+long double get_sign (struct vec *p0, struct vec *p1, struct vec *p2)
+{
+    return (p0->x - p2->x) * (p1->z - p2->z) - (p1->x - p2->x) * (p0->z - p2->z);
+}
+
+int triangle_vec_within (struct triangle *tri,struct vec *pt)
+{
+    long double d0, d1, d2;
+    int is_neg;
+	int is_pos;
+
+    d0 = get_sign(pt, &(tri->xy0), &(tri->xy1));
+    d1 = get_sign(pt, &(tri->xy1), &(tri->xy2));
+    d2 = get_sign(pt, &(tri->xy2), &(tri->xy0));
+
+    is_neg = (d0 < 0) || (d1 < 0) || (d2 < 0);
+    is_pos = (d0 > 0) || (d1 > 0) || (d2 > 0);
+
+    return !(is_neg && is_pos);
+}
+
 void triangle_print(struct triangle *in)
 {
 	printf("(%le,%le,%le)\n",in->xy0.x,in->xy0.y,in->xy0.z);
@@ -79,6 +100,29 @@ void triangle_norm(struct vec *ret,struct triangle *my_obj)
 	vec_cpy(ret,&n);
 }
 
+double triangle_get_y_from_xz(struct triangle *tri,double x, double z)
+{
+	double y=0.0;
+	struct vec edge0;
+	struct vec edge1;
+	struct vec n;
+
+	vec_init(&edge0);
+	vec_init(&edge1);
+	vec_init(&n);
+
+	vec_cpy(&edge0,&(tri->xy1));
+	vec_sub(&edge0,&(tri->xy0));
+
+	vec_cpy(&edge1,&(tri->xy2));
+	vec_sub(&edge1,&(tri->xy0));
+
+	vec_cross(&n,&edge0,&edge1);
+
+	y=(n.x*(x-tri->xy0.x)+n.z*(z-tri->xy0.z))/(-n.y)+tri->xy0.y;
+	return y;
+}
+
 void triangle_dump(char *file_name,struct triangle *tri)
 {
 	FILE *out;
@@ -92,7 +136,7 @@ void triangle_dump(char *file_name,struct triangle *tri)
 }
 
 
-double ray_tri_get_min_y(struct triangle* tri)
+double triangle_get_min_y(struct triangle* tri)
 {
 	double min=tri->xy0.y;
 	if (min>tri->xy1.y)
@@ -101,6 +145,22 @@ double ray_tri_get_min_y(struct triangle* tri)
 	}
 
 	if (min>tri->xy2.y)
+	{
+		min=tri->xy2.y;
+	}
+
+	return min;
+}
+
+double triangle_get_max_y(struct triangle* tri)
+{
+	double min=tri->xy0.y;
+	if (min<tri->xy1.y)
+	{
+		min=tri->xy1.y;
+	}
+
+	if (min<tri->xy2.y)
 	{
 		min=tri->xy2.y;
 	}

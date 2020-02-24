@@ -44,17 +44,25 @@ EXPORT void light_dll_ver(struct simulation *sim)
 EXPORT int light_dll_solve_lam_slice(struct simulation *sim,struct device *cell,struct light *li,int z, int x, int l)
 {
 	int y=0;
+	struct object *obj;
 	struct dim_light *dim=&li->dim;
+	struct epitaxy *epi=li->epi;
+	int layer=0;
 	long double G=0.0;
-
-	G=G*li->Psun;
 
 	li->disable_cal_photon_density=TRUE;
 
 	for (y=0;y<dim->ylen;y++)
 	{
-		li->Gn[z][x][y]=li->light_flat_generation_rate;
-		li->Gp[z][x][y]=li->light_flat_generation_rate;
+		obj=li->obj[z][x][y];
+		layer=obj->epi_layer;
+		if (obj->epi_layer!=-1)
+		{
+			G=epi->layer[layer].Gnp*li->Psun;
+			li->Gn[z][x][y]=G;
+			li->Gp[z][x][y]=G;
+		}
+
 	}
 
 	li->finished_solveing=TRUE;

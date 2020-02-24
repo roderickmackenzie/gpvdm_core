@@ -67,6 +67,21 @@ struct dim_light
 
 };
 
+struct dim_heat
+{
+	int zlen;
+	int xlen;
+	int ylen;
+
+	long double *y;
+	long double *x;
+	long double *z;
+
+	long double *dy;
+	long double *dx;
+	long double *dz;
+};
+
 void dim_alloc_gen_untiy_mesh_x(struct dimensions *dim);
 void dim_alloc_gen_untiy_mesh_z(struct dimensions *dim);
 
@@ -88,5 +103,15 @@ void dim_light_free(struct dim_light *dim);
 void dim_light_malloc_xyzl(struct dim_light *dim,char xyzl);
 void dim_light_malloc(struct dim_light *dim);
 void dim_light_info_to_buf(struct dat_file *buf,struct dim_light *dim);
+
+//dim_heat
+void dim_heat_init_xyz(struct dim_heat *dim,char xyz);
+void dim_heat_init(struct dim_heat *dim);
+void dim_heat_free_xyz(struct dim_heat *dim,char xyz);
+void dim_heat_free(struct dim_heat *dim);
+void dim_heat_malloc_xyz(struct dim_heat *dim,char xyz);
+void dim_heat_malloc(struct dim_heat *dim);
+void dim_heat_info_to_buf(struct dat_file *buf,struct dim_heat *dim);
+
 
 #endif

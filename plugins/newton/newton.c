@@ -202,6 +202,8 @@ void fill_matrix(struct simulation *sim,struct device *in,int z,int x)
 {
 
 struct matrix *mx=&(in->mx);
+struct heat *thermal=&(in->thermal);
+
 int band=0;
 update_y_array(sim,in,z,x);
 
@@ -410,9 +412,9 @@ long double dJpdxipc_imag=0.0;
 				yl=dim->ymesh[0]-(dim->ymesh[1]-dim->ymesh[0]);
 				//printf("%Le\n",yl);
 				//getchar();
-//				Tll=in->Tll;
-				Tel=in->Tll;
-				Thl=in->Tll;
+//				Tll=thermal->Ty0;
+				Tel=thermal->Ty0;
+				Thl=thermal->Ty0;
 
 				Ecl= -in->Xi[z][x][0]-phil;
 				Evl= -in->Xi[z][x][0]-phil-in->Eg[z][x][0];
@@ -494,9 +496,9 @@ long double dJpdxipc_imag=0.0;
 
 
 				yr=dim->ymesh[i]+(dim->ymesh[i]-dim->ymesh[i-1]);
-//				Tlr=in->Tlr;
-				Ter=in->Tlr;
-				Thr=in->Tlr;
+//				Tlr=thermal->Ty1;
+				Ter=thermal->Ty1;
+				Thr=thermal->Ty1;
 
 
 				Ecr= -in->Xi[z][x][i]-phir;

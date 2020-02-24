@@ -135,6 +135,27 @@ int i;
 	}
 
 }
+
+void triangles_save(char *file_name,struct triangles *in)
+{	
+	int i;
+	FILE *out;
+	struct triangle *tri;
+	out=fopen(file_name,"w");
+	for (i=0;i<in->len;i++)
+	{
+		tri=&(in->data[i]);
+		fprintf(out,"%le %le %le\n",tri->xy0.z,tri->xy0.x,tri->xy0.y);
+		fprintf(out,"%le %le %le\n",tri->xy1.z,tri->xy1.x,tri->xy1.y);
+		fprintf(out,"%le %le %le\n",tri->xy2.z,tri->xy2.x,tri->xy2.y);
+		fprintf(out,"%le %le %le\n",tri->xy0.z,tri->xy0.x,tri->xy0.y);
+		fprintf(out,"\n");
+		fprintf(out,"\n");
+	}
+
+	fclose(out);
+}
+
 void triangles_find_min(struct vec *out,struct triangles *in)
 {
 	int i;
@@ -395,4 +416,37 @@ void triangles_cal_edges(struct triangles *in)
 
 }
 
+double triangles_interpolate(struct triangles *in,struct vec *p)
+{
+	int i;
+	char temp[100];
+	struct triangle *tri;
+	double ret;
+	double max=0.0;
+	double m=0.0;
+	int i_max=0;
+	for (i=0;i<in->len;i++)
+	{
+		tri=&(in->data[i]);
+		if (triangle_vec_within (tri,p)==TRUE)
+		{
+			m=triangle_get_max_y(tri);
+			if (m>max)
+			{
+				max=m;
+				i_max=i;
+			}
 
+		}
+		//printf("%d %d\n",i,triangle_vec_within (tri,p));
+	}
+
+	//sprintf(temp,"tri.dat",i_max);
+	//triangle_dump(temp,&(in->data[i_max]));
+
+	//FILE *out=fopen("p.dat","w");
+	//fprintf(out,"%le %le %le\n",p->x, p->z,,p->x, p->z));
+	//fclose(out);
+	ret=triangle_get_y_from_xz(&(in->data[i_max]),p->x, p->z);
+	return ret;
+}

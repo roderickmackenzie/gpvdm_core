@@ -33,12 +33,14 @@ void mesh_save(struct simulation *sim,char *file_name,struct mesh *in);
 void mesh_free(struct mesh *in);
 void mesh_build(struct simulation *sim,struct device *in);
 void mesh_cal_layer_widths(struct device *in);
-long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct mesh *in,char xyz);
 void mesh_init(struct mesh *in);
 void mesh_load_file(struct simulation * sim, struct mesh *in,char *file);
 void mesh_cpy(struct simulation *sim,struct mesh *out,struct mesh *in);
 void mesh_malloc_sub_mesh(struct simulation * sim, struct mesh *in);
 void mesh_gen_simple(struct simulation * sim, struct mesh *in,long double len,int points);
+long double mesh_to_dim(struct simulation *sim,struct dimensions *dim, struct mesh *in,char xyz);
+long double mesh_to_dim_heat(struct simulation *sim,struct dim_heat *dim, struct mesh *in,char xyz);
+long double mesh_to_lin_array(struct simulation *sim,long double *mesh, long double *dmesh, struct mesh *in);
 
 //mesh obj
 void mesh_obj_cpy(struct simulation *sim,struct mesh_obj *out,struct mesh_obj *in);

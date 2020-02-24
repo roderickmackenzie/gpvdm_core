@@ -225,6 +225,11 @@ mx.M=dim->ylen;
 
 matrix_malloc(sim,&mx);
 
+if (in->ncontacts<1)
+{
+	ewe(sim,"No contacts\n");
+}
+
 /*
 Ti[0]=0;
 Tj[0]=0;

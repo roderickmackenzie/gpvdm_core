@@ -82,7 +82,7 @@ void light_solve_optical_problem(struct simulation *sim,struct device *dev,struc
 
 	light_solve_all(sim,dev,li);
 
-	light_cal_photon_density(sim,li);
+	light_cal_photon_density(sim,li,dev);
 
 	for (l=0;l<dim->llen;l++)
 	{
@@ -110,6 +110,10 @@ void light_solve_all(struct simulation *sim,struct device *cell,struct light *li
 			{
 
 				//printf("here %Le %d\n",li->sun_E[l],l);
+				memset_light_zxyl_long_double_y(dim, li->En,z,x,l,0.0);
+				memset_light_zxyl_long_double_y(dim, li->Ep,z,x,l,0.0);
+				memset_light_zxyl_long_double_y(dim, li->Enz,z,x,l,0.0);
+				memset_light_zxyl_long_double_y(dim, li->Epz,z,x,l,0.0);
 
 				if (li->sun_E[l]!=0.0)
 				{
@@ -136,13 +140,10 @@ void light_solve_all(struct simulation *sim,struct device *cell,struct light *li
 					}
 
 					slices_solved++;
-				}else
-				{
-					memset_light_zxyl_long_double_y(dim, li->En,z,x,l,0.0);
-					memset_light_zxyl_long_double_y(dim, li->Ep,z,x,l,0.0);
-					memset_light_zxyl_long_double_y(dim, li->Enz,z,x,l,0.0);
-					memset_light_zxyl_long_double_y(dim, li->Epz,z,x,l,0.0);
-				}
+				}//else
+				//{
+
+				//}
 			}
 		}
 	}

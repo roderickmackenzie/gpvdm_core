@@ -116,7 +116,7 @@ void light_load_config_file(struct simulation *sim,struct light *li)
 
 	inp_search_gdouble(sim,&inp,&(li->light_file_generation_shift),"#light_file_generation_shift");
 
-	inp_search_gdouble(sim,&inp,&(li->light_flat_generation_rate),"#light_flat_generation_rate");
+	inp_search_string(sim,&inp,li->light_profile,"#light_profile");
 
 	inp_free(sim,&inp);
 
@@ -131,7 +131,7 @@ void light_load_config(struct simulation *sim,struct light *li, struct device *d
 	li->force_update=FALSE;
 
 	light_load_config_file(sim,li);
-	light_load_materials(sim,li);
+	light_load_materials(sim,li,dev);
 	light_malloc(sim,li);
 	light_build_mesh(sim,li,dim);
 	light_build_materials_arrays(sim,li,dev);

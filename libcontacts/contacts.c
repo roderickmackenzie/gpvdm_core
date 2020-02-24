@@ -210,11 +210,6 @@ void contacts_load(struct simulation *sim,struct device *in)
 		ewe(sim,"Too many contacts\n");
 	}
 
-	if (in->ncontacts<1)
-	{
-		ewe(sim,"No contacts\n");
-	}
-
 	int active=FALSE;
 	long double ingress=0.0;
 

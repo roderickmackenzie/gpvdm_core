@@ -20,18 +20,37 @@
 // 
 // 
 
-/** @file thermal.h
-@brief header file for the theral solver, not really used yet.
+/** @file mesh_struct.h
+@brief meshing structure
 */
 
-#ifndef thermal_h
-#define thermal_h
-#include "sim.h"
-void update_heat(struct device *in);
-void dump_thermal(struct simulation *sim,struct device *in);
-int solve_thermal(struct simulation *sim,struct device *in);
-void thermal_init(struct device *in);
-void thermal_free(struct device *in);
-double get_thermal_error(struct device *in);
-double get_last_thermal_error();
+#ifndef mesh_struct_h
+#define mesh_struct_h
+
+struct mesh_layer
+{
+	long double dx;
+	long double len;
+	long double mul;
+	long double *dmesh;
+	int n_points;
+	int left_right;
+};
+
+struct mesh
+{
+	long double start;
+	struct mesh_layer *layers;
+	int nlayers;
+	int remesh;
+	int tot_points;
+};
+
+struct mesh_obj
+{
+	struct mesh meshdata_x;
+	struct mesh meshdata_y;
+	struct mesh meshdata_z;
+};
+
 #endif

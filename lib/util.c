@@ -388,6 +388,14 @@ if (strcmp(temp,"active")==0)
 if (strcmp(temp,"other")==0)
 {
 	return LAYER_OTHER;
+}else
+if (strcmp(temp,"thermal_hydrodynamic")==0)
+{
+	return THERMAL_HYDRODYNAMIC;
+}else
+if (strcmp(temp,"thermal_simple")==0)
+{
+	return THERMAL_SIMPLE;
 }
 
 

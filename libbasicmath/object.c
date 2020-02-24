@@ -28,7 +28,7 @@
 #include <log.h>
 #include <ray_fun.h>
 #include <triangle.h>
-#include <triangle_io.h>
+#include <triangles.h>
 
 /** @file objects.c
 	@brief Basic object manipulation
@@ -103,7 +103,7 @@ double object_get_min_y(struct object *obj)
 	for (i=0;i<obj->tri.len;i++)
 	{
 		tri=&(obj->tri.data[i]);
-		min_new=ray_tri_get_min_y(tri);
+		min_new=triangle_get_min_y(tri);
 		if (min_new<min)
 		{
 			min=min_new;

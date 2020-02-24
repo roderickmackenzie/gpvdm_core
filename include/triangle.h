@@ -60,7 +60,11 @@ void triangle_print(struct triangle *in);
 void triangle_cog(struct vec *out,struct triangle *in);
 void triangle_norm(struct vec *ret,struct triangle *my_obj);
 void triangle_dump(char *file_name,struct triangle *tri);
-double ray_tri_get_min_y(struct triangle* tri);
+int triangle_vec_within (struct triangle *tri,struct vec *pt);
+double triangle_get_y_from_xz(struct triangle *tri,double x, double z);
+
+double triangle_get_min_y(struct triangle* tri);
+double triangle_get_max_y(struct triangle* tri);
 void ray_tri_flip_y_axis(struct triangle* tri,double y);
 void ray_tri_sub_y(struct triangle* tri,double y);
 void ray_tri_add_y(struct triangle* tri,double y);

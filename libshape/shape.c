@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file shape.c
 	@brief Load the shape files.
@@ -31,8 +31,9 @@
 #include <util.h>
 #include <cal_path.h>
 #include <i.h>
-#include <triangle_io.h>
+#include <triangles.h>
 #include <triangle.h>
+#include <log.h>
 
 int shape_in_shape(struct simulation *sim,struct shape *s,long double z,long double x,long double y)
 {
@@ -66,7 +67,7 @@ int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long
 		}
 	}
 	return -1;
-	
+
 }
 
 void shape_free(struct simulation *sim,struct shape *s)
@@ -98,7 +99,7 @@ void shape_free_materials(struct simulation *sim,struct epitaxy *in)
 
 void shape_init(struct simulation *sim,struct shape *s)
 {
-	s->dos_index=0;
+	s->dos_index=-1;
 	s->dz=0.0;
 	s->dx=0.0;
 	s->dy=0.0;
@@ -171,7 +172,7 @@ struct shape *shape_load_file(struct simulation *sim,struct epitaxy *in,struct s
 
 	inp_init(sim,&inp);
 
-	s->dos_index=0;
+	s->dos_index=-1;
 
 	if (inp_load(sim,&inp,full_file_name)==0)
 	{

@@ -30,7 +30,7 @@
 #include <device.h>
 #include <inp.h>
 #include <util.h>
-#include <triangle_io.h>
+#include <triangles.h>
 #include <memory.h>
 #include <epitaxy_struct.h>
 #include <epitaxy.h>

@@ -51,6 +51,8 @@
 #include <epitaxy_struct.h>
 #include <epitaxy.h>
 #include <device_fun.h>
+#include <heat.h>
+#include <heat_fun.h>
 
 
 int run_simulation(struct simulation *sim)
@@ -163,6 +165,8 @@ int run_simulation(struct simulation *sim)
 
 	device_build_scene(sim,&(cell));
 
+	heat_load_config(sim,&(cell.thermal), &(cell));
+
 	cell.pl_enabled=FALSE;
 	cell.pl_use_experimental_emission_spectra=FALSE;
 
@@ -203,6 +207,20 @@ int run_simulation(struct simulation *sim)
 	}
 
 
+	printf_log(sim,"%s: %d\n",_("Loading DoS layers"),cell.my_epitaxy.electrical_layers);
+	char tempn[200];
+	char tempp[200];
+	i=0;
+
+	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
+	{
+		dos_init(&cell,i);
+		printf_log(sim,"%s %d/%d\n",_("Load DoS"),i,cell.my_epitaxy.electrical_layers);
+		sprintf(tempn,"%s_dosn.dat",cell.my_epitaxy.layer[i].dos_file);
+		sprintf(tempp,"%s_dosp.dat",cell.my_epitaxy.layer[i].dos_file);
+		load_dos(sim,&cell,tempn,tempp,i);
+	}
+
 	if (enable_electrical==TRUE)
 	{
 
@@ -211,20 +229,6 @@ int run_simulation(struct simulation *sim)
 
 		//circuit_load(sim);
 		circuit_build_device(sim,&(cell.cir),&cell);
-
-		printf_log(sim,"%s: %d\n",_("Loading DoS layers"),cell.my_epitaxy.electrical_layers);
-		char tempn[200];
-		char tempp[200];
-		i=0;
-
-		for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
-		{
-			dos_init(&cell,i);
-			printf_log(sim,"%s %d/%d\n",_("Load DoS"),i,cell.my_epitaxy.electrical_layers);
-			sprintf(tempn,"%s_dosn.dat",cell.my_epitaxy.layer[i].dos_file);
-			sprintf(tempp,"%s_dosp.dat",cell.my_epitaxy.layer[i].dos_file);
-			load_dos(sim,&cell,tempn,tempp,i);
-		}
 
 		device_alloc_traps(&cell);
 
@@ -377,11 +381,26 @@ int run_simulation(struct simulation *sim)
 	run_electrical_dll(sim,&cell,strextract_domain(cell.simmode));
 
 
+	/*if (enable_electrical==FALSE)
+	{
+		if (cell.thermal.newton_enable_external_thermal==TRUE)
+		{
+			printf("Run thermal solver\n");
+			getchar();
+		}
+	}*/
+
+	//Clean up
 	cache_dump(sim);
 	cache_free(sim);
 	epitaxy_free(sim,&cell.my_epitaxy);
 	contacts_free(sim,&cell);
 	test_complex_solver_free(sim);
+
+	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
+	{
+		dos_free(&cell,i);
+	}
 
 	if (enable_electrical==TRUE)
 	{
@@ -392,10 +411,6 @@ int run_simulation(struct simulation *sim)
 
 		plot_close(sim);
 
-		for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
-		{
-			dos_free(&cell,i);
-		}
 		solver_free_memory(sim,&cell);
 
 		newton_interface_free(sim);

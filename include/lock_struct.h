@@ -20,34 +20,37 @@
 // 
 // 
 
-/** @file server.h
-@brief header file for the internal server used to run jobs across multiple CPUs
+/** @file mesh_struct.h
+@brief meshing structure
 */
 
-#ifndef serverh
-#define serverh
+#ifndef mesh_struct_h
+#define mesh_struct_h
 
-#include <sim_struct.h>
-#include <server_struct.h>
-struct my_msgbuf {
-    long mtype;
-    char mtext[200];
+struct mesh_layer
+{
+	long double dx;
+	long double len;
+	long double mul;
+	long double *dmesh;
+	int n_points;
+	int left_right;
 };
 
+struct mesh
+{
+	long double start;
+	struct mesh_layer *layers;
+	int nlayers;
+	int remesh;
+	int tot_points;
+};
 
-void server_stop_and_exit();
-void server_shut_down(struct simulation *sim,struct server_struct *myserver);
-void server_add_job(struct simulation *sim,char *command,char *output);
-void print_jobs(struct simulation *sim);
-void server_init(struct simulation *sim);
-void server_exe_jobs(struct simulation *sim, struct server_struct *myserver);
-void server_job_finished(struct server_struct *myserver,char *job);
-int server_run_jobs(struct simulation *sim,struct server_struct *myserver);
-double server_get_odes_per_s();
-double server_get_jobs_per_s();
-void change_cpus(struct simulation *sim,struct server_struct *myserver);
-void server_set_lock_file(struct server_struct *myserver, char *file_name);
-void server_check_wall_clock(struct simulation *sim,struct server_struct *myserver);
-void server_update_last_job_time();
-void server_set_dbus_finish_signal(struct server_struct *myserver, char *signal);
+struct mesh_obj
+{
+	struct mesh meshdata_x;
+	struct mesh meshdata_y;
+	struct mesh meshdata_z;
+};
+
 #endif

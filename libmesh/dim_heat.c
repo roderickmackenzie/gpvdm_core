@@ -19,8 +19,8 @@
 //
 //
 
-/** @file dim.c
-@brief Dimension object
+/** @file dim_heat.c
+@brief Dimension object for heat
 */
 
 #include <device.h>
@@ -34,129 +34,118 @@
 #include <lang.h>
 #include <shape.h>
 
-void dim_light_init_xyzl(struct dim_light *dim,char xyzl)
+void dim_heat_init_xyz(struct dim_heat *dim,char xyz)
 {
-	if (xyzl=='x')
+	if (xyz=='x')
 	{
 		dim->x= NULL;
-		dim->dx= -1.0;
+		dim->dx= NULL;
 		dim->xlen=-1;
 	}else
-	if (xyzl=='y')
+	if (xyz=='y')
 	{
 		dim->y= NULL;
-		dim->dy= -1.0;
+		dim->dy= NULL;
 		dim->ylen=-1;
 	}else
-	if (xyzl=='z')
+	if (xyz=='z')
 	{
 		dim->z= NULL;
-		dim->dz= -1.0;
+		dim->dz= NULL;
 		dim->zlen=-1;
-	}else
-	if (xyzl=='l')
-	{
-		dim->l= NULL;
-		dim->dl= -1.0;
-		dim->llen=-1;
 	}
 
 }
 
-void dim_light_init(struct dim_light *dim)
+void dim_heat_init(struct dim_heat *dim)
 {
-	dim_light_init_xyzl(dim,'x');
-	dim_light_init_xyzl(dim,'y');
-	dim_light_init_xyzl(dim,'z');
-	dim_light_init_xyzl(dim,'l');
+	dim_heat_init_xyz(dim,'x');
+	dim_heat_init_xyz(dim,'y');
+	dim_heat_init_xyz(dim,'z');
 }
 
-void dim_light_free_xyzl(struct dim_light *dim,char xyzl)
+void dim_heat_free_xyz(struct dim_heat *dim,char xyz)
 {
-	if (xyzl=='x')
+	if (xyz=='x')
 	{
 		if (dim->x!=NULL)
 		{
 			free(dim->x);
-			dim_light_init_xyzl(dim,'x');
+			free(dim->dx);
+			dim_heat_init_xyz(dim,'x');
 		}
 	}else
-	if (xyzl=='y')
+	if (xyz=='y')
 	{
 		if (dim->y!=NULL)
 		{
 			free(dim->y);
-			dim_light_init_xyzl(dim,'y');
+			free(dim->dy);
+			dim_heat_init_xyz(dim,'y');
 		}
 	}else
-	if (xyzl=='z')
+	if (xyz=='z')
 	{
 		if (dim->z!=NULL)
 		{
 			free(dim->z);
-			dim_light_init_xyzl(dim,'z');
-		}
-	}else
-	if (xyzl=='l')
-	{
-		if (dim->l!=NULL)
-		{
-			free(dim->l);
-			dim_light_init_xyzl(dim,'l');
+			free(dim->dz);
+			dim_heat_init_xyz(dim,'z');
 		}
 	}
 
 }
 
-void dim_light_free(struct dim_light *dim)
+void dim_heat_free(struct dim_heat *dim)
 {
-	dim_light_free_xyzl(dim,'x');
-	dim_light_free_xyzl(dim,'y');
-	dim_light_free_xyzl(dim,'z');
-	dim_light_free_xyzl(dim,'l');
-	dim_light_init(dim);
+	dim_heat_free_xyz(dim,'x');
+	dim_heat_free_xyz(dim,'y');
+	dim_heat_free_xyz(dim,'z');
+	dim_heat_init(dim);
 }
 
-void dim_light_malloc_xyzl(struct dim_light *dim,char xyzl)
+void dim_heat_malloc_xyz(struct dim_heat *dim,char xyz)
 {
 
-	if (xyzl=='x')
+	if (xyz=='x')
 	{
 		dim->x = (long double *) malloc(dim->xlen * sizeof(long double));
 		memset(dim->x, 0, dim->xlen * sizeof(long double));
+
+		dim->dx = (long double *) malloc(dim->xlen * sizeof(long double));
+		memset(dim->dx, 0, dim->xlen * sizeof(long double));
+
 	}else
-	if (xyzl=='y')
+	if (xyz=='y')
 	{
 		dim->y = (long double *) malloc(dim->ylen * sizeof(long double));
 		memset(dim->y, 0, dim->ylen * sizeof(long double));
+
+		dim->dy = (long double *) malloc(dim->ylen * sizeof(long double));
+		memset(dim->dy, 0, dim->ylen * sizeof(long double));
 	}else
-	if (xyzl=='z')
+	if (xyz=='z')
 	{
 		dim->z = (long double *) malloc(dim->zlen * sizeof(long double));
 		memset(dim->z, 0, dim->zlen * sizeof(long double));
-	}else
-	if (xyzl=='l')
-	{
-		dim->l = (long double *) malloc(dim->llen * sizeof(long double));
-		memset(dim->l, 0, dim->llen * sizeof(long double));
+
+		dim->dz = (long double *) malloc(dim->zlen * sizeof(long double));
+		memset(dim->dz, 0, dim->zlen * sizeof(long double));
 	}
 
-
 }
 
 
 
-void dim_light_malloc(struct dim_light *dim)
+void dim_heat_malloc(struct dim_heat *dim)
 {
-	dim_light_malloc_xyzl(dim,'x');
-	dim_light_malloc_xyzl(dim,'y');
-	dim_light_malloc_xyzl(dim,'z');
-	dim_light_malloc_xyzl(dim,'l');
-
+	dim_heat_malloc_xyz(dim,'x');
+	dim_heat_malloc_xyz(dim,'y');
+	dim_heat_malloc_xyz(dim,'z');
 }
 
 
-void dim_light_info_to_buf(struct dat_file *buf,struct dim_light *dim)
+void dim_heat_info_to_buf(struct dat_file *buf,struct dim_heat *dim)
 {
 	long double mul_x=0.0;
 	long double mul_y=0.0;

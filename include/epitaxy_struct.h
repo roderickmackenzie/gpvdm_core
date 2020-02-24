@@ -74,6 +74,8 @@ struct epi_layer
 	long double rgb[3];
 
 	long double G_percent;
+
+	long double Gnp;
 };
 
 struct epitaxy

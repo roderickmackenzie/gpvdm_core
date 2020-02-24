@@ -115,6 +115,7 @@ if (get_dump_status(sim,dump_dynamic)==TRUE)
 	inter_append(&(store->mu_p),x_value,fabs(get_avg_muh(dev)));
 	inter_append(&(store->mu_n_p_avg),x_value,(fabs(get_avg_mue(dev))+fabs(get_avg_muh(dev)))/2.0);
 
+	//printf(">>%Le %Le\n",1.0000e-5*get_free_n_charge(dev)/(get_free_n_charge(dev)+get_n_trapped_charge(dev)),get_avg_mue(dev));
 	//srh rates
 	int i;
 	int band;

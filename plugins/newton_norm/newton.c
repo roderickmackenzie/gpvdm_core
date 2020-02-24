@@ -222,6 +222,7 @@ void fill_matrix(struct simulation *sim,struct device *in, int z, int x)
 //gdouble offset= -0.5;
 int band=0;
 struct matrix *mx=&in->mx;
+struct heat *thermal=&(in->thermal);
 
 update_y_array(sim,in,z,x);
 
@@ -388,9 +389,9 @@ struct dimensions *dim=&in->ns.dim;
 
 
 				yl=dim->ymesh[0]/l0-(dim->ymesh[1]-dim->ymesh[0])/l0;
-//				Tll=in->Tll;
-				Tel=in->Tll;
-				Thl=in->Tll;
+//				Tll=thermal->Ty0;
+				Tel=thermal->Ty0;
+				Thl=thermal->Ty0;
 
 
 
@@ -487,9 +488,9 @@ struct dimensions *dim=&in->ns.dim;
 				phir=(in->V_y1[z][x]/phi0+in->Vapplied_y1[z][x]/phi0);
 
 				yr=dim->ymesh[i]/l0+(dim->ymesh[i]-dim->ymesh[i-1])/l0;
-//				Tlr=in->Tlr;
-				Ter=in->Tlr;
-				Thr=in->Tlr;
+//				Tlr=thermal->Ty1;
+				Ter=thermal->Ty1;
+				Thr=thermal->Ty1;
 
 
 				Ecr= -in->Xi[z][x][i]/phi0-phir;

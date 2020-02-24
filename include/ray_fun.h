@@ -88,8 +88,7 @@ void ray_cpy(struct ray *a,struct ray *b);
 void ray_dump_triangle(struct simulation *sim,struct device *dev,struct image *in,struct triangle *tri);
 void dump_ray_to_file(struct simulation *sim,struct image *in,struct ray *my_ray,struct device *dev);
 
-void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int object_type);
-void triangles_set_object_type(struct triangles *in,int object_type);
+
 struct object *add_plane(struct device *dev,double x0,double y0,double z0,double dx,double dz,int object_type);
 void dump_rendered_image(struct simulation *sim,char *out_dir,struct image *in);
 

@@ -36,6 +36,9 @@
 #include <memory.h>
 #include <circuit.h>
 #include <shape.h>
+#include <heat.h>
+#include <heat_fun.h>
+
 
 static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
@@ -125,16 +128,8 @@ void device_init(struct simulation *sim,struct device *in)
 	in->Rn= NULL;
 	in->Rp= NULL;
 	in->Rnet= NULL;
-	in->kl= NULL;
-	in->ke= NULL;
-	in->kh= NULL;
-	in->Hl= NULL;
-	in->He= NULL;
-	in->Hh= NULL;
-	in->Habs= NULL;
+
 	in->excite_conv= -1;
-	in->thermal_conv= -1;
-	in->newton_enable_external_thermal= -1;
 
 	in->deltaFln= -1.0;
 	in->deltaFlp= -1.0;
@@ -189,9 +184,6 @@ void device_init(struct simulation *sim,struct device *in)
 	in->Jsc= -1.0;
 	in->FF= -1.0;
 	in->Pmax= -1.0;
-	in->Tll= -1.0;
-	in->Tlr= -1.0;
-	in->Tliso= -1;
 	in->dt= -1.0;
 	in->srh_sim= -1;
 	in->go_time= -1;
@@ -319,7 +311,6 @@ void device_init(struct simulation *sim,struct device *in)
 	in->p_orig_f= NULL;
 	in->n_orig_t= NULL;
 	in->p_orig_t= NULL;
-	in->nofluxl= -1;
 
 	in->Vbi= -1.0;
 	in->newton_min_itt= -1;
@@ -388,6 +379,10 @@ void device_init(struct simulation *sim,struct device *in)
 	in->triangles=0;
 
 	shape_init(sim,&(in->big_box));
+
+	//thermal
+	heat_init(&(in->thermal));
+
 }
 
 

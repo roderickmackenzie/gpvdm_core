@@ -36,8 +36,8 @@
 
 void light_norm_photon_density(struct simulation *sim, struct light *li);
 void light_malloc(struct simulation *sim,struct light *li);
-void light_load_materials(struct simulation *sim,struct light *li);
-long double light_cal_photon_density(struct simulation *sim,struct light *li);
+void light_load_materials(struct simulation *sim,struct light *li, struct device *dev);
+long double light_cal_photon_density(struct simulation *sim,struct light *li, struct device *dev);
 void light_load_config(struct simulation *sim,struct light *li, struct device *dev);
 void light_load_config_file(struct simulation *sim,struct light *li);
 void light_build_mesh(struct simulation *sim,struct light *li,struct dimensions *electrical_dim);

@@ -48,6 +48,6 @@ void device_load_math_config(struct simulation *sim,struct device *in);
 void device_dump_world_to_file(struct simulation *sim,struct device *dev,char *file_name);
 void device_build_scene(struct simulation *sim,struct device *dev);
 void device_add_shape_to_world(struct simulation *sim,struct device *dev,struct shape *s);
-
+void device_calculate_heat(struct simulation *sim,struct device *dev);
 
 #endif

@@ -29,7 +29,7 @@
 #include <ray_fun.h>
 #include <util.h>
 #include <triangle.h>
-#include <triangle_io.h>
+#include <triangles.h>
 
 
 /** @file ray_search_intersect.c

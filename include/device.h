@@ -38,31 +38,9 @@
 #include <dim.h>
 #include <matrix.h>
 #include <shape_struct.h>
+#include <heat.h>
+#include <mesh_struct.h>
 
-struct mesh_layer
-{
-	long double dx;
-	long double len;
-	long double mul;
-	long double *dmesh;
-	int n_points;
-	int left_right;
-};
-
-struct mesh
-{
-	struct mesh_layer *layers;
-	int nlayers;
-	int remesh;
-	int tot_points;
-};
-
-struct mesh_obj
-{
-	struct mesh meshdata_x;
-	struct mesh meshdata_y;
-	struct mesh meshdata_z;
-};
 
 struct solver_cache
 {
@@ -115,8 +93,6 @@ struct device
 		int dynamic_mesh;
 
 		int excite_conv;
-		int thermal_conv;
-		int newton_enable_external_thermal;
 
 		gdouble deltaFln;
 		gdouble deltaFlp;
@@ -202,9 +178,6 @@ struct device
 		gdouble ***Fp;
 		gdouble ***Nc;
 		gdouble ***Nv;
-		gdouble ***Tl;
-		gdouble ***Te;
-		gdouble ***Th;
 
 		gdouble ***Fi;
 
@@ -236,14 +209,6 @@ struct device
 		gdouble ***Rn_srh;
 		gdouble ***Rp_srh;
 		gdouble ***Rnet;
-
-		gdouble ***kl;
-		gdouble ***ke;
-		gdouble ***kh;
-		gdouble ***Hl;
-		gdouble ***He;
-		gdouble ***Hh;
-		gdouble ***Habs;
 
 		gdouble ***Rbi_k;
 
@@ -452,10 +417,11 @@ struct device
 	gdouble Is;
 	gdouble n_id;
 	gdouble Igen;
+
+	//Light
 	struct light mylight;
-
-
-	int nofluxl;
+	struct light probe_modes;
+	struct istruct steady_stark;
 
 	gdouble Vbi;
 	int newton_min_itt;
@@ -505,19 +471,19 @@ struct device
 	int dd_conv;
 
 	//thermal
-	int thermal_l;
-	int thermal_e;
-	int thermal_h;
-	long double thermal_kl;
-	gdouble Tll;
-	gdouble Tlr;
-	int Tliso;
-	int Triso;
-	long double thermal_tau_e;
-	long double thermal_tau_h;
-	struct light probe_modes;
-	struct istruct steady_stark;
+	struct heat thermal;
+	long double ***Tl;
+	long double ***Te;
+	long double ***Th;
 
+	long double ***Hl;
+	long double ***He;
+	long double ***Hh;
+
+	long double ***ke;
+	long double ***kh;
+
+	//contacts
 	struct contact contacts[10];
 	int ncontacts;
 	int active_contact;

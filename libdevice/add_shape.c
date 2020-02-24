@@ -30,7 +30,7 @@
 #include <device.h>
 #include <inp.h>
 #include <util.h>
-#include <triangle_io.h>
+#include <triangles.h>
 
 /** @file add_shape_to_world.c
 	@brief Add a shape to the image

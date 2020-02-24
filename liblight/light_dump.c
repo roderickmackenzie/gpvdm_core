@@ -175,7 +175,6 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 	if (l==0)
 	{
-		//new dim based dumping
 		buffer_malloc(&buf);
 		dim_light_info_to_buf(&buf,dim);
 		strcpy(buf.title,_("Electron generation rate"));
@@ -186,12 +185,22 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 		buf.y=dim->ylen;
 		buf.z=dim->zlen;
 		buffer_add_info(sim,&buf);
-
-
 		buffer_add_zxy_long_double_light_data(sim,&buf,li->Gn, dim);
-
-		//li->dump_dir
 		buffer_dump_path(sim,"","light_Gn.dat",&buf);
+		buffer_free(&buf);
+
+		buffer_malloc(&buf);
+		dim_light_info_to_buf(&buf,dim);
+		strcpy(buf.title,_("Optical heating"));
+		strcpy(buf.type,"zxy-d");
+		strcpy(buf.data_label,_("Optical heating"));
+		strcpy(buf.data_units,"W m^{-3}");
+		buf.x=dim->xlen;
+		buf.y=dim->ylen;
+		buf.z=dim->zlen;
+		buffer_add_info(sim,&buf);
+		buffer_add_zxy_long_double_light_data(sim,&buf,li->Htot, dim);
+		buffer_dump_path(sim,"","light_Htot.dat",&buf);
 		buffer_free(&buf);
 		///////////
 

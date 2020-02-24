@@ -651,14 +651,14 @@ int z=0;
 long double sum=0.0;
 long double ret=0.0;
 struct dimensions *dim=&in->ns.dim;
-
+long double count=0.0;
 	for (z = 0; z < dim->zlen; z++)
 	{
 		for (x = 0; x < dim->xlen; x++)
 		{
 			for (y = 0; y < dim->ylen; y++)
 			{
-				sum+=in->mun[z][x][y]*in->n[z][x][y]*dim->dx[x]*dim->dy[y]*dim->dz[z]/(in->nt_all[z][x][y]+in->n[z][x][y]);
+				sum+=in->mun[z][x][y]*(in->n[z][x][y]*dim->dx[x]*dim->dy[y]*dim->dz[z])/(in->nt_all[z][x][y]+in->n[z][x][y]);
 			}
 
 		}

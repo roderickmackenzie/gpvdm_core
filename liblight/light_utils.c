@@ -56,9 +56,12 @@ void light_set_model(struct light *li,char *model)
 }
 
 
-long double light_cal_photon_density(struct simulation *sim,struct light *li)
+long double light_cal_photon_density(struct simulation *sim,struct light *li,struct device *dev)
 {
 struct dim_light *dim=&li->dim;
+struct shape* s;
+struct object* obj;
+long double Eg=0.0;
 
 if (li->disable_cal_photon_density==FALSE)
 {
@@ -81,6 +84,7 @@ if (li->disable_cal_photon_density==FALSE)
 				tot=0.0;
 				H_tot=0.0;
 				photons_tot=0.0;
+				obj=li->obj[z][x][y];
 
 				for (l=0;l<dim->llen;l++)
 				{
@@ -91,7 +95,21 @@ if (li->disable_cal_photon_density==FALSE)
 					li->photons[z][x][y][l]=li->pointing_vector[z][x][y][l]*(dim->l[l]/(hp*cl));
 					li->photons_asb[z][x][y][l]=li->photons[z][x][y][l]*li->alpha[z][x][y][l];
 
-					E=((hp*cl)/dim->l[l])/Q-1.1;		//I'm saying that the Eg is 1.1 eV not correct but cant be bothered to write the code to fix now
+					Eg=0.0;
+					if (obj->epi_layer!=-1)
+					{
+						Eg=dev->dosn[obj->epi_layer].config.Eg;
+					}else
+					{
+						s=obj->s;
+						if (s->dos_index!=-1)
+						{
+							Eg=dev->dosn[s->dos_index].config.Eg;
+						}
+
+					}
+
+					E=((hp*cl)/dim->l[l])/Q-Eg;
 
 					if (E>0.0)
 					{
@@ -110,6 +128,7 @@ if (li->disable_cal_photon_density==FALSE)
 				li->Gn[z][x][y]=tot;
 				li->Gp[z][x][y]=tot;
 				li->Htot[z][x][y]=H_tot;
+				//printf("Htot=%Le\n",H_tot);
 				li->photons_tot[z][x][y]=photons_tot;
 
 				for (l=0;l<dim->llen;l++)
@@ -433,7 +452,6 @@ void light_transfer_gen_rate_to_device(struct device *dev,struct light *li)
 				//printf("%Le %Le %Le %Le %Le\n",Gn,Gp,li->Gn[0][0][0],pos,li->Dphotoneff);
 				dev->Gn[z][x][y]=Gn*li->electron_eff;
 				dev->Gp[z][x][y]=Gp*li->hole_eff;
-				dev->Habs[z][x][y]=0.0;
 			}
 		}
 	}

@@ -42,12 +42,14 @@
 #include "log.h"
 #include <cal_path.h>
 #include <dat_file.h>
+#include <triangles.h>
 
 static int unused __attribute__((unused));
 
-void light_load_materials(struct simulation *sim,struct light *li)
+void light_load_materials(struct simulation *sim,struct light *li, struct device *dev)
 {
 	printf_log(sim,"%s\n",_("load: materials"));
+	struct vec my_vec;
 	char file_path[PATH_MAX];
 
 	DIR *theFolder;
@@ -77,6 +79,28 @@ void light_load_materials(struct simulation *sim,struct light *li)
 
 	long double Power=inter_intergrate(&(li->sun_read));
 	printf_log(sim,"%s %Le Wm^{-2}\n",_("Power density of the optical spectra:"),Power);
+
+	if (strcmp(li->light_profile,"box")!=0)
+	{
+		join_path(3,file_path,get_shape_path(sim),li->light_profile,"shape.inp");
+		triangle_load_from_file(sim,(&li->light_profile_tri),file_path);
+
+		triangles_find_min(&my_vec,&li->light_profile_tri);
+		triangles_sub_vec(&li->light_profile_tri,&my_vec);
+		triangles_find_max(&my_vec,&li->light_profile_tri);
+		//printf("%Le\n",li->dim.xlen);
+		//printf("%Le\n",li->dim.zlen);
+		my_vec.x=my_vec.x/dev->xlen;
+		my_vec.z=my_vec.z/dev->zlen;
+		triangles_div_vec(&li->light_profile_tri,&my_vec);
+		triangles_save("test.dat",&li->light_profile_tri);
+		//my_vec.x=0.00042;
+		//my_vec.z=0.00042;
+		//double mul=triangles_interpolate(&li->light_profile_tri,&my_vec);
+
+		//printf("%le %le %le\n",my_vec.x,my_vec.z,mul);
+		//getchar();
+	}
 }
 
 

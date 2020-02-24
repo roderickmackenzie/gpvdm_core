@@ -37,7 +37,7 @@
 #include <cache.h>
 
 #include <triangle.h>
-#include <triangle_io.h>
+#include <triangles.h>
 
 
 void dat_file_load_info(struct simulation *sim,struct dat_file *in,char *file_name)

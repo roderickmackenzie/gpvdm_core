@@ -186,6 +186,11 @@ if (get_dump_status(sim,dump_first_guess)==TRUE)
 
 void get_initial(struct simulation *sim,struct device *in,int guess)
 {
+	if (in->ncontacts<1)
+	{
+		ewe(sim,"get_initial: You need to include contacts fror an electrical simulation\n");
+	}
+
 	in->Vbi=0.0;
 	if (strcmp(in->newton_name,"newton_simple")==0)
 	{

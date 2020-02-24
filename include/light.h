@@ -128,7 +128,6 @@ struct light
 	int disable_transfer_to_electrical_mesh;
 	int disable_cal_photon_density;
 	long double light_file_generation_shift;
-	long double light_flat_generation_rate;
 
 	int print_wavlengths;
 	int save_data_to_disk;
@@ -141,6 +140,9 @@ struct light
 
 
 	struct epitaxy *epi;
+
+	char light_profile[200];
+	struct triangles light_profile_tri;
 };
 
 #endif

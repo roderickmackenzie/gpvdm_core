@@ -145,6 +145,9 @@
 #define ray_emission_single_point 0
 #define ray_emission_electrical_mesh 1
 
+//Heat model
+#define THERMAL_HYDRODYNAMIC 	0
+#define THERMAL_SIMPLE 			1
 
 #define measure_voltage		0
 #define measure_current		1
@@ -152,7 +155,6 @@
 #define LAYER_ACTIVE 	0
 #define LAYER_CONTACT 	1
 #define LAYER_OTHER		2
-
 
 		#include <linux/limits.h>
 

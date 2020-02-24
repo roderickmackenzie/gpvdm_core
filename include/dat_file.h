@@ -45,6 +45,7 @@ void buffer_free(struct dat_file *in);
 void buffer_dump_aes(char *path,char * file,struct dat_file *in,char *key_text);
 void buffer_add_xy_data_z_label(struct dat_file *in,gdouble *x, gdouble *y, gdouble *z, int len);
 void buffer_add_zxy_long_double_light_data(struct simulation *sim,struct dat_file *in,long double ***data, struct dim_light *dim);
+void buffer_add_zxy_heat_data(struct simulation *sim,struct dat_file *in,long double ***data, struct dim_heat *dim);
 void buffer_dump_cache(struct simulation *sim,char * file,struct dat_file *in);
 void buffer_add_dir(struct simulation *sim,char * file_name);
 void buffer_add_3d_device_data_including_boundaries(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data,long double **left,long double **right);
