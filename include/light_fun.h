@@ -1,24 +1,24 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
-// 
+//
+//
+//
 
 /** @file light.h
 @brief light functions from liblight
@@ -44,7 +44,7 @@ void light_build_mesh(struct simulation *sim,struct light *li,struct dimensions 
 void light_build_materials_arrays(struct simulation *sim,struct light *li, struct device *dev);
 void light_set_sun_power(struct light *li,long double power, long double laser_eff);
 void light_free_memory(struct simulation *sim,struct light *li);
-void light_get_mode(struct istruct *mode,int lam,struct light *li);
+void light_get_mode(struct math_xy *mode,int lam,struct light *li);
 void light_set_unity_power(struct light *li);
 void light_solve_optical_problem(struct simulation *sim,struct device *dev,struct light *li);
 void light_solve_all(struct simulation *sim,struct device *dev,struct light *li);
@@ -55,7 +55,7 @@ int light_solve_lam_slice(struct simulation *sim,struct device *dev, struct ligh
 void light_dump_1d(struct simulation *sim,struct light *li, int i,char *ext);
 void light_dump_verbose_1d(struct simulation *sim,struct light *li, int i,char *ext);
 void light_dump_verbose_2d(struct simulation *sim,struct light *li);
-void light_get_mode(struct istruct *mode,int lam,struct light *li);
+void light_get_mode(struct math_xy *mode,int lam,struct light *li);
 void light_set_unity_laser_power(struct light *li,int lam);
 void light_free_epitaxy(struct light *li);
 void light_import_epitaxy(struct simulation *sim,struct light *li,struct epitaxy *my_epitaxy);

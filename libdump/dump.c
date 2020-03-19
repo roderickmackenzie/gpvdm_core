@@ -42,7 +42,7 @@
 #include <memory.h>
 #include <ray_fun.h>
 #include <device_fun.h>
-
+#include <heat_fun.h>
 
 static int unused __attribute__((unused));
 
@@ -250,7 +250,7 @@ int R;
 int G;
 int B;
 
-struct istruct luminescence_tot;
+struct math_xy luminescence_tot;
 
 char string[200];
 struct dimensions XYZ_dim;
@@ -607,22 +607,6 @@ if (get_dump_status(sim,dump_write_headers)==TRUE)
 
 }
 
-void buffer_set_graph_type(struct dat_file *buf,struct device *in)
-{
-	struct dimensions *dim=&in->ns.dim;
-
-	if ((dim->xlen>1)&&(dim->ylen>1)&&(dim->zlen>1))
-	{
-		strcpy(buf->type,"4d");
-	}else
-	if ((dim->xlen>1)&&(dim->ylen>1))
-	{
-		strcpy(buf->type,"3d");
-	}else
-	{
-		strcpy(buf->type,"xy");
-	}
-}
 
 void dump_write_to_disk(struct simulation *sim,struct device* in)
 {
@@ -632,6 +616,7 @@ char out_dir[PATH_MAX];
 char sim_name[PATH_MAX];
 struct dat_file buf;
 buffer_init(&buf);
+struct heat *thermal=&(in->thermal);
 
 strextract_name(sim_name,in->simmode);
 
@@ -657,6 +642,7 @@ FILE* out;
 	if (get_dump_status(sim,dump_1d_slices)==TRUE)
 	{
 		dump_1d_slice(sim,in,out_dir);
+		heat_dump(sim,out_dir,thermal);
 		dumped=TRUE;
 	}
 

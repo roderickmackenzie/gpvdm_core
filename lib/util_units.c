@@ -43,6 +43,31 @@
 
 static char* unused_pchar __attribute__((unused));
 
+void get_wavelength_dim(char *unit,long double *mul,long double max_val)
+{
+
+if (max_val<1e-6)
+{
+	strcpy(unit,"nm");
+	*mul=1e9;
+}else
+if (max_val<1e-3)
+{
+	strcpy(unit,"um");
+	*mul=1e6;
+}else
+if (max_val<1e-1)
+{
+	strcpy(unit,"mm");
+	*mul=1e3;
+}else
+{
+	strcpy(unit,"m");
+	*mul=1.0;
+}
+
+}
+
 void get_meter_dim(char *unit,long double *mul,long double max_val)
 {
 

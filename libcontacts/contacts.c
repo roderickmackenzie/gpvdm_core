@@ -576,15 +576,20 @@ void contact_set_voltage(struct simulation *sim,struct device *in,int contact,gd
 void contact_set_wanted_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage)
 {
 	int i=0;
-
+	int found=FALSE;
 	for (i=0;i<in->ncontacts;i++)
 	{
 		if (in->contacts[i].active==TRUE)
 		{
+			found=TRUE;
 			in->contacts[i].voltage_want=voltage;
 		}
 	}
 
+	if (found==FALSE)
+	{
+		ewe(sim,"There is no active contact");
+	}
 	contacts_update(sim,in);
 
 }
@@ -592,13 +597,19 @@ void contact_set_wanted_active_contact_voltage(struct simulation *sim,struct dev
 void contact_set_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage)
 {
 	int i=0;
-
+	int found=FALSE;
 	for (i=0;i<in->ncontacts;i++)
 	{
 		if (in->contacts[i].active==TRUE)
 		{
+			found=TRUE;
 			in->contacts[i].voltage=voltage;
 		}
+	}
+
+	if (found==FALSE)
+	{
+		ewe(sim,"There is no active contact");
 	}
 
 	contacts_update(sim,in);
@@ -627,45 +638,61 @@ void contact_set_flip_current(struct simulation *sim,struct device *in)
 gdouble contact_get_active_contact_voltage_last(struct simulation *sim,struct device *in)
 {
 	int i=0;
-
+	int found=FALSE;
 	for (i=0;i<in->ncontacts;i++)
 	{
 		if (in->contacts[i].active==TRUE)
 		{
+			found=TRUE;
 			return in->contacts[i].voltage_last;
 		}
+	}
+
+	if (found==FALSE)
+	{
+		ewe(sim,"There is no active contact");
 	}
 }
 
 int contact_get_active_contact_index(struct simulation *sim,struct device *in)
 {
 	int i=0;
+	int found=FALSE;
 
 	for (i=0;i<in->ncontacts;i++)
 	{
 		if (in->contacts[i].active==TRUE)
 		{
+			found=TRUE;
 			return i;
 		}
 	}
 
-
+	if (found==FALSE)
+	{
+		ewe(sim,"There is no active contact");
+	}
 }
 
 
 long double contact_get_active_contact_voltage(struct simulation *sim,struct device *in)
 {
 	int i=0;
+	int found=FALSE;
 
 	for (i=0;i<in->ncontacts;i++)
 	{
 		if (in->contacts[i].active==TRUE)
 		{
+			found=TRUE;
 			return in->contacts[i].voltage;
 		}
 	}
 
-
+	if (found==FALSE)
+	{
+		ewe(sim,"There is no active contact");
+	}
 }
 
 void contact_set_all_voltages(struct simulation *sim,struct device *in,gdouble voltage)

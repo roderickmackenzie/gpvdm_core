@@ -99,6 +99,7 @@ void flip_light_zxy_long_double_y(struct simulation *sim, struct dim_light *dim,
 void memset_light_zxy_long_double(struct dim_light *dim, long double ***data,int val);
 void div_light_zxy_long_double(struct dim_light *dim, long double ***data,long double val);
 long double interpolate_light_zxy_long_double(struct dim_light *dim, long double ***data,int z, int x, long double y_in);
+long double interpolate_light_zxy_long_double_intergral(struct dim_light *dim, long double ***data,int z, int x, long double y_start,long double y_stop);
 
 //light_l_long_double
 void malloc_light_l_long_double(struct dim_light *dim, long double * (*var));
@@ -119,6 +120,8 @@ void flip_heat_zxy_long_double_y(struct simulation *sim, struct dim_heat *dim,lo
 void memset_heat_zxy_long_double(struct dim_heat *dim, long double ***data,int val);
 void div_heat_zxy_long_double(struct dim_heat *dim, long double ***data,long double val);
 long double interpolate_heat_zxy_long_double(struct dim_heat *dim, long double ***data,int z, int x, long double y_in);
+long double intergrate_heat_zxy_long_double(struct dim_heat *dim, long double ***data);
+long double avg_heat_zxy_long_double(struct dim_heat *dim, long double ***data);
 
 //heat_zxy_p_object
 void malloc_heat_zxy_p_object(struct dim_heat *dim, struct object * (****var));

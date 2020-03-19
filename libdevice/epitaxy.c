@@ -114,8 +114,8 @@ void epitaxy_load_pl_file(struct simulation *sim,char *pl_file, struct epi_layer
 		inp_search_gdouble(sim,&inp,&(layer->pl_fh_th),"#pl_fh_th");
 
 		inp_search_string(sim,&inp,temp,"#pl_emission_enabled");
-
 		layer->pl_enabled=english_to_bin(sim,temp);
+
 		inp_search_string(sim,&inp,temp,"#pl_use_experimental_emission_spectra");
 		layer->pl_use_experimental_emission_spectra=english_to_bin(sim,temp);
 
@@ -323,6 +323,13 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 
 		epitaxy_load_electrical_file(sim,&(in->layer[i]));
 
+
+		test=inp_get_string(sim,&inp);
+		in->layer[i].solve_optical_problem=english_to_bin(sim,inp_get_string(sim,&inp));
+
+		test=inp_get_string(sim,&inp);
+		in->layer[i].solve_thermal_problem=english_to_bin(sim,inp_get_string(sim,&inp));
+
 		char temp[20];
 		char full_path[PATH_MAX];
 		if (strcmp_begin(dos_file,"dos")==0)
@@ -386,23 +393,6 @@ for (i=0;i<in->layers;i++)
 //{
 //	ewe(sim,"Can't simulate structures bigger than 300 nm\n");
 //}
-return tot;
-}
-
-/**
- * @brief Get the height of the layers which are optically active. i.e. the full height of the device.
- *
- */
-gdouble epitaxy_get_optical_length(struct epitaxy *in)
-{
-int i=0;
-gdouble tot=0.0;
-
-for (i=0;i<in->layers;i++)
-{
-	tot+=in->layer[i].width;
-}
-
 return tot;
 }
 

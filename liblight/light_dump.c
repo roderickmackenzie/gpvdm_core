@@ -66,16 +66,9 @@ void light_setup_dump_dir(struct simulation *sim,struct light *li)
 
 void light_dump(struct simulation *sim,struct light *li)
 {
-	long double device_start=0.0;
 	struct dat_file buf;
 	struct dim_light *dim=&li->dim;
 	struct epitaxy *epi=li->epi;
-	device_start=epi->device_start;
-
-	if (device_start==-1.0)
-	{
-		device_start=0.0;
-	}
 
 	buffer_init(&buf);
 
@@ -83,7 +76,8 @@ void light_dump(struct simulation *sim,struct light *li)
 	dim_light_info_to_buf(&buf,dim);
 	strcpy(buf.title,"Photon density");
 	strcpy(buf.type,"heat");
-	strcpy(buf.y_label,"Wavelength");
+	strcpy(buf.x_label,"Wavelength");
+	get_wavelength_dim(buf.x_units,&buf.x_mul,dim->l[dim->llen-1]);
 	strcpy(buf.data_label,"Density");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.x=dim->llen;
@@ -91,7 +85,7 @@ void light_dump(struct simulation *sim,struct light *li)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
-	buffer_add_yl_light_data(sim,&buf,dim,li->photons, device_start, 0 , 0);
+	buffer_add_yl_light_data(sim,&buf,dim,li->photons, 0.0, 0 , 0);
 
 	buffer_dump_path(sim,li->dump_dir,"light_2d_photons.dat",&buf);
 	buffer_free(&buf);
@@ -102,7 +96,8 @@ void light_dump(struct simulation *sim,struct light *li)
 	dim_light_info_to_buf(&buf,dim);
 	strcpy(buf.title,"Absorbed Photon density");
 	strcpy(buf.type,"heat");
-	strcpy(buf.y_label,"Wavelength");
+	strcpy(buf.x_label,"Wavelength");
+	get_wavelength_dim(buf.x_units,&buf.x_mul,dim->l[dim->llen-1]);
 	strcpy(buf.data_label,"Density");
 	strcpy(buf.data_units,"m^{-3}");
 	buf.x=dim->llen;
@@ -110,7 +105,7 @@ void light_dump(struct simulation *sim,struct light *li)
 	buf.z=1;
 	buffer_add_info(sim,&buf);
 
-	buffer_add_yl_light_data(sim,&buf,dim,li->photons_asb,device_start, 0 , 0);
+	buffer_add_yl_light_data(sim,&buf,dim,li->photons_asb,0.0, 0 , 0);
 
 	buffer_dump_path(sim,li->dump_dir,"light_2d_photons_asb.dat",&buf);
 	buffer_free(&buf);
@@ -149,16 +144,9 @@ int y;
 
 char name[400];
 double max=0.0;
-long double device_start=0.0;
 
 struct dim_light *dim=&li->dim;
 struct epitaxy *epi=li->epi;
-device_start=epi->device_start;
-
-if (device_start==-1.0)
-{
-	device_start=0.0;
-}
 
 struct dat_file data_photons_norm;
 struct dat_file data_1d_photons_tot;
@@ -222,7 +210,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->photons_tot[0][0][y]/max);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->photons_tot[0][0][y]/max);
 			buffer_add_string(&buf,line);
 		}
 
@@ -239,7 +227,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->photons_tot[0][0][y]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->photons_tot[0][0][y]);
 			buffer_add_string(&data_1d_photons_tot,line);
 		}
 
@@ -262,7 +250,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->Gn[0][0][y]/max);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->Gn[0][0][y]/max);
 			buffer_add_string(&buf,line);
 		}
 
@@ -284,7 +272,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->Gn[0][0][y]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->Gn[0][0][y]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -305,7 +293,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->Gp[0][0][y]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->Gp[0][0][y]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -381,7 +369,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 	for (y=0;y<dim->ylen;y++)
 	{
-		sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->photons[0][0][y][l]/max);
+		sprintf(line,"%Le %Le\n",dim->y[y],li->photons[0][0][y][l]/max);
 		buffer_add_string(&buf,line);
 	}
 
@@ -411,7 +399,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->photons_asb[0][0][y][l]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->photons_asb[0][0][y][l]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -441,7 +429,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->n[0][0][y][l]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->n[0][0][y][l]);
 			buffer_add_string(&buf,line);
 		}
 
@@ -471,7 +459,7 @@ if (get_dump_status(sim,dump_optics)==TRUE)
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			sprintf(line,"%Le %Le\n",dim->y[y]-device_start,li->alpha[0][0][y][l]);
+			sprintf(line,"%Le %Le\n",dim->y[y],li->alpha[0][0][y][l]);
 			buffer_add_string(&buf,line);
 		}
 

@@ -51,6 +51,11 @@ struct heat
 	long double ***Th;
 
 	long double ***Hl;
+
+	long double ***H_optical;
+	long double ***H_joule;
+	long double ***H_recombination;
+
 	long double ***He;
 	long double ***Hh;
 
@@ -68,13 +73,36 @@ struct heat
 
 	struct object ****obj;
 
-	//boundry conditions
+	//boundry temperatures
 	long double Ty0;
 	long double Ty1;
 	long double Tx0;
 	long double Tx1;
 	long double Tz0;
 	long double Tz1;
+
+	//Boundry type
+	int Ty0_boundry;
+	int Ty1_boundry;
+	int Tx0_boundry;
+	int Tx1_boundry;
+	int Tz0_boundry;
+	int Tz1_boundry;
+
+	//heat sink
+	long double heatsink_y0;
+	long double heatsink_y1;
+	long double heatsink_x0;
+	long double heatsink_x1;
+	long double heatsink_z0;
+	long double heatsink_z1;
+
+	long double heatsink_length_y0;
+	long double heatsink_length_y1;
+	long double heatsink_length_x0;
+	long double heatsink_length_x1;
+	long double heatsink_length_z0;
+	long double heatsink_length_z1;
 
 	int Tliso;
 	int Triso;
@@ -87,8 +115,14 @@ struct heat
 	int thermal_l;
 	int thermal_e;
 	int thermal_h;
-
+	int thermal_max_ittr;
 	struct mesh_obj mesh_data;
+
+	//Options
+	int joule_heating;
+	int recombination_heating;
+	int optical_heating;
+
 };
 
 #endif

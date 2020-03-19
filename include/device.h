@@ -332,7 +332,6 @@ struct device
 	gdouble electrical_error0;
 	int math_enable_pos_solver;
 	gdouble min_cur_error;
-	gdouble Pmax_voltage;
 	int pos_max_ittr;
 	char solver_name[20];
 	char complex_solver_name[20];
@@ -342,11 +341,6 @@ struct device
 	struct mesh_obj mesh_data;
 	struct mesh_obj mesh_data_save;
 
-//Device characterisation
-	gdouble Voc;
-	gdouble Jsc;
-	gdouble FF;
-	gdouble Pmax;
 
 	gdouble dt;
 	int srh_sim;
@@ -421,7 +415,7 @@ struct device
 	//Light
 	struct light mylight;
 	struct light probe_modes;
-	struct istruct steady_stark;
+	struct math_xy steady_stark;
 
 	gdouble Vbi;
 	int newton_min_itt;
@@ -477,6 +471,9 @@ struct device
 	long double ***Th;
 
 	long double ***Hl;
+	long double ***H_recombination;
+	long double ***H_joule;
+
 	long double ***He;
 	long double ***Hh;
 

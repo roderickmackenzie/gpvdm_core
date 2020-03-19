@@ -42,6 +42,7 @@
 #include <heat_fun.h>
 #include <solver_interface.h>
 #include <log.h>
+#include <light_fun.h>
 
 static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
@@ -55,10 +56,10 @@ void device_free(struct simulation *sim,struct device *in)
 	//world made from triangles
 	for (i=0;i<in->objects;i++)
 	{
-		if (in->obj[i].n!=NULL)
-		{
-			ewe(sim,"There is still data in the array\n");
-		}
+		//if (in->obj[i].n!=NULL)		//I don't understand why this would be in here
+		//{
+		//	ewe(sim,"There is still data in the array\n");
+		//}
 
 		object_free(&(in->obj[i]));
 	}
@@ -265,10 +266,6 @@ void device_free(struct simulation *sim,struct device *in)
 	//dim_free(&(in->dim_max));
 	//Free epitaxy
 
-	//Free solvers
-	solver_free(sim);
-	printf_log(sim,"%s %i %s\n", _("Solved"), in->odes, _("Equations"));
-
 
 	circuit_free(sim,&(in->cir));
 
@@ -278,11 +275,16 @@ void device_free(struct simulation *sim,struct device *in)
 	free_zxy_gdouble(dim,&in->Th);
 
 	free_zxy_gdouble(dim,&in->Hl);
+	free_zxy_gdouble(dim,&in->H_joule);
+	free_zxy_gdouble(dim,&in->H_recombination);
+
 	free_zxy_gdouble(dim,&in->He);
 	free_zxy_gdouble(dim,&in->Hh);
 
 	free_zxy_gdouble(dim,&in->ke);
 	free_zxy_gdouble(dim,&in->kh);
+
+	light_free(sim,&in->mylight);
 
 }
 

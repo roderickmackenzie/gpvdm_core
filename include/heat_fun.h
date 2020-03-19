@@ -39,7 +39,7 @@ int heat_solve(struct simulation *sim, struct heat *thermal,struct device *dev, 
 void heat_load_config(struct simulation *sim,struct heat *thermal, struct device *dev);
 void heat_load_config_file(struct simulation *sim,struct heat *thermal);
 void heat_setup_dump_dir(struct simulation *sim,struct heat *thermal);
-void heat_dump(struct simulation *sim,struct heat *thermal);
+void heat_dump(struct simulation *sim,char *path,struct heat *thermal);
 void heat_free_memory(struct simulation *sim,struct heat *thermal);
 void heat_malloc(struct simulation *sim,struct heat *thermal);
 void heat_init(struct heat *thermal);
@@ -58,5 +58,8 @@ void hydrodynamic_update_heat(struct simulation *sim, struct heat *thermal,struc
 void hydrodynamic_mesh_check(struct simulation *sim, struct heat *thermal,struct device *dev);
 int hydrodynamic_solve(struct simulation *sim, struct heat *thermal,struct device *dev, int z, int x);
 
-
+//Lattice heat model
+long double lattice_get_error(struct heat *thermal);
+int lattice_solve(struct simulation *sim, struct heat *thermal,struct device *dev, int z, int x);
+void heat_set_initial_distribution(struct heat *thermal);
 #endif

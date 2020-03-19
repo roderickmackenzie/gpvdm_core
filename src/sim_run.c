@@ -137,9 +137,9 @@ int run_simulation(struct simulation *sim)
 
 	mesh_obj_load(sim,&(cell.mesh_data));
 
-	cell.ns.dim.zlen=cell.mesh_data.meshdata_z.tot_points;
-	cell.ns.dim.xlen=cell.mesh_data.meshdata_x.tot_points;
-	cell.ns.dim.ylen=cell.mesh_data.meshdata_y.tot_points;
+	dim->zlen=cell.mesh_data.meshdata_z.tot_points;
+	dim->xlen=cell.mesh_data.meshdata_x.tot_points;
+	dim->ylen=cell.mesh_data.meshdata_y.tot_points;
 
 	mesh_build(sim,&cell);
 	device_get_memory(sim,&cell);
@@ -221,10 +221,18 @@ int run_simulation(struct simulation *sim)
 		load_dos(sim,&cell,tempn,tempp,i);
 	}
 
+	light_init(&cell.mylight);
+
+	solver_init(sim,cell.solver_name);
+
 	if (enable_electrical==TRUE)
 	{
 
-		solver_init(sim,cell.solver_name);
+		if ((dim->xlen>1)||(dim->zlen>1))
+		{
+			strcpy(cell.newton_name,"newton_2d");
+		}
+
 		newton_init(sim,cell.newton_name);
 
 		//circuit_load(sim);
@@ -279,7 +287,6 @@ int run_simulation(struct simulation *sim)
 		char old_model[100];
 		gdouble old_Psun=0.0;
 		old_Psun=light_get_sun(&cell.mylight);
-		light_init(&cell.mylight);
 
 		light_load_config(sim,&cell.mylight,&cell);
 
@@ -381,46 +388,49 @@ int run_simulation(struct simulation *sim)
 	run_electrical_dll(sim,&cell,strextract_domain(cell.simmode));
 
 
-	/*if (enable_electrical==FALSE)
+	if (enable_electrical==FALSE)
 	{
 		if (cell.thermal.newton_enable_external_thermal==TRUE)
 		{
-			printf("Run thermal solver\n");
-			getchar();
+			//printf("Run thermal solver\n");
+			heat_solve(sim, &(cell.thermal),&(cell), 0, 0);
 		}
-	}*/
+	}
 
 	//Clean up
 	cache_dump(sim);
 	cache_free(sim);
 	epitaxy_free(sim,&cell.my_epitaxy);
 	contacts_free(sim,&cell);
-	test_complex_solver_free(sim);
 
 	for (i=0;i<cell.my_epitaxy.electrical_layers;i++)
 	{
 		dos_free(&cell,i);
 	}
 
+	device_free(sim,&cell);
+	mesh_obj_free(sim,&(cell.mesh_data));
+
 	if (enable_electrical==TRUE)
 	{
-
-		device_free(sim,&cell);
-		mesh_obj_free(sim,&(cell.mesh_data));
 		//color_cie_load(sim);
 
 		plot_close(sim);
 
 		solver_free_memory(sim,&cell);
-
 		newton_interface_free(sim);
-		light_free(sim,&cell.mylight);
 
 
 	}
 
+	//Free solver dlls
+	test_complex_solver_free(sim);
+	solver_free(sim);
+	printf_log(sim,"%s %i %s\n", _("Solved"), cell.odes, _("Equations"));
+
 	measure(sim);
 	dump_clean_cache_files(sim);
+
 return cell.odes;
 }
 

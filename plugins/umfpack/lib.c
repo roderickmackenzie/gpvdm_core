@@ -55,7 +55,6 @@ int status;
 double *dtemp;
 int *itemp;
 
-
 if ((sim->last_col!=col)||(sim->last_nz!=nz))
 {
 	dtemp = realloc(sim->x,col*sizeof(double));
@@ -127,7 +126,6 @@ for (i=0;i<nz;i++)
 {
 	sim->Tx[i]=(double)lTx[i];
 }
-
 
 double Control [UMFPACK_CONTROL],Info [UMFPACK_INFO];
 

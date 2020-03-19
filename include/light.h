@@ -1,24 +1,24 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
-// 
+//
+//
+//
 
 /** @file light.h
 @brief light functions from liblight
@@ -60,7 +60,7 @@ struct light
 	long double ****E_tot_i;
 	long double ****H;
 
-	//complex zxyl	
+	//complex zxyl
 	long double complex ****t;
 	long double complex ****r;
 	long double complex ****nbar;
@@ -77,14 +77,14 @@ struct light
 	long double *transmit;
 
 	//Input spectra
-	struct istruct sun_read;
+	struct math_xy sun_read;
 	long double *sun;
 	long double *sun_norm;
 	long double *sun_photons;
 	long double *sun_E;
 	char suns_spectrum_file[200];
 	char light_file_generation[300];
-	
+
 	struct matrix mx;
 
 	//laser
@@ -119,7 +119,7 @@ struct light
 	long double electron_eff;
 	long double hole_eff;
 	int force_update;
-
+	int light_wavelength_auto_mesh;
 	long double *extract_eff;
 
 	//Config values

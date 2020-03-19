@@ -1,24 +1,24 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
-// 
+//
+//
+//
 
 /** @file lib_fxdomain.h
 @brief Code to read input files.
@@ -34,9 +34,9 @@
 struct fit_sin_data
 {
 	int change;
-	struct istruct orig_data;
-	struct istruct guess_data;
-	struct istruct delta_data;
+	struct math_xy orig_data;
+	struct math_xy guess_data;
+	struct math_xy delta_data;
 
 	char *prefix;
 	long double fx;
@@ -78,14 +78,14 @@ struct fxdomain
 	int total_steps;
 
 	//output data
-	struct istruct out_j;
-	struct istruct out_j_cut;
+	struct math_xy out_j;
+	struct math_xy out_j_cut;
 
-	struct istruct out_v;
-	struct istruct out_v_cut;
+	struct math_xy out_v;
+	struct math_xy out_v_cut;
 
-	struct istruct out_modulation;
-	struct istruct out_modulation_cut;
+	struct math_xy out_modulation;
+	struct math_xy out_modulation_cut;
 
 	//fitting
 	int fxdomain_do_fit;
@@ -103,7 +103,7 @@ struct fxdomain
 };
 
 //fitting
-void fit_sin(struct simulation *sim,int dump_fit_progress_data,long double *fit_error,gdouble *ret_mag,gdouble *ret_delta,struct istruct *input_data,gdouble fx,char * prefix, char *output_path);
+void fit_sin(struct simulation *sim,int dump_fit_progress_data,long double *fit_error,gdouble *ret_mag,gdouble *ret_delta,struct math_xy *input_data,gdouble fx,char * prefix, char *output_path);
 double sin_f (double *p,int len);
 void fit_sin_dump(struct simulation *sim, struct fit_sin_data *fit_data, char *output_path);
 

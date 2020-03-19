@@ -141,6 +141,8 @@ if (li->disable_cal_photon_density==FALSE)
 		}
 	}
 
+	//getchar();
+
 	if (li->flip_field==TRUE)
 	{
 		flip_light_zxy_long_double_y(sim,dim,li->Gn);
@@ -378,7 +380,7 @@ void light_set_unity_laser_power(struct light *li,int lam)
 	li->sun_E[lam]=1.0;
 }
 
-void light_get_mode(struct istruct *mode,int lam,struct light *li)
+void light_get_mode(struct math_xy *mode,int lam,struct light *li)
 {
 	int y;
 	long double device_start=0.0;

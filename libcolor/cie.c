@@ -58,10 +58,10 @@ void color_cie_load(struct simulation *sim)
 
 }
 
-void color_cie_cal_XYZ(struct simulation *sim,long double *X,long double *Y,long double *Z,struct istruct *L_input, int input_in_ev)
+void color_cie_cal_XYZ(struct simulation *sim,long double *X,long double *Y,long double *Z,struct math_xy *L_input, int input_in_ev)
 {
 int i;
-struct istruct L;
+struct math_xy L;
 inter_init(sim,&L);
 inter_copy(&L,L_input,TRUE);
 *X=0.0;

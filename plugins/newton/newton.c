@@ -763,9 +763,9 @@ long double dJpdxipc_imag=0.0;
 			{
 				if (contact_left==contact_schottky)
 				{
-					Jnl=vl_e*(nc-nl);
-					dJnldxil_l= vl_e*(-dnl);
-					dJnldxil_c= vl_e*(dnc);
+					Jnl=-vl_e*(nc-nl);
+					dJnldxil_l= -vl_e*(-dnl);
+					dJnldxil_c= -vl_e*(dnc);
 					//printf("%Le %Le\n",Jnl,vl_e*(nl0-nl));
 
 					dJnldphi_l= 0.0;//vl_e*(-dnl);
@@ -794,9 +794,9 @@ long double dJpdxipc_imag=0.0;
 				//getchar();
 				if (contact_right==contact_schottky)
 				{
-					Jnr=vr_e*(nc-nr);
-					dJnrdxir_r= vr_e*(-dnr);
-					dJnrdxir_c= vr_e*(dnc);
+					Jnr=-vr_e*(nc-nr);
+					dJnrdxir_r= -vr_e*(-dnr);
+					dJnrdxir_c= -vr_e*(dnc);
 					//printf("%Le %Le\n",Jnl,vr_e*(nl0-nl));
 
 					dJnrdphi_r= 0.0;//vr_e*(-dnl);
@@ -815,6 +815,7 @@ long double dJpdxipc_imag=0.0;
 
 				in->Jn_y1[z][x]=Q*Jnr;
 				in->Jp_y1[z][x]=Q*Jpr;
+
 			}
 
 			in->Jn[z][x][i]=Q*(Jnl+Jnr)/2.0;
@@ -1656,6 +1657,7 @@ int dllinternal_solve_cur(struct simulation *sim,struct device *in, int z, int x
 gdouble error=0.0;
 int ittr=0;
 char temp[PATH_MAX];
+struct dimensions *dim=&in->ns.dim;
 struct newton_state *ns=&(in->ns);
 struct matrix *mx=&(in->mx);
 
@@ -1663,8 +1665,6 @@ struct matrix *mx=&(in->mx);
 //{
 //	printf_log(sim,"Solve cur\n");
 //}
-
-
 
 
 #ifdef only

@@ -45,6 +45,7 @@ void solver_init(struct simulation *sim,char *solver_name)
 {
 char lib_path[PATH_MAX];
 
+
 find_dll(sim, lib_path,solver_name);
 
 char *error;

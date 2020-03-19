@@ -85,9 +85,21 @@ void device_init(struct simulation *sim,struct device *in)
 	in->Fp= NULL;
 	in->Nc= NULL;
 	in->Nv= NULL;
+
+	//Thermal
 	in->Tl= NULL;
 	in->Te= NULL;
 	in->Th= NULL;
+
+	in->Hl= NULL;
+	in->H_recombination= NULL;
+	in->H_joule= NULL;
+
+	in->He= NULL;
+	in->Hh= NULL;
+
+	in->ke= NULL;
+	in->kh= NULL;
 
 	in->Fi= NULL;
 
@@ -171,7 +183,6 @@ void device_init(struct simulation *sim,struct device *in)
 	in->electrical_error0= -1.0;
 	in->math_enable_pos_solver= -1.0;
 	in->min_cur_error= -1.0;
-	in->Pmax_voltage= -1.0;
 	in->pos_max_ittr= -1;
 	strcpy(in->solver_name,"");
 	strcpy(in->complex_solver_name,"");
@@ -179,11 +190,6 @@ void device_init(struct simulation *sim,struct device *in)
 
 	in->flip_current=1.0;
 
-//Device characterisation
-	in->Voc= -1.0;
-	in->Jsc= -1.0;
-	in->FF= -1.0;
-	in->Pmax= -1.0;
 	in->dt= -1.0;
 	in->srh_sim= -1;
 	in->go_time= -1;

@@ -49,11 +49,10 @@ void dump_zxy_charge(struct simulation *sim,struct device *in,char *out_dir);
 void dump_write_to_disk(struct simulation *sim,struct device* in);
 void buffer_add_3d_data(struct simulation *sim,struct dat_file *buf,struct dimensions *dim, gdouble ***data);
 void buffer_add_zx_data(struct simulation *sim,struct dat_file *buf,struct dimensions *dim,gdouble **data);
-void buffer_set_graph_type(struct dat_file *buf,struct device *in);
 void dumpfiles_load(struct simulation* sim);
 void dumpfiles_free(struct simulation* sim);
 int dumpfiles_should_dump(struct simulation* sim,char *name);
-void dumpfiles_process(struct simulation* sim,struct istruct *in,char *name);
+void dumpfiles_process(struct simulation* sim,struct math_xy *in,char *name);
 void dumpfiles_turn_on_dir(struct simulation* sim,char *in);
 void dump_clean_cache_files(struct simulation* sim);
 void dump_make_snapshot_dir(struct simulation *sim,char *out_dir ,long double time,long double voltage, long double fx, int number);
@@ -61,7 +60,7 @@ void dump_make_snapshot_dir_with_name(struct simulation *sim,char *out_dir ,long
 void buffer_add_3d_device_data_int(struct simulation *sim,struct dat_file *buf,struct device *in,int ***data);
 void buffer_add_3d_to_2d_projection(struct simulation *sim,struct dat_file *buf,struct device *in,gdouble ***data);
 void buffer_add_zxy_rgb_data(struct simulation *sim,struct dat_file *buf,struct dimensions *dim,gdouble ***data);
-void dynamic_info_to_buf(struct simulation *sim,struct dat_file *buf, struct device *dev,struct istruct* data);
+void dynamic_info_to_buf(struct simulation *sim,struct dat_file *buf, struct device *dev,struct math_xy* data);
 
 //light
 void buffer_add_yl_light_data(struct simulation *sim,struct dat_file *buf,struct dim_light *dim,long double ****data,long double shift ,int z, int x);

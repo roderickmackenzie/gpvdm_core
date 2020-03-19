@@ -49,7 +49,7 @@ void dump_dynamic_save_j(struct simulation *sim,struct device *in,char *outputpa
 	int sub=TRUE;
 	char temp[200];
 	struct dat_file buf;
-	struct istruct one;
+	struct math_xy one;
 
 	buffer_init(&buf);
 

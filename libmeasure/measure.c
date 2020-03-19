@@ -47,7 +47,7 @@ static int unused __attribute__((unused));
 
 struct probe_config config;
 
-static struct istruct spectrum_first;
+static struct math_xy spectrum_first;
 static int first=FALSE;
 
 void measure_file(struct simulation *sim,char *file_name)
@@ -88,7 +88,7 @@ void measure_file(struct simulation *sim,char *file_name)
 
 	inp_check(sim,&inp,1.0);
 	inp_reset_read(sim,&inp);
-	struct istruct data;
+	struct math_xy data;
 	inter_init(sim,&data);
 
 	inp_get_string(sim,&inp);	//name

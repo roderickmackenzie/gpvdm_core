@@ -47,34 +47,34 @@ if ((y>=dim->ylen)||(x>=dim->xlen)||(z>=dim->zlen))
 	return;
 }
 
-struct istruct dump1;
+struct math_xy dump1;
 inter_init(sim,&dump1);
 
-struct istruct dump2;
+struct math_xy dump2;
 inter_init(sim,&dump2);
 
-struct istruct dump3;
+struct math_xy dump3;
 inter_init(sim,&dump3);
 
-struct istruct dump4;
+struct math_xy dump4;
 inter_init(sim,&dump4);
 
-struct istruct dump5;
+struct math_xy dump5;
 inter_init(sim,&dump5);
 
-struct istruct dump6;
+struct math_xy dump6;
 inter_init(sim,&dump6);
 
-struct istruct dump9;
+struct math_xy dump9;
 inter_init(sim,&dump9);
 
-struct istruct dump10;
+struct math_xy dump10;
 inter_init(sim,&dump10);
 
-struct istruct dump_nt;
+struct math_xy dump_nt;
 inter_init(sim,&dump_nt);
 
-struct istruct dump_pt;
+struct math_xy dump_pt;
 inter_init(sim,&dump_pt);
 
 int mat=in->imat[z][x][y];

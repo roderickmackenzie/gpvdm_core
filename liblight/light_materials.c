@@ -51,6 +51,7 @@ void light_load_materials(struct simulation *sim,struct light *li, struct device
 	printf_log(sim,"%s\n",_("load: materials"));
 	struct vec my_vec;
 	char file_path[PATH_MAX];
+	struct dim_light *dim=&(li->dim);
 
 	DIR *theFolder;
 
@@ -67,6 +68,7 @@ void light_load_materials(struct simulation *sim,struct light *li, struct device
 
 	join_path(3,file_path,get_spectra_path(sim),li->suns_spectrum_file,"spectra.inp");
 
+
 	if (isfile(file_path)!=0)
 	{
 		ewe(sim,"%s: %s\n",_("File not found"),file_path);
@@ -76,6 +78,18 @@ void light_load_materials(struct simulation *sim,struct light *li, struct device
 	inter_sort(&(li->sun_read));
 
 	inter_mod(&(li->sun_read));
+
+	if (li->light_wavelength_auto_mesh==TRUE)
+	{
+		dim->llen=100;	//100 wavelengths as default
+		int left=0;
+		int right=0;
+		math_xy_get_left_right_start(&(li->sun_read),&left,&right, 0.02);
+		li->lstart=li->sun_read.x[left];
+		li->lstop=li->sun_read.x[right];
+	}
+
+	dim->dl=(li->lstop-li->lstart)/((long double)dim->llen);
 
 	long double Power=inter_intergrate(&(li->sun_read));
 	printf_log(sim,"%s %Le Wm^{-2}\n",_("Power density of the optical spectra:"),Power);

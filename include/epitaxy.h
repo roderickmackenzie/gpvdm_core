@@ -51,4 +51,12 @@ void epitaxy_load_emission(struct simulation *sim,struct epi_layer *layer);
 void epitaxy_load_electrical_file(struct simulation *sim,struct epi_layer *layer);
 void epitaxy_mask(struct simulation *sim,struct device *dev);
 void epitaxy_shapes_load(struct simulation *sim,struct epitaxy *in);
+
+//optical
+long double epitaxy_get_optical_problem_start(struct epitaxy *in);
+long double epitaxy_get_optical_problem_stop(struct epitaxy *in);
+
+//heat
+long double epitaxy_get_heat_problem_start(struct epitaxy *in);
+long double epitaxy_get_heat_problem_stop(struct epitaxy *in);
 #endif

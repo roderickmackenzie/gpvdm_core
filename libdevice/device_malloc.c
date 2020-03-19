@@ -298,6 +298,9 @@ void device_get_memory(struct simulation *sim,struct device *in)
 	malloc_zxy_gdouble(dim,&(in->kh));
 
 	malloc_zxy_gdouble(dim,&(in->Hl));
+	malloc_zxy_gdouble(dim,&(in->H_recombination));
+	malloc_zxy_gdouble(dim,&(in->H_joule));
+
 	malloc_zxy_gdouble(dim,&(in->He));
 	malloc_zxy_gdouble(dim,&(in->Hh));
 

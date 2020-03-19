@@ -85,8 +85,8 @@ printf_log(sim,"p srhbandp.inp %d 1\n",i);
 
 void dump_qe(struct simulation *sim)
 {
-struct istruct n;
-struct istruct p;
+struct math_xy n;
+struct math_xy p;
 
 inter_load(sim,&n,"dosoutn.dat");
 inter_load(sim,&p,"dosoutp.dat");
@@ -674,8 +674,8 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 
 			}
 
-			//printf("here %Le %Le %Le \n",sum,in->Nc*exp((xpos*Q)/(kb*tpos)),xpos);//		
-			//getchar();	
+			//printf("here %Le %Le %Le \n",sum,in->Nc*exp((xpos*Q)/(kb*tpos)),xpos);//
+			//getchar();
 
 
 		}else
@@ -801,7 +801,7 @@ printf_log(sim,"%d/%d\n",t,(int)tsteps);
 
 
 	}
-	//getchar();	
+	//getchar();
 //getchar();
 
 tpos+=dt;

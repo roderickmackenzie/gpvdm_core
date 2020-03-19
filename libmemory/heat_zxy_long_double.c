@@ -201,3 +201,44 @@ return ret;
 
 }
 
+long double intergrate_heat_zxy_long_double(struct dim_heat *dim, long double ***data)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	long double sum=0.0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				sum+=data[z][x][y]*dim->dx[x]*dim->dy[y]*dim->dz[z];
+			}
+		}
+	}
+
+return sum;
+}
+
+long double avg_heat_zxy_long_double(struct dim_heat *dim, long double ***data)
+{
+	int x=0;
+	int y=0;
+	int z=0;
+	long double sum=0.0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				sum+=data[z][x][y];
+			}
+		}
+	}
+
+return sum/((long double)(dim->zlen*dim->xlen*dim->ylen));
+}

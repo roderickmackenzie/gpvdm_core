@@ -45,10 +45,10 @@ static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
 
 
-/**Norm istruct to max value
-@param in input istruct
+/**Norm math_xy to max value
+@param in input math_xy
 */
-long double inter_norm(struct istruct* in,long double mul)
+long double inter_norm(struct math_xy* in,long double mul)
 {
 int i;
 long double max=in->data[0];
@@ -66,11 +66,11 @@ in->data[i]*=mul/max;
 return max;
 }
 
-/**Add together istruct structures
+/**Add together math_xy structures
 @param out output structure
 @param in structure to add
 */
-void inter_add(struct istruct* out,struct istruct* in)
+void inter_add(struct math_xy* out,struct math_xy* in)
 {
 int i;
 	for (i=0;i<out->len;i++)
@@ -80,10 +80,10 @@ int i;
 
 }
 
-/**Get the average value of the data in a 1D istruct
-@param in input istruct
+/**Get the average value of the data in a 1D math_xy
+@param in input math_xy
 */
-long double inter_avg(struct istruct* in)
+long double inter_avg(struct math_xy* in)
 {
 int i;
 long double sum=0.0;
@@ -95,10 +95,10 @@ for (i=0;i<in->len;i++)
 return sum/((long double)(in->len));
 }
 
-/**Multiply the data in a 1D istruct by a number
-@param in input istruct
+/**Multiply the data in a 1D math_xy by a number
+@param in input math_xy
 */
-void inter_mul(struct istruct* in,long double mul)
+void inter_mul(struct math_xy* in,long double mul)
 {
 int i;
 //long double sum=0.0;
@@ -109,10 +109,10 @@ for (i=0;i<in->len;i++)
 }
 }
 
-/**Get maximum value of an istruct
-@param in input istruct
+/**Get maximum value of an math_xy
+@param in input math_xy
 */
-long double inter_get_fabs_max(struct istruct* in)
+long double inter_get_fabs_max(struct math_xy* in)
 {
 int i;
 long double max=fabs(in->data[0]);
@@ -128,7 +128,7 @@ return max;
 /**Make all the data positive
 @param in the structure holding the data
 */
-void inter_mod(struct istruct* in)
+void inter_mod(struct math_xy* in)
 {
 int i;
 for  (i=0;i<in->len;i++)
@@ -138,10 +138,10 @@ if (in->data[i]<0.0) in->data[i]*= -1.0;
 
 }
 
-/**Raise the data in an istruct by a power
+/**Raise the data in an math_xy by a power
 @param p power to raise the data by
 */
-void inter_pow(struct istruct* in,long double p)
+void inter_pow(struct math_xy* in,long double p)
 {
 int i;
 for  (i=0;i<in->len;i++)
@@ -156,7 +156,7 @@ in->data[i]=pow(in->data[i],p);
 @param in opperand two
 
 */
-void inter_sub(struct simulation *sim,struct istruct* one,struct istruct* two)
+void inter_sub(struct simulation *sim,struct math_xy* one,struct math_xy* two)
 {
 if (one->len!=two->len)
 {

@@ -43,7 +43,7 @@
 
 static int unused __attribute__((unused));
 
-void dynamic_info_to_buf(struct simulation *sim,struct dat_file *buf, struct device *dev,struct istruct* data)
+void dynamic_info_to_buf(struct simulation *sim,struct dat_file *buf, struct device *dev,struct math_xy* data)
 {
 	char unit[100];
 	long double mul;
@@ -82,7 +82,7 @@ int i;
 int sub=TRUE;
 char temp[200];
 struct dat_file buf;
-struct istruct one;
+struct math_xy one;
 
 buffer_init(&buf);
 

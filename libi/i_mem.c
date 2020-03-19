@@ -45,10 +45,10 @@ static int unused __attribute__((unused));
 static char* unused_pchar __attribute__((unused));
 
 
-/**Initialize a 1D istruct
-@param in input istruct
+/**Initialize a 1D math_xy
+@param in input math_xy
 */
-void inter_init(struct simulation *sim,struct istruct* in)
+void inter_init(struct simulation *sim,struct math_xy* in)
 {
 	in->len=-1;
 	in->max_len=-1;
@@ -57,12 +57,12 @@ void inter_init(struct simulation *sim,struct istruct* in)
 }
 
 
-/**Make a copy of one istruct
-@param in input istruct
-@param output istruct
-@param alloc initialize the memory in the output istruct
+/**Make a copy of one math_xy
+@param in input math_xy
+@param output math_xy
+@param alloc initialize the memory in the output math_xy
 */
-void inter_copy(struct istruct* in,struct istruct* orig,int alloc)
+void inter_copy(struct math_xy* in,struct math_xy* orig,int alloc)
 {
 	int i;
 
@@ -85,7 +85,7 @@ void inter_copy(struct istruct* in,struct istruct* orig,int alloc)
 /**Free the structure holding the data
 @param in The structure holding the data
 */
-void inter_free(struct istruct* in)
+void inter_free(struct math_xy* in)
 {
 	in->len=-1;
 	in->max_len=-1;
@@ -96,7 +96,7 @@ void inter_free(struct istruct* in)
 }
 
 
-void inter_append(struct istruct* in,long double x,long double y)
+void inter_append(struct math_xy* in,long double x,long double y)
 {
 	if (in->x==NULL)
 	{
@@ -116,23 +116,23 @@ void inter_append(struct istruct* in,long double x,long double y)
 }
 
 
-/**Change the size of an allocated istruct
-@param in inout istruct
+/**Change the size of an allocated math_xy
+@param in inout math_xy
 @param len new length
 */
-void inter_realloc(struct istruct* in,int len)
+void inter_realloc(struct math_xy* in,int len)
 {
 	in->x=(long double *)realloc (in->x,len*sizeof(long double));
 	in->data=(long double *)realloc (in->data,len*sizeof(long double));
 }
 
 
-/**Allocate istruct as a 1D array
+/**Allocate math_xy as a 1D array
 @param in the array to allocate
 @param m number of coloums
 @param len length of data to store in the array
 */
-void inter_malloc(struct istruct* in,int len)
+void inter_malloc(struct math_xy* in,int len)
 {
 	if (in->x!=NULL)
 	{
@@ -150,7 +150,7 @@ void inter_malloc(struct istruct* in,int len)
 	strcpy(in->name,"new");
 }
 
-void inter_init_mesh(struct istruct* in,int len,long double min,long double max)
+void inter_init_mesh(struct math_xy* in,int len,long double min,long double max)
 {
 int i;
 inter_malloc(in,len);

@@ -1,23 +1,23 @@
-// 
+//
 // General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-// 
+//
 // Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-// 
+//
 // https://www.gpvdm.com
-// 
-// 
+//
+//
 // This program is free software; you can redistribute it and/or modify it
 // under the terms and conditions of the GNU Lesser General Public License,
 // version 2.1, as published by the Free Software Foundation.
-// 
+//
 // This program is distributed in the hope it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
-// 
+//
+//
 
 /** @file anal.c
 @brief do some analysis on the device, this belongs in the libmeasure really.
@@ -29,14 +29,14 @@
 
 /*
 int i;
-struct istruct xrange;
-struct istruct data;
-struct istruct intergrate;
-struct istruct left;
-struct istruct time;
-struct istruct tau;
-struct istruct loss;
-struct istruct lookup;
+struct math_xy xrange;
+struct math_xy data;
+struct math_xy intergrate;
+struct math_xy left;
+struct math_xy time;
+struct math_xy tau;
+struct math_xy loss;
+struct math_xy lookup;
 
 inter_load_a(&xrange,"timedata/CEVoccurrent_sane_axes.dat",0,0);
 inter_load_a(&time,"timedata/TIME_for_CE.txt",0,0);
@@ -134,7 +134,7 @@ exit(0);
 void process_ce_data(struct simulation *sim,int col,char *input,char *output)
 {
 int i;
-struct istruct data;
+struct math_xy data;
 
 gdouble d=read_value(sim,"device.inp",0,12)+read_value(sim,"device.inp",0,39);
 gdouble area=read_value(sim,"device.inp",0,21)*read_value(sim,"device.inp",0,23);

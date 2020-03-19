@@ -55,6 +55,7 @@ void light_init(struct light *li)
 	li->spoty= -1.0;
 	li->pulseJ= -1.0;
 	li->pulse_width= -1.0;
+	li->light_wavelength_auto_mesh=-1;
 	li->G_percent=NULL;
 	li->disable_cal_photon_density=FALSE;
 	li->finished_solveing=FALSE;

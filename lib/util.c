@@ -393,9 +393,21 @@ if (strcmp(temp,"thermal_hydrodynamic")==0)
 {
 	return THERMAL_HYDRODYNAMIC;
 }else
-if (strcmp(temp,"thermal_simple")==0)
+if (strcmp(temp,"thermal_lattice")==0)
 {
-	return THERMAL_SIMPLE;
+	return THERMAL_LATTICE;
+}else
+if (strcmp(temp,"isothermal")==0)
+{
+	return ISOTHERMAL;
+}else
+if (strcmp(temp,"neumann")==0)
+{
+	return NEUMANN;
+}else
+if (strcmp(temp,"heatsink")==0)
+{
+	return HEATSINK;
 }
 
 

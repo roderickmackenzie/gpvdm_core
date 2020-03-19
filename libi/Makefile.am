@@ -1,5 +1,5 @@
 inc=-I../include/
-OBJS=i.o i_mem.o i_math.o data2d.o
+OBJS=i.o i_mem.o i_math.o data2d.o math_xy_calculus.o math_xy_load_save.o math_xy_peak.o
 
 COMPILE_FLAG=@COMPILE_FLAG@
 LINK_FLAG=@LINK_FLAG@

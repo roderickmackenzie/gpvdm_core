@@ -103,4 +103,8 @@ void solver_free_memory(struct simulation *sim,struct device * in)
 void newton_interface_free(struct simulation *sim)
 {
 dlclose(sim->dll_solver_handle);
+
+sim->dll_solver_free_memory=NULL;
+sim->dll_solver_realloc=NULL;
+sim->dll_solve_cur=NULL;
 }

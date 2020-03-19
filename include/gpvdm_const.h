@@ -147,7 +147,13 @@
 
 //Heat model
 #define THERMAL_HYDRODYNAMIC 	0
-#define THERMAL_SIMPLE 			1
+#define THERMAL_LATTICE 			1
+
+#define ISOTHERMAL	0
+#define NEUMANN		1
+#define HEATSINK	2
+
+
 
 #define measure_voltage		0
 #define measure_current		1

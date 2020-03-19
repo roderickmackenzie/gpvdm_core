@@ -76,7 +76,7 @@ void light_load_config_file(struct simulation *sim,struct light *li)
 
 	inp_search_int(sim,&inp,&dim->ylen,"#meshpoints");
 
-	dim->dy=epitaxy_get_optical_length(li->epi)/((long double)dim->ylen);
+	//dim->dy=epitaxy_get_optical_length(li->epi)/((long double)dim->ylen);
 	//printf("%Le\n",epitaxy_get_optical_length(li->epi));
 	//getchar();
 	inp_search_string(sim,&inp,temp_str,"#light_illuminate_from");
@@ -88,13 +88,12 @@ void light_load_config_file(struct simulation *sim,struct light *li)
 		li->flip_field=FALSE;
 	}
 
+	li->light_wavelength_auto_mesh=inp_search_english(sim,&inp,"#light_wavelength_auto_mesh");
 	inp_search_int(sim,&inp,&dim->llen,"#lpoints");
 
 	inp_search_gdouble(sim,&inp,&li->lstart,"#lstart");
 
 	inp_search_gdouble(sim,&inp,&li->lstop,"#lstop");
-
-	dim->dl=(li->lstop-li->lstart)/((long double)dim->llen);
 
 	inp_search_gdouble(sim,&inp,&(li->electron_eff),"#electron_eff");
 	li->electron_eff=fabs(li->electron_eff);

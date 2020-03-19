@@ -159,7 +159,26 @@ struct md5 hash;
 
 	if (mx->complex_matrix==FALSE)
 	{
+		/*printf("here %d %d\n",mx->M,mx->nz);
+		int i;
+
+		for (i=0;i<mx->nz;i++)
+		{
+			printf("%d %Le\n",i,mx->b[i]);
+		}
+
+		for (i=0;i<mx->M;i++)
+		{
+			printf("%d %Le\n",i,mx->b[i]);
+		}
+
+		getchar();*/
+		if (sim->dll_matrix_solve==NULL)
+		{
+			ewe(sim,"The matrix solver dll is not loaded\n");
+		} 
 		(*sim->dll_matrix_solve)(sim,mx->M,mx->nz,mx->Ti,mx->Tj,mx->Tx,mx->b);
+		//printf("fin\n");
 	}else
 	{
 		(*sim->dll_complex_matrix_solve)(sim,mx->M,mx->nz,mx->Ti,mx->Tj,mx->Tx,mx->Txz,mx->b,mx->bz);
@@ -357,6 +376,7 @@ int matrix_load(struct simulation *sim,struct matrix *mx)
 
 void matrix_free(struct simulation *sim,struct matrix *mx)
 {
+
 	if (mx->Ti!=NULL)
 	{
 		free(mx->Ti);

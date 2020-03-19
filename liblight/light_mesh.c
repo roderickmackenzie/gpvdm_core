@@ -65,14 +65,16 @@ void light_build_mesh(struct simulation *sim,struct light *li,struct dimensions 
 		dim->z[z]=electrical_dim->zmesh[z];
 	}
 
-	pos=0.0;
+	dim->dy=(epitaxy_get_optical_problem_stop(li->epi)-epitaxy_get_optical_problem_start(li->epi))/((long double)dim->ylen);
+
+	pos=epitaxy_get_optical_problem_start(li->epi);
+
 	for (y=0;y<dim->ylen;y++)
 	{
 		dim->y[y]=pos;
 		pos=pos+dim->dy;
 		//printf("%Le %Le\n",pos,dim->dy);
 		//getchar();
-
 	}
 
 	pos=li->lstart;

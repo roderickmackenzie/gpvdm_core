@@ -252,6 +252,17 @@ void dim_info_to_buf(struct dat_file *buf,struct dimensions *dim)
 	buf->logscale_x=0;
 	buf->logscale_y=0;
 
+	if ((dim->xlen>1)&&(dim->ylen>1)&&(dim->zlen>1))
+	{
+		strcpy(buf->type,"zxy-d");
+	}else
+	if ((dim->xlen>1)&&(dim->ylen>1))
+	{
+		strcpy(buf->type,"3d");
+	}else
+	{
+		strcpy(buf->type,"xy");
+	}
 }
 
 
