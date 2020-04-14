@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file newton_update.c
 	@brief Update the dependent variables after running the newton solver to calculate new solution parameters.
@@ -35,43 +49,79 @@ int band=0;
 struct newton_state *ns=&(in->ns);
 struct dimensions *dim=&in->ns.dim;
 
+long double n=0.0;
+long double p=0.0;
+long double nt=0.0;
+long double pt=0.0;
+long double dnt=0.0;
+long double dpt=0.0;
+long double wn=0.0;
+long double wp=0.0;
+
+long double dn=0.0;
+long double dp=0.0;
+long double srh1=0.0;
+long double srh2=0.0;
+long double srh3=0.0;
+long double srh4=0.0;
+
+long double dsrh1=0.0;
+long double dsrh2=0.0;
+long double dsrh3=0.0;
+long double dsrh4=0.0;
+long double phi=0.0;
+long double Te=0.0;
+long double Th=0.0;
+int imat=0;
+
 	for (y=0;y<dim->ylen;y++)
 	{
-		in->Fn[z][x][y]=ns->x[z][x][y]-ns->phi[z][x][y];
-		in->Fp[z][x][y]= -ns->xp[z][x][y]-ns->phi[z][x][y];
+		imat=in->imat[z][x][y];
+		phi=ns->phi[z][x][y];
+		Te=in->Te[z][x][y];
+		Th=in->Th[z][x][y];
 
-		in->Ec[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y];
-		in->Ev[z][x][y]= -ns->phi[z][x][y]-in->Xi[z][x][y]-in->Eg[z][x][y];
+		in->Fn[z][x][y]=ns->x[z][x][y]-phi;
+		in->Fp[z][x][y]= -ns->xp[z][x][y]-phi;
 
-		in->dn[z][x][y]=get_dn_den(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
-		in->n[z][x][y]=get_n_den(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
-		in->dndphi[z][x][y]=get_dn_den(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
-		in->dp[z][x][y]=get_dp_den(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
-		in->p[z][x][y]=get_p_den(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
-		in->dpdphi[z][x][y]= -get_dp_den(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
+		in->Ec[z][x][y]= -phi-in->Xi[z][x][y];
+		in->Ev[z][x][y]= in->Ec[z][x][y]-in->Eg[z][x][y];
+		get_n_den(in,ns->x[z][x][y]+in->t[z][x][y],Te,imat,&n,&dn,&wn);
+		get_p_den(in,ns->xp[z][x][y]-in->tp[z][x][y],Th,imat,&p,&dp,&wp);
 
-		in->wn[z][x][y]=get_n_w(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
-		in->wp[z][x][y]=get_p_w(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
+		in->dn[z][x][y]=dn;
+		in->n[z][x][y]=n;
+		in->dndphi[z][x][y]=dn;
+
+		in->dp[z][x][y]=dp;
+		in->p[z][x][y]=p;
+		in->dpdphi[z][x][y]= -dp;
+
+		in->wn[z][x][y]=wn;//get_n_w(in,ns->x[z][x][y]+in->t[z][x][y],in->Te[z][x][y],in->imat[z][x][y]);
+		in->wp[z][x][y]=wp;//get_p_w(in,ns->xp[z][x][y]-in->tp[z][x][y],in->Th[z][x][y],in->imat[z][x][y]);
 
 		if (in->ntrapnewton)
 		{
 			in->nt_all[z][x][y]=0.0;
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				in->Fnt[z][x][y][band]=ns->xt[z][x][y][band]-ns->phi[z][x][y];
+				in->Fnt[z][x][y][band]=ns->xt[z][x][y][band]-phi;
+				get_n_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],Te,band,&nt,&srh1,&srh2,&srh3,&srh4,imat);
+				get_dn_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],Te,band,&dnt,&dsrh1,&dsrh2,&dsrh3,&dsrh4,imat);
 
-				in->srh_n_r1[z][x][y][band]=get_n_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_1,in->imat[z][x][y]);
-				in->srh_n_r2[z][x][y][band]=get_n_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_2,in->imat[z][x][y]);
-				in->srh_n_r3[z][x][y][band]=get_n_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_3,in->imat[z][x][y]);
-				in->srh_n_r4[z][x][y][band]=get_n_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_4,in->imat[z][x][y]);
-				in->dsrh_n_r1[z][x][y][band]=get_dn_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_1,in->imat[z][x][y]);
-				in->dsrh_n_r2[z][x][y][band]=get_dn_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_2,in->imat[z][x][y]);
-				in->dsrh_n_r3[z][x][y][band]=get_dn_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_3,in->imat[z][x][y]);
-				in->dsrh_n_r4[z][x][y][band]=get_dn_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,srh_4,in->imat[z][x][y]);
+				in->srh_n_r1[z][x][y][band]=srh1;
+				in->srh_n_r2[z][x][y][band]=srh2;
+				in->srh_n_r3[z][x][y][band]=srh3;
+				in->srh_n_r4[z][x][y][band]=srh4;
 
-				in->nt[z][x][y][band]=get_n_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
-				in->dnt[z][x][y][band]=get_dn_pop_srh(sim,in,ns->xt[z][x][y][band]+in->tt[z][x][y],in->Te[z][x][y],band,in->imat[z][x][y]);
-				in->nt_all[z][x][y]+=in->nt[z][x][y][band];
+				in->dsrh_n_r1[z][x][y][band]=dsrh1;
+				in->dsrh_n_r2[z][x][y][band]=dsrh2;
+				in->dsrh_n_r3[z][x][y][band]=dsrh3;
+				in->dsrh_n_r4[z][x][y][band]=dsrh4;
+
+				in->nt[z][x][y][band]=nt;
+				in->dnt[z][x][y][band]=dnt;
+				in->nt_all[z][x][y]+=nt;
 
 			}
 		}
@@ -81,20 +131,23 @@ struct dimensions *dim=&in->ns.dim;
 			in->pt_all[z][x][y]=0.0;
 			for (band=0;band<dim->srh_bands;band++)
 			{
-				in->Fpt[z][x][y][band]= -ns->xpt[z][x][y][band]-ns->phi[z][x][y];
+				in->Fpt[z][x][y][band]= -ns->xpt[z][x][y][band]-phi;
+				get_p_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],Th,band,&pt,&srh1,&srh2,&srh3,&srh4,imat);
+				get_dp_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],Th,band,&dpt,&dsrh1,&dsrh2,&dsrh3,&dsrh4,imat);
 
-				in->srh_p_r1[z][x][y][band]=get_p_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_1,in->imat[z][x][y]);
-				in->srh_p_r2[z][x][y][band]=get_p_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_2,in->imat[z][x][y]);
-				in->srh_p_r3[z][x][y][band]=get_p_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_3,in->imat[z][x][y]);
-				in->srh_p_r4[z][x][y][band]=get_p_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_4,in->imat[z][x][y]);
-				in->dsrh_p_r1[z][x][y][band]=get_dp_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_1,in->imat[z][x][y]);
-				in->dsrh_p_r2[z][x][y][band]=get_dp_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_2,in->imat[z][x][y]);
-				in->dsrh_p_r3[z][x][y][band]=get_dp_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_3,in->imat[z][x][y]);
-				in->dsrh_p_r4[z][x][y][band]=get_dp_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,srh_4,in->imat[z][x][y]);
+				in->srh_p_r1[z][x][y][band]=srh1;
+				in->srh_p_r2[z][x][y][band]=srh2;
+				in->srh_p_r3[z][x][y][band]=srh3;
+				in->srh_p_r4[z][x][y][band]=srh4;
 
-				in->pt[z][x][y][band]=get_p_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
-				in->dpt[z][x][y][band]=get_dp_pop_srh(sim,in,ns->xpt[z][x][y][band]-in->tpt[z][x][y],in->Th[z][x][y],band,in->imat[z][x][y]);
-				in->pt_all[z][x][y]+=in->pt[z][x][y][band];
+				in->dsrh_p_r1[z][x][y][band]=dsrh1;
+				in->dsrh_p_r2[z][x][y][band]=dsrh2;
+				in->dsrh_p_r3[z][x][y][band]=dsrh3;
+				in->dsrh_p_r4[z][x][y][band]=dsrh4;
+
+				in->pt[z][x][y][band]=pt;
+				in->dpt[z][x][y][band]=dpt;
+				in->pt_all[z][x][y]+=pt;
 			}
 		}
 
@@ -127,6 +180,7 @@ struct heat* thermal=&(in->thermal);
 				in->Hex[z][x][y]=0.0;
 				//if ((i>in->ylen/2)&&(i<in->ylen/2+10)) in->Hex[z][x][y]=1e9;
 				in->epsilonr[z][x][y]=get_dos_epsilonr(in,in->imat[z][x][y]);
+				in->epsilonr_e0[z][x][y]=in->epsilonr[z][x][y]*epsilon0;
 
 				in->Eg[z][x][y]=get_dos_Eg(in,in->imat[z][x][y]);
 
@@ -163,6 +217,13 @@ struct heat* thermal=&(in->thermal);
 
 			}
 		}
+	}
+
+	z=0;
+	for (x=0;x<dim->xlen;x++)
+	{
+		in->mun[z][x][dim->ylen-1]=1e-20;
+		in->mup[z][x][dim->ylen-1]=1e-20;//=get_p_mu(in,in->imat[z][x][y]);
 	}
 
 	contacts_ingress(sim,in);

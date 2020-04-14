@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file initial.c
 @brief setup the initial guess for the solvers, this really is just a really bad guess.
@@ -192,7 +206,7 @@ void get_initial(struct simulation *sim,struct device *in,int guess)
 	}
 
 	in->Vbi=0.0;
-	if (strcmp(in->newton_name,"newton_simple")==0)
+	if (in->circuit_simulation==TRUE)
 	{
 		return;
 	}
@@ -346,22 +360,22 @@ void get_initial(struct simulation *sim,struct device *in,int guess)
 	{
 		for (x=0;x<dim->xlen;x++)
 		{
-			in->electrons_y0[z][x]=get_n_den(in,in->Fi0_y0[z][x]+in->Xi[z][x][0],in->Te[z][x][0],in->imat[z][x][0]);
-			in->holes_y0[z][x]=get_p_den(in,-(in->Fi0_y0[z][x]+in->Xi[z][x][0]+in->Eg[z][x][0]),in->Th[z][x][0],in->imat[z][x][0]);
+			get_n_den(in,in->Fi0_y0[z][x]+in->Xi[z][x][0],in->Te[z][x][0],in->imat[z][x][0],&(in->electrons_y0[z][x]),NULL,NULL);
+			get_p_den(in,-(in->Fi0_y0[z][x]+in->Xi[z][x][0]+in->Eg[z][x][0]),in->Th[z][x][0],in->imat[z][x][0],&(in->holes_y0[z][x]),NULL,NULL);
 
-			in->electrons_y1[z][x]=get_n_den(in,in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1],in->Te[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
-			in->holes_y1[z][x]=get_p_den(in,-(in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1]+in->Eg[z][x][dim->ylen-1]),in->Th[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1]);
+			get_n_den(in,in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1],in->Te[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1],&(in->electrons_y1[z][x]),NULL,NULL);
+			get_p_den(in,-(in->Fi0_y1[z][x]+in->Xi[z][x][dim->ylen-1]+in->Eg[z][x][dim->ylen-1]),in->Th[0][0][dim->ylen-1],in->imat[0][0][dim->ylen-1],&(in->holes_y1[z][x]),NULL,NULL);
 
 		}
 
 		for (y=0;y<dim->ylen;y++)
 		{
-			in->electrons_x0[z][y]=get_n_den(in,in->Fi0_x0[z][y]+in->Xi[z][0][y],in->Te[z][0][y],in->imat[z][0][y]);
-			in->holes_x0[z][y]=get_p_den(in,-(in->Fi0_x0[z][y]+in->Xi[z][0][y]+in->Eg[z][0][y]),in->Th[z][0][y],in->imat[z][0][y]);
+			get_n_den(in,in->Fi0_x0[z][y]+in->Xi[z][0][y],in->Te[z][0][y],in->imat[z][0][y],&(in->electrons_x0[z][y]),NULL,NULL);
+			get_p_den(in,-(in->Fi0_x0[z][y]+in->Xi[z][0][y]+in->Eg[z][0][y]),in->Th[z][0][y],in->imat[z][0][y],&(in->holes_x0[z][y]),NULL,NULL);
 			//printf_log(sim,"Left (%d,%d)  p=%Le n=%Le\n",z,x,in->l_holes[z][x],in->l_electrons[z][x]);
 
-			in->electrons_x1[z][y]=get_n_den(in,in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y],in->Te[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y]);
-			in->holes_x1[z][y]=get_p_den(in,-(in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y]+in->Eg[z][dim->xlen-1][y]),in->Th[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y]);
+			get_n_den(in,in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y],in->Te[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y],&(in->electrons_x1[z][y]),NULL,NULL);
+			get_p_den(in,-(in->Fi0_x1[z][y]+in->Xi[z][dim->xlen-1][y]+in->Eg[z][dim->xlen-1][y]),in->Th[0][dim->xlen-1][y],in->imat[0][dim->xlen-1][y],&(in->holes_x1[z][y]),NULL,NULL);
 
 			//printf("%Le %Le\n",delta_phi,in->V_y1[z][x]);
 			//getchar();

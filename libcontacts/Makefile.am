@@ -1,5 +1,5 @@
 inc=-I../include/
-OBJS=contacts.o
+OBJS=contacts.o contacts_load.o
 
 COMPILE_FLAG=@COMPILE_FLAG@
 LINK_FLAG=@LINK_FLAG@

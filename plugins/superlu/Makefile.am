@@ -4,7 +4,7 @@ inc=-I../../include/ -I/home/rod/Downloads/superlu_5.2.1/SuperLU_5.2.1/SRC/ #las
 lib=-L../../
 
 all: $(OBJS)
-	$(CC) -shared $(OBJS) @DLL_LINKER@ $(lib) @DLL_DEBUG@ $(LDFLAGS) -o plugin.@DLIB_EXT@
+	$(CC) -shared $(OBJS) @DLL_LINKER@ $(lib) @DLL_DEBUG@ $(LDFLAGS) -lsuperlu -o plugin.@DLIB_EXT@
 	mv plugin.@DLIB_EXT@ ../superlu.@DLIB_EXT@
 
 .c.o : 

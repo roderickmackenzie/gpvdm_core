@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file epitaxy.c
 	@brief Load the epitaxy structure.
@@ -31,53 +45,9 @@
 #include <cal_path.h>
 #include <shape.h>
 #include <contacts.h>
+#include <component.h>
+#include <component_fun.h>
 
-/**
- * @brief Load the epitaxy in from epitaxy.inp
- *
- */
-
-void epitaxy_load_electrical_file(struct simulation *sim,struct epi_layer *layer)
-{
-	struct inp_file inp;
-	char full_path[PATH_MAX];
-	char file_name[100];
-
-	strcpy(file_name,layer->electrical_file);
-	strcat(file_name,".inp");
-
-	join_path(2, full_path, get_input_path(sim), file_name);
-
-	if ((inp_isfile(sim,full_path)==0)&&(strcmp(layer->electrical_file,"none")!=0))
-	{
-
-		inp_init(sim,&inp);
-
-		inp_load(sim,&inp,full_path);
-		inp_check(sim,&inp,1.0);
-
-		inp_search_string(sim,&inp,layer->component,"#electrical_component");
-
-		inp_search_gdouble(sim,&inp,&(layer->shunt),"#electrical_shunt");
-
-		inp_search_gdouble(sim,&inp,&(layer->series),"#electrical_series");
-		//printf("oh>>>>%d");
-		//getchar();
-
-		inp_search_gdouble(sim,&inp,&(layer->n_ideality),"#electrical_n");
-
-		inp_search_gdouble(sim,&inp,&(layer->J0),"#electrical_J0");
-
-		inp_free(sim,&inp);
-
-	}else
-	{
-		layer->shunt=0.0;
-		layer->series=0.0;
-		layer->n_ideality=0.0;
-		layer->J0=0.0;
-	}
-}
 
 void epitaxy_load_pl_file(struct simulation *sim,char *pl_file, struct epi_layer *layer)
 {
@@ -246,6 +216,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 	char pl_file[20];
 	char lumo_file[20];
 	char homo_file[20];
+	char shape_file[20];
 
 	long double y_pos=0.0;
 
@@ -282,7 +253,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 
 		//name
 		test=inp_get_string(sim,&inp);
-		strcpy(in->layer[i].name,inp_get_string(sim,&inp));
+		strcpy(in->layer[i].s.name,inp_get_string(sim,&inp));
 
 		//type	(not yet used)
 		test=inp_get_string(sim,&inp);
@@ -305,11 +276,19 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 
 		inp_get_string(sim,&inp);	//token
 		strcpy(pl_file,inp_get_string(sim,&inp));
-
 		epitaxy_load_pl_file(sim,pl_file,&(in->layer[i]));
 
 		inp_get_string(sim,&inp);	//token
+		strcpy(shape_file,inp_get_string(sim,&inp));
+
+		inp_get_string(sim,&inp);	//token
 		strcpy(in->shape_file[i],inp_get_string(sim,&inp));
+
+		shape_init(sim,&(in->layer[i].s));
+		if (strcmp(shape_file,"none")!=0)
+		{
+			shape_load_file(sim,in,&(in->layer[i].s),shape_file);
+		}
 
 		inp_get_string(sim,&inp);	//token
 		strcpy(lumo_file,inp_get_string(sim,&inp));
@@ -321,7 +300,7 @@ void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file)
 		test=inp_get_string(sim,&inp);
 		strcpy(in->layer[i].electrical_file,inp_get_string(sim,&inp));
 
-		epitaxy_load_electrical_file(sim,&(in->layer[i]));
+		component_load_electrical_file(sim,&(in->layer[i].com),in->layer[i].electrical_file);
 
 
 		test=inp_get_string(sim,&inp);
@@ -555,8 +534,17 @@ return -1;
  */
 void epitaxy_free(struct simulation *sim,struct epitaxy *in)
 {
+	int i;
 	epitaxy_free_materials(in);
 	shape_free_materials(sim,in);
+
+
+	for (i=0;i<in->layers;i++)
+	{
+		shape_free(sim,&(in->layer[i].s));
+	}
+
+
 }
 
 void epitaxy_mask(struct simulation *sim,struct device *dev)
@@ -579,6 +567,11 @@ if ((dim->xlen==1)&&(dim->zlen==1))
 			{
 				dev->mask[z][x][y]=TRUE;
 			}
+
+			for (l=0;l<epi->layers;l++)
+			{
+				dev->mask_epitaxy[z][x][l]=TRUE;
+			}
 		}
 	}
 	return;
@@ -588,11 +581,14 @@ if ((dim->xlen==1)&&(dim->zlen==1))
 	{
 		for (x=0;x<dim->xlen;x++)
 		{
+
 			for (y=0;y<dim->ylen;y++)
 			{
-				dev->mask[z][x][y]=FALSE;
 
 				l=dev->imat_epitaxy[z][x][y];
+				dev->mask[z][x][y]=FALSE;
+				dev->mask_epitaxy[z][x][l]=FALSE;
+
 				if (l==0)	//first layer
 				{
 					if (dev->my_epitaxy.layer[l].layer_type==LAYER_CONTACT)
@@ -604,6 +600,8 @@ if ((dim->xlen==1)&&(dim->zlen==1))
 								if (contact_within_zx(&(dev->contacts[c]), dim->zmesh[z], dim->xmesh[x])==0)
 								{
 									dev->mask[z][x][y]=TRUE;
+									dev->mask_epitaxy[z][x][l]=TRUE;
+
 								}
 							}
 						}
@@ -611,6 +609,7 @@ if ((dim->xlen==1)&&(dim->zlen==1))
 				}else
 				{
 					dev->mask[z][x][y]=TRUE;
+					dev->mask_epitaxy[z][x][l]=TRUE;
 				}
 			}
 		}

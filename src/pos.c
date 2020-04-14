@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file pos.c
 @brief poisson solver - make a better guess at 0V in the dark.
@@ -267,6 +281,8 @@ int quit=FALSE;
 int adv_step=0;
 int adv=FALSE;
 int band;
+long double not_used;
+
 struct newton_state *ns=&(in->ns);
 
 gdouble kTq=(in->Te[z][x][0]*kb/Q);
@@ -339,7 +355,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 
 			}else
 			{
-				dphidn=get_dn_den(in,in->Fi[z][x][i]-in->Ec[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
+				get_n_den(in,in->Fi[z][x][i]-in->Ec[z][x][i],in->Tl[z][x][i],in->imat[z][x][i],&not_used,&dphidn,NULL);
 
 			}
 
@@ -350,7 +366,8 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 				dphidp= -(Q/(kb*in->Tl[z][x][i]))*in->Nv[z][x][i]*exp((((-ns->phi[z][x][i]-in->Xi[z][x][i]-in->Eg[z][x][i])-in->Fi[z][x][i]))/(kTq));
 			}else
 			{
-				dphidp= -get_dp_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
+				get_p_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i],&not_used,&(dphidp),NULL);
+				dphidp= -dphidp;
 			}
 			gdouble dphil=e0/dyl/dyc;
 			gdouble dphic= -(e0/dyl/dyc+e1/dyr/dyc);
@@ -503,8 +520,7 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 					in->dn[z][x][i]=(Q/(kb*in->Tl[z][x][i]))*in->Nc[z][x][i]*exp((Q*(in->Fi[z][x][i]-in->Ec[z][x][i]))/(kb*in->Tl[z][x][i]));
 				}else
 				{
-					in->n[z][x][i]=get_n_den(in,in->Fi[z][x][i]-in->Ec[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
-					in->dn[z][x][i]=get_dn_den(in,in->Fi[z][x][i]-in->Ec[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
+					get_n_den(in,in->Fi[z][x][i]-in->Ec[z][x][i],in->Tl[z][x][i],in->imat[z][x][i],&(in->n[z][x][i]),&(in->dn[z][x][i]),NULL);
 				}
 
 				in->Fn[z][x][i]=in->Fi[z][x][i];
@@ -522,8 +538,8 @@ gdouble kTq=(in->Te[z][x][0]*kb/Q);
 					in->dp[z][x][i]=(Q/(kb*in->Tl[z][x][i]))*in->Nv[z][x][i]*exp(((ns->xp[z][x][i]-in->tp[z][x][i])*Q)/(kb*in->Tl[z][x][i]));
 				}else
 				{
-					in->p[z][x][i]=get_p_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
-					in->dp[z][x][i]=get_dp_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
+					get_p_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i],&(in->p[z][x][i]),&(in->dp[z][x][i]),NULL);
+					//in->dp[z][x][i]=get_dp_den(in,ns->xp[z][x][i]-in->tp[z][x][i],in->Tl[z][x][i],in->imat[z][x][i]);
 				}
 
 

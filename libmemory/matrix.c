@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file matrix.c
 @brief A struct for the matrix solver
@@ -36,6 +50,7 @@
 #include "memory.h"
 #include "md5.h"
 #include "cal_path.h"
+#include <timer.h>
 
 void matrix_init(struct matrix *mx)
 {
@@ -55,6 +70,18 @@ void matrix_init(struct matrix *mx)
 	strcpy(mx->hash,"");
 	mx->ittr=0;
 	mx->complex_matrix=FALSE;
+
+	mx->build_from_non_sparse=FALSE;
+	mx->J=NULL;
+
+	//stats
+	mx->tot_time=0;
+}
+
+void matrix_stats(struct simulation *sim,struct matrix *mx)
+{
+	printf("matrix solver time=%ld ms \n",mx->tot_time);
+	mx->tot_time=0;
 }
 
 void matrix_cache_reset(struct simulation *sim,struct matrix *mx)
@@ -135,6 +162,7 @@ int matrix_solve(struct simulation *sim,struct matrix *mx)
 {
 char out[100];
 struct md5 hash;
+int start_time=timer_get_time_in_ms();
 
 	if (mx->use_cache==TRUE)
 	{
@@ -184,12 +212,14 @@ struct md5 hash;
 		(*sim->dll_complex_matrix_solve)(sim,mx->M,mx->nz,mx->Ti,mx->Tj,mx->Tx,mx->Txz,mx->b,mx->bz);
 	}
 
-mx->ittr++;
+	mx->tot_time+=(timer_get_time_in_ms()-start_time);
 return -1;
 }
 
 void matrix_malloc(struct simulation *sim,struct matrix *mx)
 {
+	int y;
+
 	mx->Ti=malloc(mx->nz*sizeof(int));
 	memset(mx->Ti, 0, mx->nz*sizeof(int));
 
@@ -210,12 +240,54 @@ void matrix_malloc(struct simulation *sim,struct matrix *mx)
 		mx->bz=malloc(mx->M*sizeof(long double));
 		memset(mx->bz, 0, mx->M*sizeof(long double));
 	}
+
+	if (mx->build_from_non_sparse==TRUE)
+	{
+		mx->J=malloc(mx->M*sizeof(long double*));
+		for (y=0;y<mx->M;y++)
+		{
+			mx->J[y]=malloc(mx->M*sizeof(long double));
+			memset(mx->J[y], 0, mx->M*sizeof(long double));
+		}
+	}
+
+}
+
+void matrix_convert_J_to_sparse(struct simulation *sim,struct matrix *mx)
+{
+	int x;
+	int y;
+	for (y=0;y<mx->M;y++)
+	{
+			for (x=0;x<mx->M;x++)
+			{
+				if (mx->J[y][x]!=0.0)
+				{
+					if (mx->nz>=mx->nz_max)
+					{
+						mx->nz_max+=1000;
+						mx->Ti=realloc(mx->Ti,mx->nz_max*sizeof(int));
+						mx->Tj=realloc(mx->Tj,mx->nz_max*sizeof(int));
+						mx->Tx=realloc(mx->Tx,mx->nz_max*sizeof(long double));
+					}
+
+					mx->Ti[mx->nz]=y;
+					mx->Tj[mx->nz]=x;
+					mx->Tx[mx->nz]=mx->J[y][x];
+					mx->nz++;
+				}
+			}
+	}
+
+
 }
 
 void matrix_add_nz_item(struct simulation *sim,struct matrix *mx,int x,int y,long double val)
 {
 	int i;
-	//printf("ns=%d %d\n",mx->nz,mx->nz_max);
+	//(printf("search =%d %d\n",x,y);
+	mx->J[y][x]+=val;
+	/*
 	for (i=0;i<mx->nz;i++)
 	{
 		if ((x==mx->Tj[i])&&(y==mx->Ti[i]))
@@ -237,7 +309,7 @@ void matrix_add_nz_item(struct simulation *sim,struct matrix *mx,int x,int y,lon
 	mx->Ti[mx->nz]=y;
 	mx->Tj[mx->nz]=x;
 	mx->Tx[mx->nz]=val;
-	mx->nz++;
+	mx->nz++;*/
 
 }
 void matrix_realloc(struct simulation *sim,struct matrix *mx)
@@ -309,6 +381,24 @@ void matrix_realloc(struct simulation *sim,struct matrix *mx)
 		}
 
 	}
+
+	if (mx->build_from_non_sparse==TRUE)
+	{
+		int y;
+		for (y=0;y<mx->M;y++)
+		{
+			free(mx->J[y]);
+		}
+
+		free(mx->J);
+
+		mx->J=malloc(mx->M*sizeof(long double*));
+		for (y=0;y<mx->M;y++)
+		{
+			mx->J[y]=malloc(mx->M*sizeof(long double));
+			memset(mx->J[y], 0, mx->M*sizeof(long double));
+		}
+	}
 }
 
 void matrix_zero_b(struct simulation *sim,struct matrix *mx)
@@ -318,6 +408,16 @@ void matrix_zero_b(struct simulation *sim,struct matrix *mx)
 	if (mx->complex_matrix==TRUE)
 	{
 		memset(mx->bz, 0, mx->M*sizeof(long double));
+	}
+
+	if (mx->build_from_non_sparse==TRUE)
+	{
+		int y;
+
+		for (y=0;y<mx->M;y++)
+		{
+			memset(mx->J[y], 0, mx->M*sizeof(long double));
+		}
 	}
 }
 
@@ -376,6 +476,7 @@ int matrix_load(struct simulation *sim,struct matrix *mx)
 
 void matrix_free(struct simulation *sim,struct matrix *mx)
 {
+	int y;
 
 	if (mx->Ti!=NULL)
 	{
@@ -405,6 +506,17 @@ void matrix_free(struct simulation *sim,struct matrix *mx)
 	if (mx->bz!=NULL)
 	{
 		free(mx->bz);
+	}
+
+	if (mx->build_from_non_sparse==TRUE)
+	{
+		for (y=0;y<mx->M;y++)
+		{
+			free(mx->J[y]);
+		}
+
+		free(mx->J);
+		mx->J=NULL;
 	}
 
 	matrix_init(mx);

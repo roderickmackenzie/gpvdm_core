@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 #include <stdio.h>
 #include <ray.h>
@@ -37,11 +51,17 @@
 
 void triangle_load_from_file(struct simulation *sim,struct triangles *in,char *file_name)
 {
+int i;
 char line[10000];
 struct dat_file dat;
 dat_file_load_info(sim,&dat,file_name);
 in->len=dat.y;
 in->data=(struct triangle*)malloc(sizeof(struct triangle)*in->len);
+
+for (i=0;i<in->len;i++)
+{
+	triangle_init(&(in->data[i]));
+}
 
 FILE *file;
 file=fopen(file_name,"r");
@@ -156,132 +176,6 @@ void triangles_save(char *file_name,struct triangles *in)
 	fclose(out);
 }
 
-void triangles_find_min(struct vec *out,struct triangles *in)
-{
-	int i;
-	double x=in->data[0].xy0.x;
-	double y=in->data[0].xy0.y;
-	double z=in->data[0].xy0.z;
-
-	for (i=0;i<in->len;i++)
-	{
-		if (in->data[i].xy0.x<x)
-		{
-			x=in->data[i].xy0.x;
-		}
-
-		if (in->data[i].xy0.y<y)
-		{
-			y=in->data[i].xy0.y;
-		}
-
-		if (in->data[i].xy0.z<z)
-		{
-			z=in->data[i].xy0.z;
-		}
-
-
-		if (in->data[i].xy1.x<x)
-		{
-			x=in->data[i].xy1.x;
-		}
-
-		if (in->data[i].xy1.y<y)
-		{
-			y=in->data[i].xy1.y;
-		}
-
-		if (in->data[i].xy1.z<z)
-		{
-			z=in->data[i].xy1.z;
-		}
-
-		if (in->data[i].xy2.x<x)
-		{
-			x=in->data[i].xy2.x;
-		}
-
-		if (in->data[i].xy2.y<y)
-		{
-			y=in->data[i].xy2.y;
-		}
-
-		if (in->data[i].xy2.z<z)
-		{
-			z=in->data[i].xy2.z;
-		}
-	}
-
-	out->x=x;
-	out->y=y;
-	out->z=z;
-
-}
-
-void triangles_find_max(struct vec *out,struct triangles *in)
-{
-
-	int i;
-
-	double x=in->data[0].xy0.x;
-	double y=in->data[0].xy0.y;
-	double z=in->data[0].xy0.z;
-
-	for (i=0;i<in->len;i++)
-	{
-		if (in->data[i].xy0.x>x)
-		{
-			x=in->data[i].xy0.x;
-		}
-
-		if (in->data[i].xy0.y>y)
-		{
-			y=in->data[i].xy0.y;
-		}
-
-		if (in->data[i].xy0.z>z)
-		{
-			z=in->data[i].xy0.z;
-		}
-
-
-		if (in->data[i].xy1.x>x)
-		{
-			x=in->data[i].xy1.x;
-		}
-
-		if (in->data[i].xy1.y>y)
-		{
-			y=in->data[i].xy1.y;
-		}
-
-		if (in->data[i].xy1.z>z)
-		{
-			z=in->data[i].xy1.z;
-		}
-
-		if (in->data[i].xy2.x>x)
-		{
-			x=in->data[i].xy2.x;
-		}
-
-		if (in->data[i].xy2.y>y)
-		{
-			y=in->data[i].xy2.y;
-		}
-
-		if (in->data[i].xy2.z>z)
-		{
-			z=in->data[i].xy2.z;
-		}
-	}
-
-	out->x=x;
-	out->y=y;
-	out->z=z;
-
-}
-
 void triangles_sub_vec(struct triangles *in,struct vec *v)
 {
 	int i;
@@ -341,10 +235,9 @@ void triangles_print(struct triangles *in)
 
 }
 
-
-
 void triangles_add_triangle(struct triangles *obj, double x0,double y0,double z0,double x1,double y1,double z1,double x2,double y2,double z2,int uid,int object_type)
 {
+	triangle_init(&(obj->data[obj->len]));
 
 	obj->data[obj->len].xy0.x=x0;
 	obj->data[obj->len].xy0.y=y0;
@@ -402,14 +295,7 @@ void triangles_cal_edges(struct triangles *in)
 	for (i=0;i<in->len;i++)
 	{
 		tri=&(in->data[i]);
-
-		//edge1 = vertex1 - vertex0;
-		vec_cpy(&(tri->edge1),&(tri->xy1));
-		vec_sub(&(tri->edge1),&(tri->xy0));
-
-		//edge2 = vertex2 - vertex0;
-		vec_cpy(&(tri->edge2),&(tri->xy2));
-		vec_sub(&(tri->edge2),&(tri->xy0));
+		triangle_cal_edges(tri);
 	}
 
 	in->edges_calculated=TRUE;

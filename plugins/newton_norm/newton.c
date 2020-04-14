@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file newton.c
 	@brief Newton solver which uses slotboom variables.
@@ -414,9 +428,12 @@ struct dimensions *dim=&in->ns.dim;
 				tnl=in->Xi[z][x][0]/phi0;
 				one=xnl+tnl;
 
-				nl=get_n_den(in,one*phi0,Tel,in->imat[z][x][i])/n0;
-				dnl=get_dn_den(in,one*phi0,Tel,in->imat[z][x][i])*phi0/n0;
-				wnl=get_n_w(in,one*phi0,Tel,in->imat[z][x][i]);
+				get_n_den(in,one*phi0,Tel,in->imat[z][x][i],&nl,&dnl,&wnl);
+				nl/=n0;
+				dnl*=phi0/n0;
+
+				//dnl=get_dn_den(in,one*phi0,Tel,in->imat[z][x][i])*phi0/n0;
+				//wnl=get_n_w(in,one*phi0,Tel,in->imat[z][x][i]);
 
 				munl=in->mun[z][x][0];
 
@@ -433,9 +450,11 @@ struct dimensions *dim=&in->ns.dim;
 				tpl=(in->Xi[z][x][0]/phi0+in->Eg[z][x][0]/phi0);
 				one=xpl-tpl;
 
-				pl=get_p_den(in,one*phi0,Thl,in->imat[z][x][i])/n0;
-				dpl=get_dp_den(in,one*phi0,Thl,in->imat[z][x][i])*phi0/n0;
-				wpl=get_p_w(in,one*phi0,Thl,in->imat[z][x][i]);
+				get_p_den(in,one*phi0,Thl,in->imat[z][x][i],&pl,&dpl,&wpl);
+				pl/=n0;
+				dpl*=phi0/n0;
+				//dpl=get_dp_den(in,one*phi0,Thl,in->imat[z][x][i])*phi0/n0;
+				//wpl=get_p_w(in,one*phi0,Thl,in->imat[z][x][i]);
 
 
 				mupl=in->mup[z][x][0];
@@ -511,9 +530,12 @@ struct dimensions *dim=&in->ns.dim;
 				#endif*/
 				one=xnr+tnr;
 
-				nr=get_n_den(in,one*phi0,Ter,in->imat[z][x][i])/n0;
-				dnr=get_dn_den(in,one*phi0,Ter,in->imat[z][x][i])*phi0/n0;
-				wnr=get_n_w(in,one*phi0,Ter,in->imat[z][x][i]);
+				get_n_den(in,one*phi0,Ter,in->imat[z][x][i],&nr,&dnr,&wnr);
+				nr/=n0;
+				dnr*=phi0/n0;
+
+				//dnr=get_dn_den(in,one*phi0,Ter,in->imat[z][x][i])*phi0/n0;
+				//wnr=get_n_w(in,one*phi0,Ter,in->imat[z][x][i]);
 
 
 				/*#ifdef enable_interface
@@ -531,9 +553,11 @@ struct dimensions *dim=&in->ns.dim;
 
 				one=xpr-tpr;
 
-				pr=get_p_den(in,one*phi0,Thr,in->imat[z][x][i])/n0;
-				dpr=get_dp_den(in,one*phi0,Thr,in->imat[z][x][i])*phi0/n0;
-				wpr=get_p_w(in,one*phi0,Thr,in->imat[z][x][i]);
+				get_p_den(in,one*phi0,Thr,in->imat[z][x][i],&pr,&dpr,&wpr);///n0;
+				pr/=n0;
+				dpr*=phi0/n0;
+				//dpr=get_dp_den(in,one*phi0,Thr,in->imat[z][x][i])*phi0/n0;
+				//wpr=get_p_w(in,one*phi0,Thr,in->imat[z][x][i]);
 
 				munr=in->mun[z][x][i];
 				mupr=in->mup[z][x][i];

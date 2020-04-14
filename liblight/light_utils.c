@@ -1,23 +1,37 @@
 //
-// General-purpose Photovoltaic Device Model gpvdm.com- a drift diffusion
+// General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
-//
-// Copyright (C) 2012-2017 Roderick C. I. MacKenzie info at gpvdm dot com
-//
+// 
+// Copyright (C) 2008-2020 Roderick C. I. MacKenzie
+// 
 // https://www.gpvdm.com
-//
-//
-// This program is free software; you can redistribute it and/or modify it
-// under the terms and conditions of the GNU Lesser General Public License,
-// version 2.1, as published by the Free Software Foundation.
-//
-// This program is distributed in the hope it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-// more details.
-//
-//
+// r.c.i.mackenzie at googlemail.com
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the GPVDM nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL Roderick C. I. MacKenzie BE LIABLE FOR ANY
+// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// 
 
 /** @file light_utils.c
 	@brief Miscellaneous functions for the light model.
@@ -62,98 +76,112 @@ struct dim_light *dim=&li->dim;
 struct shape* s;
 struct object* obj;
 long double Eg=0.0;
+int x;
+int y;
+int z;
+int l;
+
+long double tot=0.0;
+long double H_tot=0.0;
+long double photons_tot=0.0;
+long double E=0.0;
 
 if (li->disable_cal_photon_density==FALSE)
 {
-	int x;
-	int y;
-	int z;
-	int l;
-
-	long double tot=0.0;
-	long double H_tot=0.0;
-	long double photons_tot=0.0;
-	long double E=0.0;
-
-	for (z=0;z<dim->zlen;z++)
+	if ((li->laser_eff!=0)||(li->Psun!=0))
 	{
-		for (x=0;x<dim->xlen;x++)
+
+
+		for (z=0;z<dim->zlen;z++)
 		{
-			for (y=0;y<dim->ylen;y++)
+			for (x=0;x<dim->xlen;x++)
 			{
-				tot=0.0;
-				H_tot=0.0;
-				photons_tot=0.0;
-				obj=li->obj[z][x][y];
-
-				for (l=0;l<dim->llen;l++)
+				for (y=0;y<dim->ylen;y++)
 				{
-					li->E_tot_r[z][x][y][l]=li->Ep[z][x][y][l]+li->En[z][x][y][l];
-					li->E_tot_i[z][x][y][l]=li->Enz[z][x][y][l]+li->Epz[z][x][y][l];
-					li->pointing_vector[z][x][y][l]=0.5*epsilon0*cl*li->n[z][x][y][l]*(gpow(li->E_tot_r[z][x][y][l],2.0)+gpow(li->E_tot_i[z][x][y][l],2.0));
+					tot=0.0;
+					H_tot=0.0;
+					photons_tot=0.0;
+					obj=li->obj[z][x][y];
 
-					li->photons[z][x][y][l]=li->pointing_vector[z][x][y][l]*(dim->l[l]/(hp*cl));
-					li->photons_asb[z][x][y][l]=li->photons[z][x][y][l]*li->alpha[z][x][y][l];
+					for (l=0;l<dim->llen;l++)
+					{
+						li->E_tot_r[z][x][y][l]=li->Ep[z][x][y][l]+li->En[z][x][y][l];
+						li->E_tot_i[z][x][y][l]=li->Enz[z][x][y][l]+li->Epz[z][x][y][l];
+						li->pointing_vector[z][x][y][l]=0.5*epsilon0*cl*li->n[z][x][y][l]*(gpow(li->E_tot_r[z][x][y][l],2.0)+gpow(li->E_tot_i[z][x][y][l],2.0));
 
-					Eg=0.0;
-					if (obj->epi_layer!=-1)
-					{
-						Eg=dev->dosn[obj->epi_layer].config.Eg;
-					}else
-					{
-						s=obj->s;
-						if (s->dos_index!=-1)
+						li->photons[z][x][y][l]=li->pointing_vector[z][x][y][l]*(dim->l[l]/(hp*cl));
+						li->photons_asb[z][x][y][l]=li->photons[z][x][y][l]*li->alpha[z][x][y][l];
+
+						Eg=0.0;
+						if (obj->epi_layer!=-1)
 						{
-							Eg=dev->dosn[s->dos_index].config.Eg;
+							Eg=dev->dosn[obj->epi_layer].config.Eg;
+						}else
+						{
+							s=obj->s;
+							if (s->dos_index!=-1)
+							{
+								Eg=dev->dosn[s->dos_index].config.Eg;
+							}
+
 						}
 
+						E=((hp*cl)/dim->l[l])/Q-Eg;
+
+						if (E>0.0)
+						{
+							li->H[z][x][y][l]=E*Q*li->photons_asb[z][x][y][l];
+						}else
+						{
+							li->H[z][x][y][l]=0.0;
+						}
+
+						photons_tot+=li->photons[z][x][y][l]*dim->dl;
+						tot+=li->photons_asb[z][x][y][l]*dim->dl;
+						H_tot+=li->H[z][x][y][l]*dim->dl;
+
 					}
 
-					E=((hp*cl)/dim->l[l])/Q-Eg;
+					li->Gn[z][x][y]=tot;
+					li->Gp[z][x][y]=tot;
+					li->Htot[z][x][y]=H_tot;
+					//printf("Htot=%Le\n",H_tot);
+					li->photons_tot[z][x][y]=photons_tot;
 
-					if (E>0.0)
+					for (l=0;l<dim->llen;l++)
 					{
-						li->H[z][x][y][l]=E*Q*li->photons_asb[z][x][y][l];
-					}else
-					{
-						li->H[z][x][y][l]=0.0;
+						li->reflect[l]=(gpow(li->En[0][0][0][l],2.0)+gpow(li->Enz[0][0][0][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
+						li->transmit[l]=(gpow(li->Ep[0][0][dim->ylen-1][l],2.0)+gpow(li->Epz[0][0][dim->ylen-1][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
+
 					}
-
-					photons_tot+=li->photons[z][x][y][l]*dim->dl;
-					tot+=li->photons_asb[z][x][y][l]*dim->dl;
-					H_tot+=li->H[z][x][y][l]*dim->dl;
-
-				}
-
-				li->Gn[z][x][y]=tot;
-				li->Gp[z][x][y]=tot;
-				li->Htot[z][x][y]=H_tot;
-				//printf("Htot=%Le\n",H_tot);
-				li->photons_tot[z][x][y]=photons_tot;
-
-				for (l=0;l<dim->llen;l++)
-				{
-					li->reflect[l]=(gpow(li->En[0][0][0][l],2.0)+gpow(li->Enz[0][0][0][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
-					li->transmit[l]=(gpow(li->Ep[0][0][dim->ylen-1][l],2.0)+gpow(li->Epz[0][0][dim->ylen-1][l],2.0))/(gpow(li->Ep[0][0][0][l],2.0)+gpow(li->Epz[0][0][0][l],2.0));
-
 				}
 			}
 		}
-	}
 
-	//getchar();
+		//getchar();
 
-	if (li->flip_field==TRUE)
+		if (li->flip_field==TRUE)
+		{
+			flip_light_zxy_long_double_y(sim,dim,li->Gn);
+			flip_light_zxy_long_double_y(sim,dim,li->Gp);
+			flip_light_zxy_long_double_y(sim,dim,li->Htot);
+			flip_light_zxy_long_double_y(sim,dim,li->photons_tot);
+
+			flip_light_zxyl_long_double_y(sim,dim,li->H);
+			flip_light_zxyl_long_double_y(sim,dim,li->photons_asb);
+			flip_light_zxyl_long_double_y(sim,dim,li->photons);
+
+		}
+	}else
 	{
-		flip_light_zxy_long_double_y(sim,dim,li->Gn);
-		flip_light_zxy_long_double_y(sim,dim,li->Gp);
-		flip_light_zxy_long_double_y(sim,dim,li->Htot);
-		flip_light_zxy_long_double_y(sim,dim,li->photons_tot);
+		memset_light_zxy_long_double(dim,li->Gn,0);
+		memset_light_zxy_long_double(dim,li->Gp,0);
+		memset_light_zxy_long_double(dim,li->Htot,0);
+		memset_light_zxy_long_double(dim,li->photons_tot,0);
 
-		flip_light_zxyl_long_double_y(sim,dim,li->H);
-		flip_light_zxyl_long_double_y(sim,dim,li->photons_asb);
-		flip_light_zxyl_long_double_y(sim,dim,li->photons);
-
+		memset_light_zxyl_long_double(dim,li->H,0);
+		memset_light_zxyl_long_double(dim,li->photons_asb,0);
+		memset_light_zxyl_long_double(dim,li->photons,0);
 	}
 
 }else
