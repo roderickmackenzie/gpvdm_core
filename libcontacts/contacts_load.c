@@ -95,6 +95,15 @@ void contacts_load(struct simulation *sim,struct device *in)
 			in->contacts[i].active=FALSE;
 		}
 
+		if (strcmp(in->contacts[i].applied_voltage_type,"ground")==0)
+		{
+			in->contacts[i].ground=TRUE;
+		}else
+		{
+			in->contacts[i].ground=FALSE;
+		}
+
+
 		inp_get_string(sim,&inp);	//applied_voltage
 		sscanf(inp_get_string(sim,&inp),"%Le",&(in->contacts[i].voltage_want));
 		in->contacts[i].voltage=0.0;

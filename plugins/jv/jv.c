@@ -307,6 +307,8 @@ fclose(rod);
 		contact_set_active_contact_voltage(sim,in,Vapplied);
 		newton_sim_simple(sim,in);
 
+		contacts_cal_J_and_i(sim,in);
+
 		J=get_equiv_J(sim,in);
 		Vexternal=get_equiv_V(sim,in);
 
@@ -341,7 +343,9 @@ fclose(rod);
 		V_simple_last=V;
 		if (get_dump_status(sim,dump_print_converge)==TRUE)
 		{
-			printf_log(sim," %s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) f()=%Le %lf ms\n",_("Voltage"),V,Vexternal,_("Current"),get_I(in)/1e-3,J,ns->last_error, ns->last_time);
+			char mytemp[200];
+			contacts_state_to_string(sim,mytemp, in);
+			printf_log(sim," %s f()=%Le %lf ms\n",mytemp,ns->last_error, ns->last_time);
 		}
 
 		if (first==FALSE)

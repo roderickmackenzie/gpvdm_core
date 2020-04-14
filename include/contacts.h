@@ -57,7 +57,7 @@ void contacts_force_to_zero(struct simulation *sim,struct device *in);
 void contact_set_all_voltages(struct simulation *sim,struct device *in,gdouble voltage);
 void contact_set_active_contact_voltage(struct simulation *sim,struct device *in,gdouble voltage);
 long double contact_get_active_contact_voltage(struct simulation *sim,struct device *in);
-long double contacts_get_J(struct device *in, int n);
+void contacts_cal_J_and_i(struct simulation *sim,struct device *dev);
 long double contacts_get_Jleft(struct device *in);
 long double contacts_get_Jright(struct device *in);
 int contacts_get_active_contact_left_right(struct device *in);
@@ -77,4 +77,6 @@ int contact_within(struct contact *c, long double x, long double z);
 void contacts_ingress(struct simulation *sim,struct device *in);
 int contact_within_zx(struct contact *c, long double z, long double x);
 void contacts_cal_std_resistance(struct simulation *sim,struct device *dev);
+void contacts_state_to_string(struct simulation *sim,char *out, struct device *dev);
+int contacts_find_ground_contact(struct simulation *sim,struct device *in);
 #endif

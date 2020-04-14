@@ -49,6 +49,21 @@
 #include <shape.h>
 #include <shape_struct.h>
 
+int contacts_find_ground_contact(struct simulation *sim,struct device *in)
+{
+	int i;
+
+	for (i=0;i<in->ncontacts;i++)
+	{
+		if (in->contacts[i].ground==TRUE)
+		{
+			return i;
+		}
+	}
+
+ewe(sim,"No ground contact found\n");
+}
+
 int contacts_get_lcharge_type(struct simulation *sim,struct device *in)
 {
 	int i;
@@ -143,8 +158,14 @@ void contacts_cal_std_resistance(struct simulation *sim,struct device *dev)
 
 	dev->Rshunt=dev->contacts[active].shunt_resistance_sq/dev->area;
 	dev->Rcontact=(dev->contacts[active].contact_resistance_sq+dev->contacts[ground].contact_resistance_sq)/dev->area;
-	printf("Rshunt=%Le Rcontact=%Le\n",dev->Rshunt,dev->Rcontact);
-	getchar();
+	//printf("Rshunt=%Le Rcontact=%Le\n",dev->Rshunt,dev->Rcontact);
+	//getchar();
+
+	for (i=0;i<dev->ncontacts;i++)
+	{
+		printf_log(sim,"%s\tRcontact=%.2Le\t(Ohms) Rshunt=%.2Le\t(Ohms)\n",dev->contacts[i].name,dev->contacts[i].contact_resistance_sq/dev->contacts[active].area,dev->contacts[i].shunt_resistance_sq/dev->contacts[i].area);
+	}
+	//getchar();
 }
 
 void contacts_time_step(struct simulation *sim,struct device *in)
@@ -242,19 +263,24 @@ struct newton_state *ns=&(in->ns);
 }
 
 
-/*void contacts_state_to_string(struct simulation *sim,char *out, struct device *in)
+void contacts_state_to_string(struct simulation *sim,char *out, struct device *dev)
 {
+	int i;
+	char temp[200];
 	long double voltage=0.0;
 	strcpy(out,"");
-	voltage=contact_get_active_contact_voltage(struct simulation *sim,struct device *in)
+	voltage=contact_get_active_contact_voltage(sim,dev);
 
-		printf_log(sim,"Vapplied=%Le\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].area);
-
-	for (i=0;i<in->ncontacts;i++)
+	for (i=0;i<dev->ncontacts;i++)
 	{
-		printf_log(sim,"Vapplied=%Le\n",in->contacts[i].name,in->contacts[i].voltage,in->contacts[i].area);
+		sprintf(temp,"%s= %.2Lf V, %.2Le A/m^2",dev->contacts[i].name,dev->contacts[i].voltage,dev->contacts[i].J);
+		strcat(out,temp);
+		if (i<dev->ncontacts-1)
+		{
+			strcat(out,",\t");
+		}
 	}
-}*/
+}
 
 void contacts_force_to_zero(struct simulation *sim,struct device *in)
 {
@@ -804,43 +830,51 @@ for (x=0;x<dim->xlen;x++)
 }
 
 //Average the current over both contacts
-long double contacts_get_J(struct device *in, int n)
+void contacts_cal_J_and_i(struct simulation *sim,struct device *dev)
 {
+int c;
 int i;
 int x;
 int z;
 
 long double tot=0.0;
-long double count=0.0;
-struct dimensions *dim=&in->ns.dim;
+struct dimensions *dim=&dev->ns.dim;
+long double count[10];
 
+for (c=0;c<dev->ncontacts;c++)
+{
+	dev->contacts[c].J=0.0;
+	dev->contacts[c].i=0.0;
+	count[c]=0;
+}
 
 for (x=0;x<dim->xlen;x++)
 {
 		for (z=0;z<dim->zlen;z++)
 		{
-			for (i=0;i<in->ncontacts;i++)
+			c=dev->n_contact_y1[z][x];
+			if (c>=0)
 			{
-				if (in->n_contact_y1[z][x]==n)
-				{
-					tot+=in->Jp_y1[z][x]+in->Jn_y1[z][x];
-					count=count+1.0;						//this will need updating for meshes which change
-				}
+				dev->contacts[c].J+=dev->Jp_y1[z][x]+dev->Jn_y1[z][x];
+				count[c]+=1.0;						//this will need updating for meshes which change
+			}
 
-				if (in->n_contact_y0[z][x]==n)
-				{
-					tot+=in->Jp_y0[z][x]+in->Jn_y0[z][x];
-					count=count+1.0;						//this will need updating for meshes which change
-				}
+			c=dev->n_contact_y0[z][x];
+			if (c>=0)
+			{
+				dev->contacts[c].J+=dev->Jp_y0[z][x]+dev->Jn_y0[z][x];
+				count[c]+=1.0;						//this will need updating for meshes which change
 			}
 		}
 }
 
-tot=tot/count;
+for (c=0;c<dev->ncontacts;c++)
+{
+	dev->contacts[c].J/=count[c];
+	dev->contacts[c].J*=dev->flip_current;
+	dev->contacts[c].i=dev->contacts[c].J*dev->contacts[c].area;
+}
 
-tot*=in->flip_current;
-
-return tot;
 }
 
 void contacts_passivate(struct simulation *sim,struct device *in)

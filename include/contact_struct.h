@@ -47,7 +47,10 @@ struct contact
 {
 	char name[100];
 	int position;
+
 	int active;
+	int ground;
+
 	char applied_voltage_type[100];
 	gdouble voltage;
 	long double voltage_want;
@@ -66,6 +69,9 @@ struct contact
 	int type;
 	long double ve0;
 	long double vh0;
+	long double J;
+	long double i;
+
 };
 
 #endif

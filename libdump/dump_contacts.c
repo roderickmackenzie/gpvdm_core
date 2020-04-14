@@ -140,14 +140,29 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 		int i=0;
 		gdouble x_value=0.0;
 		long double J=0.0;
-		long double V_loss=0.0;
+		long double Vdelta=0.0;
+
+		int ground=0;
+		int active=0;
+		ground=contacts_find_ground_contact(sim,in);
+		active=contact_get_active_contact_index(sim,in);
+		long double Jshunt=0.0;
+		long double Vground=in->contacts[ground].J*in->contacts[ground].contact_resistance_sq;
+		long double Vactive=in->contacts[ground].J*in->contacts[ground].contact_resistance_sq;
+		long double Vdevice=contact_get_active_contact_voltage(sim,in);
+		//printf("%Le %Le %Le\n",Vground,Vactive,Vdevice);
+		x_value=Vground+Vactive+Vdevice;
+		//getchar();
+
 		for (i=0;i<in->ncontacts;i++)
 		{
-			J=contacts_get_J(in,i);
-			x_value=contact_get_active_contact_voltage(sim,in);
-			V_loss=in->contacts[i].area*J*10.0;//in->Rcontact;
-	//		inter_append(&(store->v),x_value,contact_get_voltage(sim,in,i));
-			inter_append(&(store->J[i]),x_value,contacts_get_J(in,i));
+			J=in->contacts[i].J;
+			Vdelta=(in->contacts[i].voltage-in->contacts[ground].voltage);
+
+			Jshunt=Vdelta/in->contacts[i].shunt_resistance_sq;
+
+			inter_append(&(store->J[i]),x_value,J+Jshunt);
+			
 		}
 
 	}
