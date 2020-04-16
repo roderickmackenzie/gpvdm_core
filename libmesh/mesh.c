@@ -624,7 +624,7 @@ void mesh_numerate_points(struct simulation *sim,struct device *in)
 		}
 
 	}
-
+//getchar();
 }
 void mesh_cal_layer_widths(struct device *in)
 {

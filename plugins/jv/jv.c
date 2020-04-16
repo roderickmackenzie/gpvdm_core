@@ -72,28 +72,29 @@ void jv_voltage_step(struct simulation *sim,struct device *in,long double *V, lo
 	int steps=*Vstep/dV;
 	long double Vexternal;
 	long double J;
-
-	if (*Vstep>0.1)
+	if (in->dynamic_mesh==TRUE)
 	{
-		remesh_shrink(sim,in);
-		//printf("that's never going to work\n");
-		for (i=0;i<steps;i++)
+		if (*Vstep>0.1)
 		{
-			contact_set_active_contact_voltage(sim,in,Vapplied);
-			Vapplied+=dV;
-			//printf_log(sim,".");
-			if (get_dump_status(sim,dump_print_converge)==TRUE)
+			remesh_shrink(sim,in);
+			//printf("that's never going to work\n");
+			for (i=0;i<steps;i++)
 			{
-				Vexternal=get_equiv_V(sim,in);
-				J=get_equiv_J(sim,in);
-				printf_log(sim,"*%s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),Vapplied,Vexternal,_("Current"),get_I(in)/1e-3,J,in->ns.last_error);
+				contact_set_active_contact_voltage(sim,in,Vapplied);
+				Vapplied+=dV;
+				//printf_log(sim,".");
+				if (get_dump_status(sim,dump_print_converge)==TRUE)
+				{
+					Vexternal=get_equiv_V(sim,in);
+					J=get_equiv_J(sim,in);
+					printf_log(sim,"*%s=%Lf (%Lf) %s = %Le mA (%Le A/m^2) %Le\n",_("Voltage"),Vapplied,Vexternal,_("Current"),get_I(in)/1e-3,J,in->ns.last_error);
+				}
+				newton_sim_simple(sim,in);
 			}
-			newton_sim_simple(sim,in);
+
+			remesh_reset(sim,in,0.0);
 		}
-
-		remesh_reset(sim,in,0.0);
 	}
-
 //	printf_log(sim,"\n");
 	*V+=*Vstep;
 
@@ -286,6 +287,8 @@ long double n_steps=0.0;
 char send_data[200];
 long double V_simple_last=-1.0;
 int power_min_pos=0;
+int dump_step=0;
+
 struct newton_state *ns=&(in->ns);
 
 n_steps=get_step_n(config.Vstep,config.jv_step_mul,config.Vstart);
@@ -401,9 +404,15 @@ fclose(rod);
 		Vlast=Vexternal;
 		Pdenlast=Pden;
 		first=FALSE;
-		if (config.dump_verbocity==dump_verbosity_everything)
+
+		if (config.dump_verbocity!=0)
 		{
-			dump_write_to_disk(sim,in);
+			if (dump_step>=config.dump_verbocity)
+			{
+				dump_write_to_disk(sim,in);
+				dump_step=0;
+			}
+			dump_step++;
 		}
 
 		long double optical_power_m2=calculate_photon_power_m2(sim,in);
@@ -709,8 +718,7 @@ void jv_load_config(struct simulation *sim,struct jv* in,struct device *dev, cha
 	inp_search_gdouble(sim,&inp,&(in->jv_Rcontact),"#jv_Rcontact");
 	in->jv_single_point=inp_search_english(sim,&inp,"#jv_single_point");
 	in->jv_light_efficiency=gfabs(in->jv_light_efficiency);
-
-	in->dump_verbocity=inp_search_english(sim,&inp,"#dump_verbosity");
+	inp_search_int(sim,&inp,&(in->dump_verbocity),"#dump_verbosity");
 
 	inp_free(sim,&inp);
 

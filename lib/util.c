@@ -375,14 +375,6 @@ if (strcmp(temp,"ray_emission_electrical_mesh")==0)
 {
 	return ray_emission_electrical_mesh;
 }else
-if (strcmp(temp,"dump_verbosity_everything")==0)
-{
-	return dump_verbosity_everything;
-}else
-if (strcmp(temp,"dump_verbosity_key_results")==0)
-{
-	return dump_verbosity_key_results;
-}else
 if (strcmp(temp,"measure_voltage")==0)
 {
 	return measure_voltage;

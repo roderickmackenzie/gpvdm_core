@@ -219,12 +219,12 @@ struct heat* thermal=&(in->thermal);
 		}
 	}
 
-	z=0;
+	/*z=0;
 	for (x=0;x<dim->xlen;x++)
 	{
 		in->mun[z][x][dim->ylen-1]=1e-20;
 		in->mup[z][x][dim->ylen-1]=1e-20;//=get_p_mu(in,in->imat[z][x][y]);
-	}
+	}*/
 
 	contacts_ingress(sim,in);
 }

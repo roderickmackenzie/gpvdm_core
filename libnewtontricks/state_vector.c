@@ -1,4 +1,4 @@
-//
+// 
 // General-purpose Photovoltaic Device Model gpvdm.com - a drift diffusion
 // base/Shockley-Read-Hall model for 1st, 2nd and 3rd generation solarcells.
 // The model can simulate OLEDs, Perovskite cells, and OFETs.
@@ -33,61 +33,29 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-/** @file perovskite.c
-	@brief A perovskite ion solver.
+/** @file plugin.c
+	@brief Interface for Newton solver.
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <dump.h>
-#include <dos.h>
-#include "sim.h"
-#include "solver_interface.h"
-#include "dat_file.h"
-#include "log.h"
-#include <cal_path.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <lang.h>
-#include <inp.h>
-#include <memory.h>
-#include <newton_tricks.h>
 
-long double newton_externalv_simple_perovskite(struct simulation *sim,struct device *in,gdouble V)
+#include "newton.h"
+#include <solver_interface.h>
+#include <dll_export.h>
+
+struct dll_interface *fun;
+
+EXPORT int dll_solve_cur(struct simulation *sim,struct device *in, int z, int x)
 {
-	long double i0;
-	return i0;
+return dllinternal_solve_cur(sim,in,z,x);
 }
 
-long double newton_externv_perovskite(struct simulation *sim,struct device *in,gdouble Vtot,int usecap)
+EXPORT void dll_solver_realloc(struct simulation *sim,struct device *in)
 {
-	int i=0;
-	int ii=0;
-	long double i0;
-	long double i0_last=1000.0;
-	long double error=0.0;
-	long double first_error=0.0;
-	for (i==0;ii<10;ii++)
-	{
-		for (i=0;i<3;i++)
-		{
-			i0=newton_externv(sim,in,Vtot,usecap);
-			error=fabsl(i0-i0_last);
-			//			printf_log(sim,"%s %Le %d\n",_("Perovskite ion"),error,ii);printf_log(sim,"%s %Le %d\n",_("Perovskite ion"),error,ii);
-
-			if (error<1e-6)
-			{
-				break;
-			}
-
-			i0_last=i0;
-		}
-		//getchar();
-	}
-
-	printf_log(sim,"%s %Le\n",_("Electrical+perovskite solver f(x)="),error);
-	return i0;
+dllinternal_solver_realloc(sim,in,1);
 }
 
-
+EXPORT void dll_solver_free_memory(struct simulation *sim,struct device *in)
+{
+dllinternal_solver_free_memory(sim,in);
+}
 

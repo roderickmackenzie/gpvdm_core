@@ -65,6 +65,7 @@ long double mul_y;
 long double mul_z;
 
 long double ***temp_3d;
+long double ***temp_3d_b;
 long double **temp_top;
 long double **temp_btm;
 int band;
@@ -78,7 +79,7 @@ buffer_init(&buf);
 	struct newton_state *ns=&(in->ns);
 	struct dimensions *dim=&in->ns.dim;
 	malloc_zxy_gdouble(dim, &temp_3d);
-
+	malloc_zxy_gdouble(dim, &temp_3d_b);
 	buffer_add_dir(sim,out_dir);
 
 	cal_J_drift_diffusion(in);
@@ -517,17 +518,20 @@ buffer_init(&buf);
 	strcpy(buf.section_two,_("Material parameters"));
 	buf.time=in->time;
 	buf.Vexternal=Vexternal;
+	buf.logscale_data=TRUE;
 	buffer_add_info(sim,&buf);
 
-	x=0;
-	y=0;
-	z=0;
+	zxy_set_gdouble(dim, temp_3d_b, 0.0);
+	three_d_add_gdouble(dim, temp_3d_b, in->nt_all);
+	three_d_add_gdouble(dim, temp_3d_b, in->n);
 
-	for (y=0;y<dim->ylen;y++)
-	{
-		sprintf(temp,"%Le %Le\n",dim->ymesh[y],in->mun[z][x][y]*in->n[z][x][y]/(in->nt_all[z][x][y]+in->n[z][x][y]));
-		buffer_add_string(&buf,temp);
-	}
+	zxy_set_gdouble(dim, temp_3d, 0.0);
+	three_d_add_gdouble(dim, temp_3d, in->mun);
+	zxy_long_double_mul_by_zxy_long_double(dim, temp_3d, in->n);
+	zxy_long_double_div_by_zxy_long_double(dim, temp_3d, temp_3d_b);
+	buffer_add_3d_data(sim,&buf,dim, temp_3d);
+
+
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -541,12 +545,19 @@ buffer_init(&buf);
 	strcpy(buf.section_two,_("Material parameters"));
 	buf.time=in->time;
 	buf.Vexternal=Vexternal;
+	buf.logscale_data=TRUE;
 	buffer_add_info(sim,&buf);
-	for (y=0;y<dim->ylen;y++)
-	{
-		sprintf(temp,"%Le %Le\n",dim->ymesh[y],in->mup[z][x][y]*in->p[z][x][y]/(in->pt_all[z][x][y]+in->p[z][x][y]));
-		buffer_add_string(&buf,temp);
-	}
+
+	zxy_set_gdouble(dim, temp_3d_b, 0.0);
+	three_d_add_gdouble(dim, temp_3d_b, in->pt_all);
+	three_d_add_gdouble(dim, temp_3d_b, in->p);
+
+	zxy_set_gdouble(dim, temp_3d, 0.0);
+	three_d_add_gdouble(dim, temp_3d, in->mup);
+	zxy_long_double_mul_by_zxy_long_double(dim, temp_3d, in->p);
+	zxy_long_double_div_by_zxy_long_double(dim, temp_3d, temp_3d_b);
+	buffer_add_3d_data(sim,&buf,dim, temp_3d);
+
 	buffer_dump_path(sim,out_dir,name,&buf);
 	buffer_free(&buf);
 
@@ -835,6 +846,8 @@ buffer_init(&buf);
 	buf.Vexternal=Vexternal;
 	buffer_add_info(sim,&buf);
 	gdouble deriv=0.0;
+	x=0;
+	z=0;
 	for (y=dim->ylen-1;y>1;y--)
 	{
 
@@ -851,4 +864,5 @@ buffer_init(&buf);
 
 
 	free_zxy_gdouble(dim, &temp_3d);
+	free_zxy_gdouble(dim, &temp_3d_b);
 }

@@ -44,6 +44,8 @@
 void three_d_copy_gdouble(struct dimensions *dim, gdouble ***dst, gdouble ***src);
 void zxy_mul_gdouble(struct dimensions *dim, gdouble ***src, gdouble val);
 void zxy_div_gdouble(struct dimensions *dim, gdouble ***src, gdouble val);
+void zxy_long_double_mul_by_zxy_long_double(struct dimensions *dim, gdouble ***a, gdouble ***b);
+void zxy_long_double_div_by_zxy_long_double(struct dimensions *dim, gdouble ***a, gdouble ***b);
 
 void malloc_zx_gdouble(struct dimensions *dim, gdouble * (**var));
 void free_zx_gdouble(struct dimensions *dim, gdouble * (**var));

@@ -129,8 +129,8 @@
 #define dump_remove_dos_cache 38
 
 //Atempt to put output in files
-#define dump_verbosity_key_results	0	
-#define dump_verbosity_everything		1
+//#define dump_verbosity_key_results	0	
+//#define dump_verbosity_everything		1
 //dos types
 #define dos_exp		0
 #define dos_an		1

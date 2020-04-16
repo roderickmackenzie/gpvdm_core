@@ -66,6 +66,7 @@ void dump_contacts_init(struct simulation *sim,struct device *in,struct contacts
 		for (i=0;i<in->ncontacts;i++)
 		{
 			inter_init(sim,&(store->J[i]));
+			inter_init(sim,&(store->J_external[i]));
 		}
 	}
 }
@@ -129,6 +130,33 @@ void dump_contacts_save(struct simulation *sim,struct device *in,struct contacts
 			buffer_dump_path(sim,sim->output_path,temp,&buf);
 			buffer_free(&buf);
 
+
+			buffer_malloc(&buf);
+			buf.y_mul=1.0;
+			buf.data_mul=1.0;
+			sprintf(buf.title,"%s (%s)",_("Voltage - Current"), in->contacts[i].name);
+			strcpy(buf.type,"xy");
+			strcpy(buf.y_label,_("Voltage"));
+			strcpy(buf.y_units,"V");
+			strcpy(buf.data_label,_("Current"));
+			strcpy(buf.data_units,"A");
+			buf.logscale_y=0;
+			buf.logscale_data=0;
+			buf.x=1;
+			buf.y=store->J_external[i].len;
+			buf.z=1;
+			buffer_add_info(sim,&buf);
+
+			for (ii=0;ii<store->J_external[i].len;ii++)
+			{
+				sprintf(string,"%Le %Le\n",store->J_external[i].x[ii],store->J_external[i].data[ii]*in->contacts[i].area);
+				buffer_add_string(&buf,string);
+			}
+
+			sprintf(temp,"iv_contact_external%d.dat",i);
+			buffer_dump_path(sim,sim->output_path,temp,&buf);
+			buffer_free(&buf);
+
 		}
 	}
 }
@@ -151,7 +179,7 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 		long double Vactive=in->contacts[ground].J*in->contacts[ground].contact_resistance_sq;
 		long double Vdevice=contact_get_active_contact_voltage(sim,in);
 		//printf("%Le %Le %Le\n",Vground,Vactive,Vdevice);
-		x_value=Vground+Vactive+Vdevice;
+		x_value=Vdevice;//Vground+Vactive+
 		//getchar();
 
 		for (i=0;i<in->ncontacts;i++)
@@ -161,7 +189,9 @@ void dump_contacts_add_data(struct simulation *sim,struct device *in,struct cont
 
 			Jshunt=Vdelta/in->contacts[i].shunt_resistance_sq;
 
-			inter_append(&(store->J[i]),x_value,J+Jshunt);
+			//printf("%Le %Le\n",J,Jshunt);
+			inter_append(&(store->J[i]),x_value,J);
+			inter_append(&(store->J_external[i]),x_value,J+Jshunt);
 			
 		}
 
@@ -179,6 +209,7 @@ void dump_contacts_free(struct simulation *sim,struct device *in,struct contacts
 		{
 			//inter_free(&(store->v[i]));
 			inter_free(&(store->J[i]));
+			inter_free(&(store->J_external[i]));
 		}
 	}
 }

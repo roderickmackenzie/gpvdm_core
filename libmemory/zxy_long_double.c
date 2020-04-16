@@ -244,6 +244,46 @@ int z=0;
 
 }
 
+void zxy_long_double_mul_by_zxy_long_double(struct dimensions *dim, gdouble ***a, gdouble ***b)
+{
+int x=0;
+int y=0;
+int z=0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				a[z][x][y]*=b[z][x][y];
+			}
+
+		}
+	}
+
+}
+
+void zxy_long_double_div_by_zxy_long_double(struct dimensions *dim, gdouble ***a, gdouble ***b)
+{
+int x=0;
+int y=0;
+int z=0;
+
+	for (z = 0; z < dim->zlen; z++)
+	{
+		for (x = 0; x < dim->xlen; x++)
+		{
+			for (y = 0; y < dim->ylen; y++)
+			{
+				a[z][x][y]/=b[z][x][y];
+			}
+
+		}
+	}
+
+}
+
 void zxy_div_gdouble(struct dimensions *dim, gdouble ***src, gdouble val)
 {
 int x=0;

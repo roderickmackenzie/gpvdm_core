@@ -33,13 +33,42 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-/** @file config.h
-	@brief Header file for config files.
+
+/** @file epitaxy.h
+	@brief Read the epitaxy from the epitaxy.inp file.
 */
 
-#ifndef config_h
-#define config_h
+
+#ifndef epitaxy_h
+#define epitaxy_h
+#include "advmath.h"
+#include <sim_struct.h>
+#include <shape_struct.h>
+#include <epitaxy_struct.h>
 #include <device.h>
-void load_config(struct simulation *sim,struct device *in);
-void config_read_line_string_decode_to_int(int *data,FILE *in,char *id);
+
+void epitaxy_load(struct simulation *sim,struct epitaxy *in, char *file);
+gdouble epitaxy_get_electrical_length(struct epitaxy *in);
+gdouble epitaxy_get_optical_length(struct epitaxy *in);
+int epitaxy_get_layer(struct epitaxy *in,gdouble pos);
+int epitaxy_get_electrical_material_layer(struct epitaxy *in,gdouble pos);
+gdouble epitaxy_get_device_start(struct epitaxy *in);
+gdouble epitaxy_get_device_stop(struct epitaxy *in);
+gdouble epitaxy_get_device_start_i(struct epitaxy *in);
+int epitaxy_get_epitaxy_layer_using_electrical_pos(struct epitaxy *in,gdouble pos);
+void epitaxy_load_materials(struct simulation *sim,struct epitaxy *in);
+void epitaxy_free(struct simulation *sim,struct epitaxy *in);
+void epitaxy_free_materials(struct epitaxy *in);
+void epitaxy_load_dos_files(struct simulation *sim,struct epitaxy *in, char *dos_file,char *lumo_file,char *homo_file);
+void epitaxy_load_emission(struct simulation *sim,struct epi_layer *layer);
+void epitaxy_mask(struct simulation *sim,struct device *dev);
+void epitaxy_shapes_load(struct simulation *sim,struct epitaxy *in);
+
+//optical
+long double epitaxy_get_optical_problem_start(struct epitaxy *in);
+long double epitaxy_get_optical_problem_stop(struct epitaxy *in);
+
+//heat
+long double epitaxy_get_heat_problem_start(struct epitaxy *in);
+long double epitaxy_get_heat_problem_stop(struct epitaxy *in);
 #endif

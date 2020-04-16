@@ -46,6 +46,7 @@ struct contacts_vti_store
 	struct math_xy x[10];
 	struct math_xy v[10];
 	struct math_xy J[10];
+	struct math_xy J_external[10];
 };
 
 void dump_contacts_init(struct simulation *sim,struct device *in,struct contacts_vti_store *store);

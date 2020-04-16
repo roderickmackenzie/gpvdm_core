@@ -54,7 +54,11 @@ int shape_in_shape(struct simulation *sim,struct shape *s,long double z,long dou
 {
 	if ((x>s->x0)&&(x<(s->x0+s->dx)))
 	{
-		if ((y>s->y0)&&(y<((s->y0)+(s->dy))))
+		//printf("%s\n",s->name);
+		//printf("%Le %Le\n",s->x0,s->dx);
+		//printf("%Le %Le %Le\n",s->y0,y,s->y0+s->dy);
+
+		if ((y>s->y0)&&(y<(s->y0+s->dy)))
 		{
 			return 0;
 		}
@@ -74,8 +78,7 @@ int shape_get_index(struct simulation *sim,struct epitaxy *in,long double x,long
 		for (i=0;i<in->layer[l].nshape;i++)
 		{
 			s=&in->layer[l].shapes[i];
-
-			if (shape_in_shape(sim,s,z,x,y)==0)
+			if (shape_in_shape(sim,s,z,x,y+in->device_start)==0)
 			{
 				return s->dos_index;
 			}
